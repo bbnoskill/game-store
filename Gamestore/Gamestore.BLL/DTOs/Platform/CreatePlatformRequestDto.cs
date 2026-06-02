@@ -2,5 +2,5 @@
 
 public class CreatePlatformRequestDto
 {
-    public CreatePlatformDto Plartform { get; set; } = null!;
+    public CreatePlatformDto Platform { get; set; } = null!;
 }

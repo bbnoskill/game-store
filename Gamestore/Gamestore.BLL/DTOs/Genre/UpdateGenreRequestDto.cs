@@ -2,5 +2,5 @@
 
 public class UpdateGenreRequestDto
 {
-    public UpdateGenreRequestDto Genre { get; set; } = null!;
+    public UpdateGenreDto Genre { get; set; } = null!;
 }

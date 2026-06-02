@@ -2,5 +2,5 @@
 
 public class UpdatePlatformRequestDto
 {
-    public UpdatePlatformDto Plartform { get; set; } = null!;
+    public UpdatePlatformDto Platform { get; set; } = null!;
 }

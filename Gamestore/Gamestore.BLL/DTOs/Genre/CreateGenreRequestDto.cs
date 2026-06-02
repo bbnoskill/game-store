@@ -2,5 +2,6 @@
 
 public class CreateGenreRequestDto
 {
-    public CreateGenreRequestDto Genre { get; set; } = null!;
+    public CreateGenreDto Genre { get; set; } = null!;
+    
 }
