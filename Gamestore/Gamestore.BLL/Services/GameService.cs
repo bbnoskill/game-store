@@ -5,21 +5,12 @@ using Gamestore.DAL.UnitOfWork;
 
 namespace Gamestore.BLL.Services;
 
-public class GameService : IGameService
+public class GameService(IUnitOfWork unitOfWork) : IGameService
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public GameService(IUnitOfWork unitOfWork)
-    {
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<GameDto?> GetByKeyAsync(string key)
     {
-        var game = await _unitOfWork.Games.GetByKeyAsync(key);
-        if (game is null) return null;
-
-        return new GameDto
+        var game = await unitOfWork.Games.GetByKeyAsync(key);
+        return game == null ? null : new GameDto
         {
             Id = game.Id,
             Name = game.Name,
@@ -30,10 +21,8 @@ public class GameService : IGameService
 
     public async Task<GameDto?> GetByIdAsync(Guid id)
     {
-        var game = await _unitOfWork.Games.GetByIdAsync(id);
-        if (game is null) return null;
-
-        return new GameDto
+        var game = await unitOfWork.Games.GetByIdAsync(id);
+        return game == null ? null : new GameDto
         {
             Id = game.Id,
             Name = game.Name,
@@ -44,7 +33,7 @@ public class GameService : IGameService
 
     public async Task<IEnumerable<GameDto>> GetAllAsync()
     {
-        var games = await _unitOfWork.Games.GetAllAsync();
+        var games = await unitOfWork.Games.GetAllAsync();
         return games.Select(game => new GameDto
         {
             Id = game.Id,
@@ -56,7 +45,7 @@ public class GameService : IGameService
 
     public async Task<IEnumerable<GameDto>> GetByGenreAsync(Guid genreId)
     {
-        var games = await _unitOfWork.Games.GetByGenreAsync(genreId);
+        var games = await unitOfWork.Games.GetByGenreAsync(genreId);
         return games.Select(game => new GameDto
         {
             Id = game.Id,
@@ -68,7 +57,7 @@ public class GameService : IGameService
 
     public async Task<IEnumerable<GameDto>> GetByPlatformAsync(Guid platformId)
     {
-        var games = await _unitOfWork.Games.GetByPlatformAsync(platformId);
+        var games = await unitOfWork.Games.GetByPlatformAsync(platformId);
 
         return games.Select(game => new GameDto
         {
@@ -88,26 +77,29 @@ public class GameService : IGameService
             Key = string.IsNullOrEmpty(request.Game.Key) ? GenerateKey(request.Game.Key) : request.Game.Key,
             Description = request.Game.Description,
         };
-        
-        game.GameGenres = request.Genres.Select(genreId=>new GameGenre
+
+        game.GameGenres = [..request.Genres.Select(genreId => new GameGenre
         {
             GameId = game.Id,
-            GenreId = genreId
-        }).ToList();
-        
-        game.GamePlatforms=request.Platforms.Select(platformId=>new GamePlatform
-        {
-            GameId = game.Id,
-            PlatformId = platformId
-        }).ToList();
-        
-        await _unitOfWork.Games.AddAsync(game);
-        await _unitOfWork.SaveChangesAsync();
+            GenreId = genreId,
+        })];
+
+        game.GamePlatforms =
+        [
+            ..request.Platforms.Select(platformId => new GamePlatform
+            {
+                GameId = game.Id,
+                PlatformId = platformId,
+            })
+        ];
+
+        await unitOfWork.Games.AddAsync(game);
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(UpdateGameRequestDto request)
     {
-        var game = await _unitOfWork.Games.GetByIdAsync(request.Game.Id) 
+        var game = await unitOfWork.Games.GetByIdAsync(request.Game.Id)
                    ?? throw new KeyNotFoundException($"Game with id {request.Game.Id} not found");
 
         game.Name = request.Game.Name;
@@ -116,34 +108,38 @@ public class GameService : IGameService
             : request.Game.Key;
         game.Description = request.Game.Description;
 
-        game.GameGenres = request.Genres.Select(genreId => new GameGenre
-        {
-            GameId = game.Id,
-            GenreId = genreId
-        }).ToList();
+        game.GameGenres =
+        [
+            ..request.Genres.Select(genreId => new GameGenre
+            {
+                GameId = game.Id,
+                GenreId = genreId,
+            })
+        ];
 
-        game.GamePlatforms = request.Platforms.Select(platformId => new GamePlatform
-        {
-            GameId = game.Id,
-            PlatformId = platformId
-        }).ToList();
+        game.GamePlatforms =
+        [
+            ..request.Platforms.Select(platformId => new GamePlatform
+            {
+                GameId = game.Id,
+                PlatformId = platformId,
+            })
+        ];
 
-        await _unitOfWork.Games.UpdateAsync(game);
-        await _unitOfWork.SaveChangesAsync();
+        await unitOfWork.Games.UpdateAsync(game);
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(string key)
     {
-        var game = await _unitOfWork.Games.GetByKeyAsync(key)
+        var game = await unitOfWork.Games.GetByKeyAsync(key)
             ?? throw new KeyNotFoundException($"Game with key {key} not found");
-        await _unitOfWork.Games.DeleteAsync(game);
-        await _unitOfWork.SaveChangesAsync();
+        await unitOfWork.Games.DeleteAsync(game);
+        await unitOfWork.SaveChangesAsync();
     }
-    
+
     private static string GenerateKey(string name)
     {
-        return name.ToLower().Replace(" ", "-");
+        return name.ToLower(System.Globalization.CultureInfo.CurrentCulture).Replace(" ", "-");
     }
-    
 }
-    

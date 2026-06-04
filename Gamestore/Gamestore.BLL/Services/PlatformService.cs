@@ -5,20 +5,12 @@ using Gamestore.DAL.UnitOfWork;
 
 namespace Gamestore.BLL.Services;
 
-public class PlatformService : IPlatformService
+public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public PlatformService(IUnitOfWork unitOfWork)
-    {
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<PlatformDto?> GetByIdAsync(Guid id)
     {
-        var platform = await _unitOfWork.Platforms.GetByIdAsync(id);
-        if (platform == null) return null;
-        return new PlatformDto
+        var platform = await unitOfWork.Platforms.GetByIdAsync(id);
+        return platform == null ? null : new PlatformDto
         {
             Id = platform.Id,
             Type = platform.Type,
@@ -27,7 +19,7 @@ public class PlatformService : IPlatformService
 
     public async Task<IEnumerable<PlatformDto>> GetAllAsync()
     {
-        var platforms = await _unitOfWork.Platforms.GetAllAsync();
+        var platforms = await unitOfWork.Platforms.GetAllAsync();
         return platforms.Select(platform => new PlatformDto
         {
             Id = platform.Id,
@@ -35,9 +27,9 @@ public class PlatformService : IPlatformService
         });
     }
 
-    public async Task<IEnumerable<PlatformDto>> GetByGameKeyAsync(string key)
+    public async Task<IEnumerable<PlatformDto>> GetByGameKeyAsync(string gameKey)
     {
-        var platforms = await _unitOfWork.Platforms.GetByGameKeyAsync(key);
+        var platforms = await unitOfWork.Platforms.GetByGameKeyAsync(gameKey);
         return platforms.Select(platform => new PlatformDto
         {
             Id = platform.Id,
@@ -52,25 +44,25 @@ public class PlatformService : IPlatformService
             Id = Guid.NewGuid(),
             Type = request.Platform.Type,
         };
-        
-        await _unitOfWork.Platforms.AddAsync(platform);
-        await _unitOfWork.SaveChangesAsync();
+
+        await unitOfWork.Platforms.AddAsync(platform);
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(UpdatePlatformRequestDto request)
     {
-        var platform = await _unitOfWork.Platforms.GetByIdAsync(request.Platform.Id)
+        var platform = await unitOfWork.Platforms.GetByIdAsync(request.Platform.Id)
             ?? throw new KeyNotFoundException($"Platform with id {request.Platform.Id} not found");
         platform.Type = request.Platform.Type;
-        
-        await _unitOfWork.Platforms.UpdateAsync(platform);
-        await _unitOfWork.SaveChangesAsync();
+
+        await unitOfWork.Platforms.UpdateAsync(platform);
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var platform = await _unitOfWork.Platforms.GetByIdAsync(id)
+        var platform = await unitOfWork.Platforms.GetByIdAsync(id)
                        ?? throw new KeyNotFoundException($"Platform with id {id} not found");
-        await _unitOfWork.Platforms.DeleteAsync(platform);
+        await unitOfWork.Platforms.DeleteAsync(platform);
     }
 }

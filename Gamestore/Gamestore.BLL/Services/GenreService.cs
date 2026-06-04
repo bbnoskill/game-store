@@ -12,12 +12,7 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
     public async Task<GenreDto?> GetByIdAsync(Guid id)
     {
         var genre = await _unitOfWork.Genres.GetByIdAsync(id);
-        if (genre == null)
-        {
-            return null;
-        }
-
-        return new GenreDto
+        return genre == null ? null : new GenreDto
         {
             Id = genre.Id,
             Name = genre.Name,
@@ -36,9 +31,9 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         });
     }
 
-    public async Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string key)
+    public async Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string gameKey)
     {
-        var genres = await _unitOfWork.Genres.GetByGameKeyAsync(key);
+        var genres = await _unitOfWork.Genres.GetByGameKeyAsync(gameKey);
         return genres.Select(genre => new GenreDto
         {
             Id = genre.Id,

@@ -3,5 +3,4 @@
 public class CreateGenreRequestDto
 {
     public CreateGenreDto Genre { get; set; } = null!;
-    
 }
