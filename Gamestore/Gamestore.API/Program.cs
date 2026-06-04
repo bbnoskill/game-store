@@ -2,7 +2,6 @@ using Gamestore.API.Middleware;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Data;
-using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Implementations;
 using Gamestore.DAL.Repositories.Interfaces;
 using Gamestore.DAL.UnitOfWork;

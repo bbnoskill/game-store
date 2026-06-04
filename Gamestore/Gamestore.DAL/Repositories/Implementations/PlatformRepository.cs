@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Repositories.Implementations;
 
-public class PlatformRepository: IPlatformRepository
+public class PlatformRepository(GamestoreContext context) : IPlatformRepository
 {
-    private readonly GamestoreContext _context;
-
-    public PlatformRepository(GamestoreContext context)
-    {
-        _context = context;
-    }
+    private readonly GamestoreContext _context = context;
 
     public async Task<Platform?> GetByIdAsync(Guid id)
     {
@@ -23,12 +18,12 @@ public class PlatformRepository: IPlatformRepository
     {
         return await _context.Platforms.ToListAsync();
     }
-    
+
     public async Task<IEnumerable<Platform>> GetByGameKeyAsync(string gameKey)
     {
         return await _context.Platforms
-            .Where(platform => platform.GamePlatforms.Any(gamePlatform => gamePlatform.Game.Key==gameKey))
-            .ToListAsync(); 
+            .Where(platform => platform.GamePlatforms.Any(gamePlatform => gamePlatform.Game.Key == gameKey))
+            .ToListAsync();
     }
 
     public async Task AddAsync(Platform platform)
@@ -47,5 +42,4 @@ public class PlatformRepository: IPlatformRepository
         _context.Platforms.Remove(platform);
         return Task.CompletedTask;
     }
-    
 }

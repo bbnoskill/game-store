@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -10,6 +9,10 @@ namespace Gamestore.DAL.Migrations
     /// <inheritdoc />
     public partial class InitialCreate : Migration
     {
+        private static readonly string[] Columns = ["Id", "Name", "ParentGenreId"];
+        private static readonly string[] ColumnsArray = ["Id", "Type"];
+        private static readonly string[] ColumnsValue = ["Id", "Name", "ParentGenreId"];
+
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -20,7 +23,7 @@ namespace Gamestore.DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -33,7 +36,7 @@ namespace Gamestore.DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ParentGenreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ParentGenreId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -51,7 +54,7 @@ namespace Gamestore.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    Type = table.Column<string>(type: "nvarchar(450)", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -63,7 +66,7 @@ namespace Gamestore.DAL.Migrations
                 columns: table => new
                 {
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GenreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    GenreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -87,7 +90,7 @@ namespace Gamestore.DAL.Migrations
                 columns: table => new
                 {
                     GameId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PlatformId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    PlatformId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -108,7 +111,7 @@ namespace Gamestore.DAL.Migrations
 
             migrationBuilder.InsertData(
                 table: "Genres",
-                columns: new[] { "Id", "Name", "ParentGenreId" },
+                columns: ColumnsValue,
                 values: new object[,]
                 {
                     { new Guid("a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5"), "Strategy", null },
@@ -118,24 +121,24 @@ namespace Gamestore.DAL.Migrations
                     { new Guid("d4e5f6a7-b8c9-4d0e-1f2a-b3c4d5e6f7a8"), "RPG", null },
                     { new Guid("e5f6a7b8-c9d0-4e1f-2a3b-c4d5e6f7a8b9"), "Simulator", null },
                     { new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6"), "Action", null },
-                    { new Guid("f8a9b0c1-d2e3-4f4a-5b6c-d7e8f9a0b1c2"), "Adventure", null }
+                    { new Guid("f8a9b0c1-d2e3-4f4a-5b6c-d7e8f9a0b1c2"), "Adventure", null },
                 });
 
             migrationBuilder.InsertData(
                 table: "Platforms",
-                columns: new[] { "Id", "Type" },
+                columns: ColumnsArray,
                 values: new object[,]
                 {
                     { new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b"), "Desktop" },
                     { new Guid("c7e8f012-b2d0-4d1b-ae67-d66e84f93f6c"), "Browser" },
                     { new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d"), "Console" },
                     { new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"), "Mobile" },
-                    { new Guid("f0a0b234-d4f2-4f3d-c089-f88a06b15b8e"), "VR" }
+                    { new Guid("f0a0b234-d4f2-4f3d-c089-f88a06b15b8e"), "VR" },
                 });
 
             migrationBuilder.InsertData(
                 table: "Genres",
-                columns: new[] { "Id", "Name", "ParentGenreId" },
+                columns: Columns,
                 values: new object[,]
                 {
                     { new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7"), "FPS", new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6") },
@@ -148,7 +151,7 @@ namespace Gamestore.DAL.Migrations
                     { new Guid("d6e7f8a9-b0c1-4d2e-3f4a-b5c6d7e8f9a0"), "Battle Royale", new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6") },
                     { new Guid("e1f2a3b4-c5d6-4e7f-8a9b-c0d1e2f3a4b5"), "Off-road", new Guid("a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1") },
                     { new Guid("f6a7b8c9-d0e1-4f2a-3b4c-d5e6f7a8b9c0"), "Sports", new Guid("e5f6a7b8-c9d0-4e1f-2a3b-c4d5e6f7a8b9") },
-                    { new Guid("e7f8a9b0-c1d2-4e3f-4a5b-c6d7e8f9a0b1"), "Hero Shooter", new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7") }
+                    { new Guid("e7f8a9b0-c1d2-4e3f-4a5b-c6d7e8f9a0b1"), "Hero Shooter", new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7") },
                 });
 
             migrationBuilder.CreateIndex(

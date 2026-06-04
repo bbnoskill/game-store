@@ -2,7 +2,9 @@
 
 public class CreateGameRequestDto
 {
-    public CreateGameDto  Game { get; set; } = null!;
-    public List<Guid> Genres { get; set; } = new();
-    public List<Guid> Platforms { get; set; } = new();
+    public CreateGameDto Game { get; set; } = null!;
+
+    public List<Guid> Genres { get; set; } = [];
+
+    public List<Guid> Platforms { get; set; } = [];
 }

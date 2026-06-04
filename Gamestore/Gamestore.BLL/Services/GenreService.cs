@@ -5,19 +5,17 @@ using Gamestore.DAL.UnitOfWork;
 
 namespace Gamestore.BLL.Services;
 
-public class GenreService : IGenreService
+public class GenreService(IUnitOfWork unitOfWork) : IGenreService
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public GenreService(IUnitOfWork unitOfWork)
-    {
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GenreDto?> GetByIdAsync(Guid id)
     {
         var genre = await _unitOfWork.Genres.GetByIdAsync(id);
-        if (genre == null) return null;
+        if (genre == null)
+        {
+            return null;
+        }
 
         return new GenreDto
         {

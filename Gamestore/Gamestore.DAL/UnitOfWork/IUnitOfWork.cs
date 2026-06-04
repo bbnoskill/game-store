@@ -5,7 +5,10 @@ namespace Gamestore.DAL.UnitOfWork;
 public interface IUnitOfWork
 {
     IGameRepository Games { get; }
+
     IGenreRepository Genres { get; }
+
     IPlatformRepository Platforms { get; }
+
     Task SaveChangesAsync();
 }

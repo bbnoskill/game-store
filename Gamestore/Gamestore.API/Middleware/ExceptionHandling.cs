@@ -1,19 +1,12 @@
 ﻿namespace Gamestore.API.Middleware;
 
-public class ExceptionHandling
+public class ExceptionHandling(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public ExceptionHandling(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex)
         {
@@ -21,6 +14,7 @@ public class ExceptionHandling
             {
                 throw;
             }
+
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -33,13 +27,13 @@ public class ExceptionHandling
         {
             KeyNotFoundException => StatusCodes.Status404NotFound,
             ArgumentException => StatusCodes.Status400BadRequest,
-            _ => StatusCodes.Status500InternalServerError
+            _ => StatusCodes.Status500InternalServerError,
         };
 
         var response = new
         {
             statusCode = context.Response.StatusCode,
-            message = ex.Message
+            message = ex.Message,
         };
 
         await context.Response.WriteAsJsonAsync(response);
