@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.API", "Gamestore.API\Gamestore.API.csproj", "{250BACD4-DE24-4AEC-B06C-D6307B0DA430}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.API", "Gamestore\Gamestore.API\Gamestore.API.csproj", "{250BACD4-DE24-4AEC-B06C-D6307B0DA430}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.BLL", "Gamestore.BLL\Gamestore.BLL.csproj", "{4D8BE3BC-05B1-4280-B83D-9BBD092AD69F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.BLL", "Gamestore\Gamestore.BLL\Gamestore.BLL.csproj", "{4D8BE3BC-05B1-4280-B83D-9BBD092AD69F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.DAL", "Gamestore.DAL\Gamestore.DAL.csproj", "{13D5D120-29C1-40D1-B9B7-E431B23998C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.DAL", "Gamestore\Gamestore.DAL\Gamestore.DAL.csproj", "{13D5D120-29C1-40D1-B9B7-E431B23998C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
