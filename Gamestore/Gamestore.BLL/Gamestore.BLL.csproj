@@ -4,6 +4,13 @@
     <ProjectReference Include="..\Gamestore.DAL\Gamestore.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="8.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

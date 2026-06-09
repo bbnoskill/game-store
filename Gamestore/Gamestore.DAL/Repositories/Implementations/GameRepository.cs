@@ -55,4 +55,9 @@ public class GameRepository(GamestoreContext context) : IGameRepository
         context.Games.Remove(game);
         return Task.CompletedTask;
     }
+
+    public async Task<int> GetCountAsync()
+    {
+        return await context.Games.CountAsync();
+    }
 }

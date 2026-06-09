@@ -64,5 +64,6 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
         var platform = await unitOfWork.Platforms.GetByIdAsync(id)
                        ?? throw new KeyNotFoundException($"Platform with id {id} not found");
         await unitOfWork.Platforms.DeleteAsync(platform);
+        await unitOfWork.SaveChangesAsync();
     }
 }

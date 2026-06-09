@@ -19,4 +19,6 @@ public interface IGameService
     Task UpdateAsync(UpdateGameRequestDto request);
 
     Task DeleteAsync(string key);
+
+    Task<int> GetTotalCountAsync();
 }

@@ -19,4 +19,6 @@ public interface IGameRepository
     Task UpdateAsync(Game game);
 
     Task DeleteAsync(Game game);
+
+    Task<int> GetCountAsync();
 }

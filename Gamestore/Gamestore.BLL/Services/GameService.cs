@@ -74,7 +74,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         {
             Id = Guid.NewGuid(),
             Name = request.Game.Name,
-            Key = string.IsNullOrEmpty(request.Game.Key) ? GenerateKey(request.Game.Key) : request.Game.Key,
+            Key = string.IsNullOrEmpty(request.Game.Key) ? GenerateKey(request.Game.Name) : request.Game.Key,
             Description = request.Game.Description,
         };
 
@@ -136,6 +136,11 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
             ?? throw new KeyNotFoundException($"Game with key {key} not found");
         await unitOfWork.Games.DeleteAsync(game);
         await unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<int> GetTotalCountAsync()
+    {
+        return await unitOfWork.Games.GetCountAsync();
     }
 
     private static string GenerateKey(string name)
