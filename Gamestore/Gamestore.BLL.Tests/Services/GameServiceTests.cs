@@ -20,7 +20,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetByKeyAsync_ReturnsDto_WhenFound()
+    public async Task GetByKeyAsyncReturnsDtoWhenFound()
     {
         var game = new Game { Id = Guid.NewGuid(), Name = "Halo", Key = "halo", Description = "FPS" };
         _gameRepo.Setup(r => r.GetByKeyAsync("halo")).ReturnsAsync(game);
@@ -34,7 +34,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetByKeyAsync_ReturnsNull_WhenNotFound()
+    public async Task GetByKeyAsyncReturnsNullWhenNotFound()
     {
         _gameRepo.Setup(r => r.GetByKeyAsync(It.IsAny<string>())).ReturnsAsync((Game?)null);
 
@@ -44,7 +44,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsDto_WhenFound()
+    public async Task GetByIdAsyncReturnsDtoWhenFound()
     {
         var id = Guid.NewGuid();
         var game = new Game { Id = id, Name = "Doom", Key = "doom", Description = string.Empty };
@@ -57,7 +57,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsNull_WhenNotFound()
+    public async Task GetByIdAsyncReturnsNullWhenNotFound()
     {
         _gameRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Game?)null);
 
@@ -67,7 +67,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_ReturnsAllMappedDtos()
+    public async Task GetAllAsyncReturnsAllMappedDtos()
     {
         var games = new List<Game>
         {
@@ -84,7 +84,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetByGenreAsync_ReturnsMappedDtos()
+    public async Task GetByGenreAsyncReturnsMappedDtos()
     {
         var genreId = Guid.NewGuid();
         var games = new List<Game> { new() { Id = Guid.NewGuid(), Name = "X", Key = "x", Description = string.Empty } };
@@ -97,7 +97,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetByPlatformAsync_ReturnsMappedDtos()
+    public async Task GetByPlatformAsyncReturnsMappedDtos()
     {
         var platformId = Guid.NewGuid();
         var games = new List<Game> { new() { Id = Guid.NewGuid(), Name = "Y", Key = "y", Description = string.Empty } };
@@ -110,7 +110,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_AddsGameAndSaves()
+    public async Task CreateAsyncAddsGameAndSaves()
     {
         var request = new CreateGameRequestDto
         {
@@ -132,7 +132,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_GeneratesKey_WhenKeyEmpty()
+    public async Task CreateAsyncGeneratesKeyWhenKeyEmpty()
     {
         var request = new CreateGameRequestDto
         {
@@ -154,7 +154,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_UpdatesGameAndSaves()
+    public async Task UpdateAsyncUpdatesGameAndSaves()
     {
         var id = Guid.NewGuid();
         var existing = new Game { Id = id, Name = "Old", Key = "old", Description = "old" };
@@ -177,7 +177,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_GeneratesKey_WhenKeyWhitespace()
+    public async Task UpdateAsyncGeneratesKeyWhenKeyWhitespace()
     {
         var id = Guid.NewGuid();
         var existing = new Game { Id = id, Name = "Old", Key = "old", Description = string.Empty };
@@ -196,7 +196,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_Throws_WhenGameNotFound()
+    public async Task UpdateAsyncThrowsWhenGameNotFound()
     {
         _gameRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Game?)null);
 
@@ -211,7 +211,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_DeletesGame_WhenFound()
+    public async Task DeleteAsyncDeletesGameWhenFound()
     {
         var game = new Game { Id = Guid.NewGuid(), Name = "X", Key = "x", Description = string.Empty };
         _gameRepo.Setup(r => r.GetByKeyAsync("x")).ReturnsAsync(game);
@@ -223,7 +223,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_Throws_WhenNotFound()
+    public async Task DeleteAsyncThrowsWhenNotFound()
     {
         _gameRepo.Setup(r => r.GetByKeyAsync(It.IsAny<string>())).ReturnsAsync((Game?)null);
 
@@ -231,7 +231,7 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetTotalCountAsync_ReturnsCountFromRepository()
+    public async Task GetTotalCountAsyncReturnsCountFromRepository()
     {
         _gameRepo.Setup(r => r.GetCountAsync()).ReturnsAsync(42);
 

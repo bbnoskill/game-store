@@ -7,6 +7,8 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,7 +23,7 @@
         <Using Include="Xunit"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Gamestore\Gamestore.BLL\Gamestore.BLL.csproj" />
-        <ProjectReference Include="..\Gamestore\Gamestore.DAL\Gamestore.DAL.csproj" />
+        <ProjectReference Include="..\Gamestore.BLL\Gamestore.BLL.csproj" />
+        <ProjectReference Include="..\Gamestore.DAL\Gamestore.DAL.csproj" />
     </ItemGroup>
 </Project>

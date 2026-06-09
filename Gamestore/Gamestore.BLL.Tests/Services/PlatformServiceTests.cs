@@ -20,7 +20,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsDto_WhenFound()
+    public async Task GetByIdAsyncReturnsDtoWhenFound()
     {
         var id = Guid.NewGuid();
         var platform = new Platform { Id = id, Type = "PC" };
@@ -33,7 +33,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsNull_WhenNotFound()
+    public async Task GetByIdAsyncReturnsNullWhenNotFound()
     {
         _platformRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Platform?)null);
 
@@ -43,7 +43,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_ReturnsMappedDtos()
+    public async Task GetAllAsyncReturnsMappedDtos()
     {
         var platforms = new List<Platform>
         {
@@ -58,7 +58,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task GetByGameKeyAsync_ReturnsMappedDtos()
+    public async Task GetByGameKeyAsyncReturnsMappedDtos()
     {
         var platforms = new List<Platform> { new() { Id = Guid.NewGuid(), Type = "PC" } };
         _platformRepo.Setup(r => r.GetByGameKeyAsync("halo")).ReturnsAsync(platforms);
@@ -70,7 +70,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_AddsPlatformAndSaves()
+    public async Task CreateAsyncAddsPlatformAndSaves()
     {
         var request = new CreatePlatformRequestDto
         {
@@ -84,7 +84,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_UpdatesPlatformAndSaves()
+    public async Task UpdateAsyncUpdatesPlatformAndSaves()
     {
         var id = Guid.NewGuid();
         var existing = new Platform { Id = id, Type = "Old" };
@@ -103,7 +103,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_Throws_WhenNotFound()
+    public async Task UpdateAsyncThrowsWhenNotFound()
     {
         _platformRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Platform?)null);
 
@@ -116,7 +116,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_DeletesPlatform_WhenFound()
+    public async Task DeleteAsyncDeletesPlatformWhenFound()
     {
         var id = Guid.NewGuid();
         var platform = new Platform { Id = id, Type = "PC" };
@@ -130,7 +130,7 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_Throws_WhenNotFound()
+    public async Task DeleteAsyncThrowsWhenNotFound()
     {
         _platformRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Platform?)null);
 

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.BLL", "Gamestore\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.DAL", "Gamestore\Gamestore.DAL\Gamestore.DAL.csproj", "{13D5D120-29C1-40D1-B9B7-E431B23998C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.BLL.Tests", "Gamestore.BLL.Tests\Gamestore.BLL.Tests.csproj", "{7B0E576B-9102-4025-8815-1435AC3BBACD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.BLL.Tests", "Gamestore\Gamestore.BLL.Tests\Gamestore.BLL.Tests.csproj", "{7B0E576B-9102-4025-8815-1435AC3BBACD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

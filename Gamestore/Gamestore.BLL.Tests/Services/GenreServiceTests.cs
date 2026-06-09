@@ -20,7 +20,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsDto_WhenFound()
+    public async Task GetByIdAsyncReturnsDtoWhenFound()
     {
         var id = Guid.NewGuid();
         var genre = new Genre { Id = id, Name = "RPG", ParentGenreId = null };
@@ -33,7 +33,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsNull_WhenNotFound()
+    public async Task GetByIdAsyncReturnsNullWhenNotFound()
     {
         _genreRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Genre?)null);
 
@@ -43,7 +43,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_ReturnsMappedDtos()
+    public async Task GetAllAsyncReturnsMappedDtos()
     {
         var genres = new List<Genre>
         {
@@ -58,7 +58,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task GetByGameKeyAsync_ReturnsMappedDtos()
+    public async Task GetByGameKeyAsyncReturnsMappedDtos()
     {
         var genres = new List<Genre> { new() { Id = Guid.NewGuid(), Name = "Action" } };
         _genreRepo.Setup(r => r.GetByGameKeyAsync("halo")).ReturnsAsync(genres);
@@ -70,7 +70,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task GetByParentIdAsync_ReturnsMappedDtos()
+    public async Task GetByParentIdAsyncReturnsMappedDtos()
     {
         var parentId = Guid.NewGuid();
         var genres = new List<Genre>
@@ -86,7 +86,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_AddsGenreAndSaves()
+    public async Task CreateAsyncAddsGenreAndSaves()
     {
         var request = new CreateGenreRequestDto
         {
@@ -100,7 +100,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_UpdatesGenreAndSaves()
+    public async Task UpdateAsyncUpdatesGenreAndSaves()
     {
         var id = Guid.NewGuid();
         var existing = new Genre { Id = id, Name = "Old", ParentGenreId = null };
@@ -120,7 +120,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_Throws_WhenNotFound()
+    public async Task UpdateAsyncThrowsWhenNotFound()
     {
         _genreRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Genre?)null);
 
@@ -133,7 +133,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_DeletesGenre_WhenFound()
+    public async Task DeleteAsyncDeletesGenreWhenFound()
     {
         var id = Guid.NewGuid();
         var genre = new Genre { Id = id, Name = "X" };
@@ -146,7 +146,7 @@ public class GenreServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_Throws_WhenNotFound()
+    public async Task DeleteAsyncThrowsWhenNotFound()
     {
         _genreRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Genre?)null);
 
