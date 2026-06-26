@@ -28,7 +28,7 @@ public class GameServiceTests
         var result = await _service.GetByKeyAsync("halo");
 
         Assert.NotNull(result);
-        Assert.Equal(game.Id, result!.Id);
+        Assert.Equal(game.Id, result.Id);
         Assert.Equal("Halo", result.Name);
         Assert.Equal("halo", result.Key);
     }
@@ -53,7 +53,7 @@ public class GameServiceTests
         var result = await _service.GetByIdAsync(id);
 
         Assert.NotNull(result);
-        Assert.Equal(id, result!.Id);
+        Assert.Equal(id, result.Id);
     }
 
     [Fact]
@@ -172,7 +172,7 @@ public class GameServiceTests
         Assert.Equal("Updated", existing.Name);
         Assert.Equal("updated", existing.Key);
         Assert.Equal("new", existing.Description);
-        _gameRepo.Verify(r => r.UpdateAsync(existing), Times.Once);
+        _gameRepo.Verify(r => r.Update(existing), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
@@ -218,7 +218,7 @@ public class GameServiceTests
 
         await _service.DeleteAsync("x");
 
-        _gameRepo.Verify(r => r.DeleteAsync(game), Times.Once);
+        _gameRepo.Verify(r => r.Delete(game), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 

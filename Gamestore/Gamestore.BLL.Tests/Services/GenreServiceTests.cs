@@ -29,7 +29,7 @@ public class GenreServiceTests
         var result = await _service.GetByIdAsync(id);
 
         Assert.NotNull(result);
-        Assert.Equal("RPG", result!.Name);
+        Assert.Equal("RPG", result.Name);
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class GenreServiceTests
 
         Assert.Equal("New", existing.Name);
         Assert.NotNull(existing.ParentGenreId);
-        _genreRepo.Verify(r => r.UpdateAsync(existing), Times.Once);
+        _genreRepo.Verify(r => r.Update(existing), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
@@ -141,7 +141,7 @@ public class GenreServiceTests
 
         await _service.DeleteAsync(id);
 
-        _genreRepo.Verify(r => r.DeleteAsync(genre), Times.Once);
+        _genreRepo.Verify(r => r.Delete(genre), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 

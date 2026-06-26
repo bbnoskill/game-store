@@ -9,4 +9,6 @@ public interface IGameRepository : IRepository<Game>
     Task<IEnumerable<Game>> GetByGenreAsync(Guid genreId);
 
     Task<IEnumerable<Game>> GetByPlatformAsync(Guid platformId);
+
+    Task<int> GetCountAsync();
 }

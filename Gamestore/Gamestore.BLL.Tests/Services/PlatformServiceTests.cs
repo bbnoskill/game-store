@@ -29,7 +29,7 @@ public class PlatformServiceTests
         var result = await _service.GetByIdAsync(id);
 
         Assert.NotNull(result);
-        Assert.Equal("PC", result!.Type);
+        Assert.Equal("PC", result.Type);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class PlatformServiceTests
         await _service.UpdateAsync(request);
 
         Assert.Equal("New", existing.Type);
-        _platformRepo.Verify(r => r.UpdateAsync(existing), Times.Once);
+        _platformRepo.Verify(r => r.Update(existing), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
@@ -124,7 +124,7 @@ public class PlatformServiceTests
 
         await _service.DeleteAsync(id);
 
-        _platformRepo.Verify(r => r.DeleteAsync(platform), Times.Once);
+        _platformRepo.Verify(r => r.Delete(platform), Times.Once);
 
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
