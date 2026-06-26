@@ -74,7 +74,7 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         genre.Name = request.Genre.Name;
         genre.ParentGenreId = request.Genre.ParentGenreId;
 
-        await _unitOfWork.Genres.UpdateAsync(genre);
+        _unitOfWork.Genres.Update(genre);
         await _unitOfWork.SaveChangesAsync();
     }
 
@@ -82,7 +82,7 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
     {
         var genre = await _unitOfWork.Genres.GetByIdAsync(id)
             ?? throw new KeyNotFoundException($"Genre with id {id} not found");
-        await _unitOfWork.Genres.DeleteAsync(genre);
+        _unitOfWork.Genres.Delete(genre);
         await _unitOfWork.SaveChangesAsync();
     }
 }

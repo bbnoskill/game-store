@@ -55,7 +55,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
             ?? throw new KeyNotFoundException($"Platform with id {request.Platform.Id} not found");
         platform.Type = request.Platform.Type;
 
-        await unitOfWork.Platforms.UpdateAsync(platform);
+        unitOfWork.Platforms.Update(platform);
         await unitOfWork.SaveChangesAsync();
     }
 
@@ -63,6 +63,6 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
     {
         var platform = await unitOfWork.Platforms.GetByIdAsync(id)
                        ?? throw new KeyNotFoundException($"Platform with id {id} not found");
-        await unitOfWork.Platforms.DeleteAsync(platform);
+        unitOfWork.Platforms.Delete(platform);
     }
 }
