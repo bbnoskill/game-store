@@ -126,7 +126,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
             })
         ];
 
-        await unitOfWork.Games.UpdateAsync(game);
+        unitOfWork.Games.Update(game);
         await unitOfWork.SaveChangesAsync();
     }
 
@@ -134,7 +134,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
     {
         var game = await unitOfWork.Games.GetByKeyAsync(key)
             ?? throw new KeyNotFoundException($"Game with key {key} not found");
-        await unitOfWork.Games.DeleteAsync(game);
+        unitOfWork.Games.Delete(game);
         await unitOfWork.SaveChangesAsync();
     }
 

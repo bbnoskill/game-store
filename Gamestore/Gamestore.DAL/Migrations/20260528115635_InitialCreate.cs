@@ -7,9 +7,8 @@ namespace Gamestore.DAL.Migrations;
 /// <inheritdoc />
 public partial class InitialCreate : Migration
 {
-    private static readonly string[] Columns = ["Id", "Name", "ParentGenreId"];
-    private static readonly string[] ColumnsArray = ["Id", "Type"];
-    private static readonly string[] ColumnsValue = ["Id", "Name", "ParentGenreId"];
+    private static readonly string[] GenreColumns = ["Id", "Name", "ParentGenreId"];
+    private static readonly string[] PlatformColumns = ["Id", "Type"];
 
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -109,7 +108,7 @@ public partial class InitialCreate : Migration
 
         migrationBuilder.InsertData(
             table: "Genres",
-            columns: ColumnsValue,
+            columns: GenreColumns,
             values: new object[,]
             {
                 { new Guid("a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5"), "Strategy", null },
@@ -124,7 +123,7 @@ public partial class InitialCreate : Migration
 
         migrationBuilder.InsertData(
             table: "Platforms",
-            columns: ColumnsArray,
+            columns: PlatformColumns,
             values: new object[,]
             {
                 { new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b"), "Desktop" },
@@ -136,7 +135,7 @@ public partial class InitialCreate : Migration
 
         migrationBuilder.InsertData(
             table: "Genres",
-            columns: Columns,
+            columns: GenreColumns,
             values: new object[,]
             {
                 { new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7"), "FPS", new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6") },
