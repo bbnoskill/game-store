@@ -1,6 +1,9 @@
-﻿namespace Gamestore.API.Middleware;
+﻿using Gamestore.API.Interfaces;
+using Gamestore.API.Services;
 
-public class ExceptionHandling(RequestDelegate next)
+namespace Gamestore.API.Middleware;
+
+public class ExceptionHandling(RequestDelegate next, FileLoggerService fileLogger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -19,8 +22,14 @@ public class ExceptionHandling(RequestDelegate next)
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
+    private async Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
+        var errorLog = $"""
+                        Exception Type: {ex.GetType().Name}
+                        Message: {ex.Message}
+                        StackTrace: {ex.StackTrace}
+                        """;
+        await fileLogger.LogErrorAsync(errorLog);
         context.Response.ContentType = "application/json";
 
         context.Response.StatusCode = ex switch
