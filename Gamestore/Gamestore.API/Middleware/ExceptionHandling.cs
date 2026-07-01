@@ -1,9 +1,8 @@
 ﻿using Gamestore.API.Interfaces;
-using Gamestore.API.Services;
 
 namespace Gamestore.API.Middleware;
 
-public class ExceptionHandling(RequestDelegate next, FileLoggerService fileLogger)
+public class ExceptionHandling(RequestDelegate next, IFileLoggerService fileLogger)
 {
     public async Task InvokeAsync(HttpContext context)
     {

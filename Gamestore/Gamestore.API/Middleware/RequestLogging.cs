@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using Gamestore.API.Services;
+using Gamestore.API.Interfaces;
 
 namespace Gamestore.API.Middleware;
 
-public class RequestLogging(RequestDelegate next, FileLoggerService fileLogger)
+public class RequestLogging(RequestDelegate next, IFileLoggerService fileLogger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
