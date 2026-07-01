@@ -28,4 +28,9 @@ public class GameRepository(GamestoreContext context) : Repository<Game>(context
             .Where(game => game.GamePlatforms.Any(gameplatform => gameplatform.PlatformId == platformId))
             .ToListAsync();
     }
+
+    public async Task<int> GetCountAsync()
+    {
+        return await Context.Games.CountAsync();
+    }
 }
