@@ -2,13 +2,15 @@
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
+using Microsoft.Extensions.Logging;
 
 namespace Gamestore.BLL.Services;
 
-public class GameService(IUnitOfWork unitOfWork) : IGameService
+public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : IGameService
 {
     public async Task<GameDto?> GetByKeyAsync(string key)
     {
+        logger.LogInformation("Fetching game by key: {Key}", key);
         var game = await unitOfWork.Games.GetByKeyAsync(key)
                    ?? throw new KeyNotFoundException($"Game with key '{key}' was not found.");
 
@@ -23,6 +25,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
     public async Task<GameDto?> GetByIdAsync(Guid id)
     {
+        logger.LogInformation("Fetching game by id: {Id}", id);
         var game = await unitOfWork.Games.GetByIdAsync(id)
                    ?? throw new KeyNotFoundException($"Game with id '{id}' was not found.");
         return new GameDto
@@ -36,7 +39,9 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
     public async Task<IEnumerable<GameDto>> GetAllAsync()
     {
-        var games = await unitOfWork.Games.GetAllAsync();
+        logger.LogInformation("Fetching all games.");
+        var games = (await unitOfWork.Games.GetAllAsync()).ToList();
+        logger.LogInformation("Fetched {Count} games.", games.Count);
         return games.Select(game => new GameDto
         {
             Id = game.Id,
@@ -48,7 +53,9 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
     public async Task<IEnumerable<GameDto>> GetByGenreAsync(Guid genreId)
     {
-        var games = await unitOfWork.Games.GetByGenreAsync(genreId);
+        logger.LogInformation("Fetching games by genre: {GenreId}.", genreId);
+        var games = (await unitOfWork.Games.GetByGenreAsync(genreId)).ToList();
+        logger.LogInformation("Fetched {Count} games.", games.Count);
         return games.Select(game => new GameDto
         {
             Id = game.Id,
@@ -60,8 +67,9 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
     public async Task<IEnumerable<GameDto>> GetByPlatformAsync(Guid platformId)
     {
-        var games = await unitOfWork.Games.GetByPlatformAsync(platformId);
-
+        logger.LogInformation("Fetching games by platform: {PlatformId}.", platformId);
+        var games = (await unitOfWork.Games.GetByPlatformAsync(platformId)).ToList();
+        logger.LogInformation("Fetched {Count} games.", games.Count);
         return games.Select(game => new GameDto
         {
             Id = game.Id,
@@ -73,6 +81,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
     public async Task CreateAsync(CreateGameRequestDto request)
     {
+        logger.LogInformation("Creating game with key: {Key}", request.Game.Key);
         var game = new Game
         {
             Id = Guid.NewGuid(),
@@ -98,10 +107,12 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
         await unitOfWork.Games.AddAsync(game);
         await unitOfWork.SaveChangesAsync();
+        logger.LogInformation("Game '{Key}' created successfully.", request.Game.Key);
     }
 
     public async Task UpdateAsync(UpdateGameRequestDto request)
     {
+        logger.LogInformation("Updating game with key: {Key}", request.Game.Key);
         var game = await unitOfWork.Games.GetByIdAsync(request.Game.Id)
                    ?? throw new KeyNotFoundException($"Game with id {request.Game.Id} not found");
 
@@ -131,14 +142,17 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
         unitOfWork.Games.Update(game);
         await unitOfWork.SaveChangesAsync();
+        logger.LogInformation("Game '{Key}' updated successfully.", request.Game.Key);
     }
 
     public async Task DeleteAsync(string key)
     {
+        logger.LogInformation("Deleting game with key: {Key}", key);
         var game = await unitOfWork.Games.GetByKeyAsync(key)
             ?? throw new KeyNotFoundException($"Game with key {key} not found");
         unitOfWork.Games.Delete(game);
         await unitOfWork.SaveChangesAsync();
+        logger.LogInformation("Game '{Key}' deleted successfully.", key);
     }
 
     public async Task<int> GetTotalCountAsync()
