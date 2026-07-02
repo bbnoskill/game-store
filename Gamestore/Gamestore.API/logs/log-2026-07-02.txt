@@ -1,0 +1,30 @@
+[2026-07-02 09:15:28] --- Request ---
+IP: ::1
+Method: GET
+URL: /
+Body: 
+--- Response ---
+Status: 404
+Body: 
+Elapsed: 60ms
+----------------
+[2026-07-02 09:15:39] --- Request ---
+IP: ::1
+Method: GET
+URL: /games
+Body: 
+--- Response ---
+Status: 200
+Body: [{"id":"5b5ca6b9-91f6-4c00-acc2-1bbb22238aac","name":"The Witcher 3","key":"the-witcher-3","description":"Open-world action RPG game."}]
+Elapsed: 585ms
+----------------
+[2026-07-02 09:15:48] --- Request ---
+IP: ::1
+Method: GET
+URL: /genres
+Body: 
+--- Response ---
+Status: 200
+Body: [{"id":"c3d4e5f6-a7b8-4c9d-0e1f-a2b3c4d5e6f7","name":"TBS","parentGenreId":"a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5"},{"id":"c5d6e7f8-a9b0-4c1d-2e3f-a4b5c6d7e8f9","name":"Fighting","parentGenreId":null},{"id":"c9d0e1f2-a3b4-4c5d-6e7f-a8b9c0d1e2f3","name":"Arcade","parentGenreId":"a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1"},{"id":"d4e5f6a7-b8c9-4d0e-1f2a-b3c4d5e6f7a8","name":"RPG","parentGenreId":null},{"id":"d6e7f8a9-b0c1-4d2e-3f4a-b5c6d7e8f9a0","name":"Battle Royale","parentGenreId":"f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6"},{"id":"d0e1f2a3-b4c5-4d6e-7f8a-b9c0d1e2f3a4","name":"Formula","parentGenreId":"a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1"},{"id":"e1f2a3b4-c5d6-4e7f-8a9b-c0d1e2f3a4b5","name":"Off-road","parentGenreId":"a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1"},{"id":"e5f6a7b8-c9d0-4e1f-2a3b-c4d5e6f7a8b9","name":"Simulator","parentGenreId":null},{"id":"e7f8a9b0-c1d2-4e3f-4a5b-c6d7e8f9a0b1","name":"Hero Shooter","parentGenreId":"a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7"},{"id":"f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6","name":"Action","parentGenreId":null},{"id":"f6a7b8c9-d0e1-4f2a-3b4c-d5e6f7a8b9c0","name":"Sports","parentGenreId":"e5f6a7b8-c9d0-4e1f-2a3b-c4d5e6f7a8b9"},{"id":"f8a9b0c1-d2e3-4f4a-5b6c-d7e8f9a0b1c2","name":"Adventure","parentGenreId":null},{"id":"a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5","name":"Strategy","parentGenreId":null},{"id":"a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7","name":"FPS","parentGenreId":"f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6"},{"id":"a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1","name":"Races","parentGenreId":null},{"id":"a9b0c1d2-e3f4-4a5b-6c7d-e8f9a0b1c2d3","name":"Puzzle & Skill","parentGenreId":null},{"id":"b2c3d4e5-f6a7-4b8c-9d0e-f1a2b3c4d5e6","name":"RTS","parentGenreId":"a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5"},{"id":"b4c5d6e7-f8a9-4b0c-1d2e-f3a4b5c6d7e8","name":"TPS","parentGenreId":"f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6"},{"id":"b8c9d0e1-f2a3-4b4c-5d6e-f7a8b9c0d1e2","name":"Rally","parentGenreId":"a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1"}]
+Elapsed: 191ms
+----------------

@@ -49,6 +49,6 @@ app.UseMiddleware<ExceptionHandling>();
 app.UseMiddleware<RequestLogging>();
 app.UseMiddleware<TotalGamesCount>();
 
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
