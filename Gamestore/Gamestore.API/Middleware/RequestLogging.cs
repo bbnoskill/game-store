@@ -15,28 +15,59 @@ public class RequestLogging(RequestDelegate next, IFileLoggerService fileLogger)
         using var responseBodyStream = new MemoryStream();
         context.Response.Body = responseBodyStream;
 
-        await next(context);
+        try
+        {
+            // Йдемо далі по конвеєру
+            await next(context);
 
-        stopwatch.Stop();
+            // Якщо все пройшло успішно — логуємо нормальну відповідь
+            stopwatch.Stop();
+            var responseBody = await ReadResponseBodyAsync(responseBodyStream);
 
-        var responseBody = await ReadResponseBodyAsync(responseBodyStream);
-        context.Response.Body = originalBody;
-        await responseBodyStream.CopyToAsync(originalBody);
+            context.Response.Body = originalBody;
+            await responseBodyStream.CopyToAsync(originalBody);
 
-        var log = $"""
-                   --- Request ---
-                   IP: {context.Connection.RemoteIpAddress}
-                   Method: {context.Request.Method}
-                   URL: {context.Request.Path}{context.Request.QueryString}
-                   Body: {requestBody}
-                   --- Response ---
-                   Status: {context.Response.StatusCode}
-                   Body: {responseBody}
-                   Elapsed: {stopwatch.ElapsedMilliseconds}ms
-                   ----------------
-                   """;
+            var log = $"""
+                       --- Request ---
+                       IP: {context.Connection.RemoteIpAddress}
+                       Method: {context.Request.Method}
+                       URL: {context.Request.Path}{context.Request.QueryString}
+                       Body: {requestBody}
+                       --- Response ---
+                       Status: {context.Response.StatusCode}
+                       Body: {responseBody}
+                       Elapsed: {stopwatch.ElapsedMilliseconds}ms
+                       ----------------
+                       """;
 
-        await fileLogger.LogAsync(log);
+            await fileLogger.LogAsync(log);
+        }
+        catch (Exception ex)
+        {
+            // КРИТИЧНО: Якщо сталася помилка, обов'язково повертаємо оригінальний потік!
+            // Тепер ExceptionHandling зможе успішно записати свій JSON.
+            context.Response.Body = originalBody;
+
+            stopwatch.Stop();
+
+            // (Опціонально) Записуємо у файл, що запит впав з помилкою
+            var errorLog = $"""
+                           --- Request (FAILED) ---
+                           IP: {context.Connection.RemoteIpAddress}
+                           Method: {context.Request.Method}
+                           URL: {context.Request.Path}{context.Request.QueryString}
+                           Body: {requestBody}
+                           --- Error ---
+                           Exception: {ex.Message}
+                           Elapsed: {stopwatch.ElapsedMilliseconds}ms
+                           ----------------
+                           """;
+
+            await fileLogger.LogAsync(errorLog);
+
+            // Прокидаємо помилку далі, щоб її впіймав ExceptionHandling Middleware
+            throw;
+        }
     }
 
     private static async Task<string> ReadRequestBodyAsync(HttpRequest request)

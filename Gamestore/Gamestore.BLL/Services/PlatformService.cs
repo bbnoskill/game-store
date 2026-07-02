@@ -9,8 +9,9 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
 {
     public async Task<PlatformDto?> GetByIdAsync(Guid id)
     {
-        var platform = await unitOfWork.Platforms.GetByIdAsync(id);
-        return platform == null ? null : new PlatformDto
+        var platform = await unitOfWork.Platforms.GetByIdAsync(id)
+                       ?? throw new KeyNotFoundException($"Platform with id '{id}' was not found.");
+        return new PlatformDto
         {
             Id = platform.Id,
             Type = platform.Type,

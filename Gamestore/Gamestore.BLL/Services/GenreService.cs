@@ -11,8 +11,9 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
 
     public async Task<GenreDto?> GetByIdAsync(Guid id)
     {
-        var genre = await _unitOfWork.Genres.GetByIdAsync(id);
-        return genre == null ? null : new GenreDto
+        var genre = await _unitOfWork.Genres.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Genre with id '{id}' was not found.");
+        return new GenreDto
         {
             Id = genre.Id,
             Name = genre.Name,

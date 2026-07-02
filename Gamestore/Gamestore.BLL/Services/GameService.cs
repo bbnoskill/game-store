@@ -9,8 +9,10 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 {
     public async Task<GameDto?> GetByKeyAsync(string key)
     {
-        var game = await unitOfWork.Games.GetByKeyAsync(key);
-        return game == null ? null : new GameDto
+        var game = await unitOfWork.Games.GetByKeyAsync(key)
+                   ?? throw new KeyNotFoundException($"Game with key '{key}' was not found.");
+
+        return new GameDto
         {
             Id = game.Id,
             Name = game.Name,
@@ -21,8 +23,9 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
     public async Task<GameDto?> GetByIdAsync(Guid id)
     {
-        var game = await unitOfWork.Games.GetByIdAsync(id);
-        return game == null ? null : new GameDto
+        var game = await unitOfWork.Games.GetByIdAsync(id)
+                   ?? throw new KeyNotFoundException($"Game with id '{id}' was not found.");
+        return new GameDto
         {
             Id = game.Id,
             Name = game.Name,
