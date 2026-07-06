@@ -1,4 +1,6 @@
+using Gamestore.API.Interfaces;
 using Gamestore.API.Middleware;
+using Gamestore.API.Services;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Data;
@@ -10,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<GamestoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddSingleton<IFileLoggerService, FileLoggerService>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IGameService, GameService>();
@@ -19,6 +23,7 @@ builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
 {
@@ -41,7 +46,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 app.UseMiddleware<ExceptionHandling>();
+app.UseMiddleware<RequestLogging>();
 app.UseMiddleware<TotalGamesCount>();
+
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();

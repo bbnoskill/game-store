@@ -3,6 +3,7 @@ using Gamestore.BLL.Services;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Interfaces;
 using Gamestore.DAL.UnitOfWork;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Gamestore.BLL.Tests.Services;
@@ -12,11 +13,12 @@ public class PlatformServiceTests
     private readonly Mock<IPlatformRepository> _platformRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly PlatformService _service;
+    private readonly Mock<ILogger<GameService>> _loggerMock = new();
 
     public PlatformServiceTests()
     {
         _uow.Setup(u => u.Platforms).Returns(_platformRepo.Object);
-        _service = new PlatformService(_uow.Object);
+        _service = new PlatformService(_uow.Object, _loggerMock.Object);
     }
 
     [Fact]
