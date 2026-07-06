@@ -17,10 +17,8 @@ public class RequestLogging(RequestDelegate next, IFileLoggerService fileLogger)
 
         try
         {
-            // Йдемо далі по конвеєру
             await next(context);
 
-            // Якщо все пройшло успішно — логуємо нормальну відповідь
             stopwatch.Stop();
             var responseBody = await ReadResponseBodyAsync(responseBodyStream);
 
@@ -44,13 +42,10 @@ public class RequestLogging(RequestDelegate next, IFileLoggerService fileLogger)
         }
         catch (Exception ex)
         {
-            // КРИТИЧНО: Якщо сталася помилка, обов'язково повертаємо оригінальний потік!
-            // Тепер ExceptionHandling зможе успішно записати свій JSON.
             context.Response.Body = originalBody;
 
             stopwatch.Stop();
 
-            // (Опціонально) Записуємо у файл, що запит впав з помилкою
             var errorLog = $"""
                            --- Request (FAILED) ---
                            IP: {context.Connection.RemoteIpAddress}
@@ -65,7 +60,6 @@ public class RequestLogging(RequestDelegate next, IFileLoggerService fileLogger)
 
             await fileLogger.LogAsync(errorLog);
 
-            // Прокидаємо помилку далі, щоб її впіймав ExceptionHandling Middleware
             throw;
         }
     }
