@@ -20,6 +20,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         };
     }
 
@@ -34,6 +37,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         };
     }
 
@@ -48,6 +54,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         });
     }
 
@@ -62,6 +71,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         });
     }
 
@@ -76,6 +88,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         });
     }
 
@@ -88,6 +103,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = request.Game.Name,
             Key = string.IsNullOrEmpty(request.Game.Key) ? GenerateKey(request.Game.Name) : request.Game.Key,
             Description = request.Game.Description,
+            Price = request.Game.Price,
+            Discount = request.Game.Discount,
+            UnitInStock = request.Game.UnitInStock,
         };
 
         game.GameGenres = [..request.Genres.Select(genreId => new GameGenre
@@ -121,6 +139,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             ? GenerateKey(request.Game.Name)
             : request.Game.Key;
         game.Description = request.Game.Description;
+        game.Price = request.Game.Price;
+        game.Discount = request.Game.Discount;
+        game.UnitInStock = request.Game.UnitInStock;
 
         game.GameGenres =
         [

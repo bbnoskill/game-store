@@ -17,7 +17,7 @@ namespace Gamestore.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -31,6 +31,9 @@ namespace Gamestore.DAL.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Discount")
+                        .HasColumnType("int");
+
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -39,10 +42,23 @@ namespace Gamestore.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("PublisherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValue(new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd"));
+
+                    b.Property<int>("UnitInStock")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Key")
                         .IsUnique();
+
+                    b.HasIndex("PublisherId");
 
                     b.ToTable("Games");
                 });
@@ -253,6 +269,57 @@ namespace Gamestore.DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.Publisher", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HomePage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyName")
+                        .IsUnique();
+
+                    b.ToTable("Publishers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c"),
+                            CompanyName = "Electronic Arts",
+                            Description = "American video game company",
+                            HomePage = "https://www.ea.com"
+                        },
+                        new
+                        {
+                            Id = new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd"),
+                            CompanyName = "Test Name",
+                            Description = "Some text",
+                            HomePage = "https://localhost:7091/swagger/index.html"
+                        });
+                });
+
+            modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Publisher", "Publisher")
+                        .WithMany("Games")
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Publisher");
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.GameGenre", b =>
                 {
                     b.HasOne("Gamestore.DAL.Entities.Game", "Game")
@@ -318,6 +385,11 @@ namespace Gamestore.DAL.Migrations
             modelBuilder.Entity("Gamestore.DAL.Entities.Platform", b =>
                 {
                     b.Navigation("GamePlatforms");
+                });
+
+            modelBuilder.Entity("Gamestore.DAL.Entities.Publisher", b =>
+                {
+                    b.Navigation("Games");
                 });
 #pragma warning restore 612, 618
         }
