@@ -80,7 +80,7 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
         logger.LogInformation("Updating genre with id: {Id}", request.Genre.Id);
         var genre = await unitOfWork.Genres.GetByIdAsync(request.Genre.Id)
                     ?? throw new KeyNotFoundException($"Genre with id {request.Genre.Id} not found");
-
+        await VerifyNoCycleAsync(request.Genre.Id, request.Genre.ParentGenreId);
         genre.Name = request.Genre.Name;
         genre.ParentGenreId = request.Genre.ParentGenreId;
 
@@ -97,5 +97,35 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
         unitOfWork.Genres.Delete(genre);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Genre with id: {Id} deleted successfully", id);
+    }
+
+    private async Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
+    {
+        if (parentGenreId == null)
+        {
+            return;
+        }
+
+        if (genreId == parentGenreId)
+        {
+            throw new ArgumentException("A genre cannot be its own parent.");
+        }
+
+        var currentParentId = parentGenreId;
+        while (currentParentId != null)
+        {
+            var parent = await unitOfWork.Genres.GetByIdAsync(currentParentId.Value);
+            if (parent == null)
+            {
+                break;
+            }
+
+            if (parent.ParentGenreId == genreId)
+            {
+                throw new ArgumentException("Cyclic dependency detected in genres hierarchy.");
+            }
+
+            currentParentId = parent.ParentGenreId;
+        }
     }
 }

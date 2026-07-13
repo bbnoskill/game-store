@@ -123,6 +123,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             })
         ];
 
+        ValidateRequest(request.Genres, request.Platforms, request.Publisher);
         await unitOfWork.Games.AddAsync(game);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Game '{Key}' created successfully.", request.Game.Key);
@@ -161,6 +162,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             })
         ];
 
+        ValidateRequest(request.Genres, request.Platforms, request.Publisher);
         unitOfWork.Games.Update(game);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Game '{Key}' updated successfully.", request.Game.Key);
@@ -184,5 +186,23 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
     private static string GenerateKey(string name)
     {
         return name.ToLower(System.Globalization.CultureInfo.CurrentCulture).Replace(" ", "-");
+    }
+
+    private async void ValidateRequest(List<Guid> genreIds, List<Guid> platformIds, Guid publisherId)
+    {
+        _ = await unitOfWork.Publishers.GetByIdAsync(publisherId)
+           ?? throw new ArgumentException($"Publisher with ID '{publisherId}' not found.");
+
+        foreach (var genreId in genreIds)
+        {
+            _ = await unitOfWork.Genres.GetByIdAsync(genreId) ??
+                throw new ArgumentException($"Genre with ID '{genreId}' not found.");
+        }
+
+        foreach (var platformId in platformIds)
+        {
+            _ = await unitOfWork.Platforms.GetByIdAsync(platformId) ??
+                throw new ArgumentException($"Platform with ID '{platformId}' not found.");
+        }
     }
 }

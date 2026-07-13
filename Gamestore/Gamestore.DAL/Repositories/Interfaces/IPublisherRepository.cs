@@ -2,7 +2,7 @@
 
 namespace Gamestore.DAL.Repositories.Interfaces;
 
-public interface IPublisherRepository
+public interface IPublisherRepository : IRepository<Publisher>
 {
     Task<Publisher?> GetByCompanyNameAsync(string companyName);
 }
