@@ -3342,28 +3342,33 @@
             class MainPageComponent extends src_app_componetns_base_component__WEBPACK_IMPORTED_MODULE_0__.BaseComponent {
                 constructor() {
                     super(...arguments);
-                    Object.defineProperty(this, 'mainListItems', {
-                        get: () => [
-                            {
-                                title: this.labels.gamesMenuItem,
-                                pageLink: this.links.get(this.pageRoutes.Games)
-                            },
-                            {
-                                title: this.labels.genresMenuItem,
-                                pageLink: this.links.get(this.pageRoutes.Genres)
-                            },
-                            {
-                                title: this.labels.platformsMenuItem,
-                                pageLink: this.links.get(this.pageRoutes.Platforms)
-                            },
-                            {
-                                title: this.labels.publishersMenuItem,
-                                pageLink: this.links.get(this.pageRoutes.Publishers)
-                            }
-                        ],
-                        enumerable: true,
-                        configurable: true
-                    });
+                    this._mainListItems = null;
+                }
+                get mainListItems() {
+                    if (!this._mainListItems) {
+                        const gamesLink = this.links.get(this.pageRoutes.Games);
+                        if (gamesLink) {
+                            this._mainListItems = [
+                                {
+                                    title: this.labels.gamesMenuItem,
+                                    pageLink: gamesLink
+                                },
+                                {
+                                    title: this.labels.genresMenuItem,
+                                    pageLink: this.links.get(this.pageRoutes.Genres)
+                                },
+                                {
+                                    title: this.labels.platformsMenuItem,
+                                    pageLink: this.links.get(this.pageRoutes.Platforms)
+                                },
+                                {
+                                    title: this.labels.publishersMenuItem,
+                                    pageLink: this.links.get(this.pageRoutes.Publishers)
+                                }
+                            ];
+                        }
+                    }
+                    return this._mainListItems || [];
                 }
             }
             MainPageComponent.ɵfac = /*@__PURE__*/ function () { let ɵMainPageComponent_BaseFactory; return function MainPageComponent_Factory(t) { return (ɵMainPageComponent_BaseFactory || (ɵMainPageComponent_BaseFactory = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetInheritedFactory"](MainPageComponent)))(t || MainPageComponent); }; }();
