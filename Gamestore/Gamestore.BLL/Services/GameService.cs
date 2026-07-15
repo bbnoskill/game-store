@@ -97,12 +97,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
 
     public Task<IEnumerable<GameDto>> GetByPublisherAsync(string companyName)
     {
-        if (string.IsNullOrWhiteSpace(companyName))
-        {
-            throw new ArgumentException("Company name cannot be null or empty.", nameof(companyName));
-        }
-
-        return GetByPublisherInternalAsync(companyName);
+        return string.IsNullOrWhiteSpace(companyName)
+            ? throw new ArgumentException("Company name cannot be null or empty.", nameof(companyName))
+            : GetByPublisherInternalAsync(companyName);
     }
 
     public async Task CreateAsync(CreateGameRequestDto request)
