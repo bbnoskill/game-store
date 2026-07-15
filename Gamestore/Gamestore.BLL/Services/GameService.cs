@@ -1,4 +1,5 @@
-﻿using Gamestore.BLL.DTOs.Game;
+﻿using System.Globalization;
+using Gamestore.BLL.DTOs.Game;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
@@ -94,21 +95,14 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
         });
     }
 
-    public async Task<IEnumerable<GameDto>> GetByPublisherAsync(string companyName)
+    public Task<IEnumerable<GameDto>> GetByPublisherAsync(string companyName)
     {
-        logger.LogInformation("Fetching games by publisher: {PublisherName}.", companyName);
-        var games = (await unitOfWork.Games.GetByPublisherAsync(companyName)).ToList();
-        logger.LogInformation("Fetched {Count} games.", games.Count);
-        return games.Select(game => new GameDto
+        if (string.IsNullOrWhiteSpace(companyName))
         {
-            Id = game.Id,
-            Name = game.Name,
-            Key = game.Key,
-            Description = game.Description,
-            Price = game.Price,
-            Discount = game.Discount,
-            UnitInStock = game.UnitInStock,
-        });
+            throw new ArgumentException("Company name cannot be null or empty.", nameof(companyName));
+        }
+
+        return GetByPublisherInternalAsync(companyName);
     }
 
     public async Task CreateAsync(CreateGameRequestDto request)
@@ -125,11 +119,14 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             UnitInStock = request.Game.UnitInStock,
         };
 
-        game.GameGenres = [..request.Genres.Select(genreId => new GameGenre
-        {
-            GameId = game.Id,
-            GenreId = genreId,
-        })];
+        game.GameGenres =
+        [
+            ..request.Genres.Select(genreId => new GameGenre
+            {
+                GameId = game.Id,
+                GenreId = genreId,
+            })
+        ];
 
         game.GamePlatforms =
         [
@@ -189,7 +186,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
     {
         logger.LogInformation("Deleting game with key: {Key}", key);
         var game = await unitOfWork.Games.GetByKeyAsync(key)
-            ?? throw new KeyNotFoundException($"Game with key {key} not found");
+                   ?? throw new KeyNotFoundException($"Game with key {key} not found");
         unitOfWork.Games.Delete(game);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Game '{Key}' deleted successfully.", key);
@@ -202,13 +199,13 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
 
     private static string GenerateKey(string name)
     {
-        return name.ToLower(System.Globalization.CultureInfo.CurrentCulture).Replace(" ", "-");
+        return name.ToLower(CultureInfo.CurrentCulture).Replace(" ", "-");
     }
 
     private async Task ValidateRequest(List<Guid> genreIds, List<Guid> platformIds, Guid publisherId)
     {
         _ = await unitOfWork.Publishers.GetByIdAsync(publisherId)
-           ?? throw new ArgumentException($"Publisher with ID '{publisherId}' not found.");
+            ?? throw new ArgumentException($"Publisher with ID '{publisherId}' not found.");
 
         foreach (var genreId in genreIds)
         {
@@ -221,5 +218,25 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             _ = await unitOfWork.Platforms.GetByIdAsync(platformId) ??
                 throw new ArgumentException($"Platform with ID '{platformId}' not found.");
         }
+    }
+
+    private async Task<IEnumerable<GameDto>> GetByPublisherInternalAsync(string companyName)
+    {
+        logger.LogInformation("Fetching games by publisher: {PublisherName}.", companyName);
+
+        var games = (await unitOfWork.Games.GetByPublisherAsync(companyName)).ToList();
+
+        logger.LogInformation("Fetched {Count} games.", games.Count);
+
+        return games.Select(game => new GameDto
+        {
+            Id = game.Id,
+            Name = game.Name,
+            Key = game.Key,
+            Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
+        });
     }
 }
