@@ -94,6 +94,23 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
         });
     }
 
+    public async Task<IEnumerable<GameDto>> GetByPublisherAsync(string companyName)
+    {
+        logger.LogInformation("Fetching games by publisher: {PublisherName}.", companyName);
+        var games = (await unitOfWork.Games.GetByPublisherAsync(companyName)).ToList();
+        logger.LogInformation("Fetched {Count} games.", games.Count);
+        return games.Select(game => new GameDto
+        {
+            Id = game.Id,
+            Name = game.Name,
+            Key = game.Key,
+            Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
+        });
+    }
+
     public async Task CreateAsync(CreateGameRequestDto request)
     {
         logger.LogInformation("Creating game with key: {Key}", request.Game.Key);
@@ -123,7 +140,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             })
         ];
 
-        ValidateRequest(request.Genres, request.Platforms, request.Publisher);
+        await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
         await unitOfWork.Games.AddAsync(game);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Game '{Key}' created successfully.", request.Game.Key);
@@ -162,7 +179,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             })
         ];
 
-        ValidateRequest(request.Genres, request.Platforms, request.Publisher);
+        await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
         unitOfWork.Games.Update(game);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Game '{Key}' updated successfully.", request.Game.Key);
@@ -188,7 +205,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
         return name.ToLower(System.Globalization.CultureInfo.CurrentCulture).Replace(" ", "-");
     }
 
-    private async void ValidateRequest(List<Guid> genreIds, List<Guid> platformIds, Guid publisherId)
+    private async Task ValidateRequest(List<Guid> genreIds, List<Guid> platformIds, Guid publisherId)
     {
         _ = await unitOfWork.Publishers.GetByIdAsync(publisherId)
            ?? throw new ArgumentException($"Publisher with ID '{publisherId}' not found.");

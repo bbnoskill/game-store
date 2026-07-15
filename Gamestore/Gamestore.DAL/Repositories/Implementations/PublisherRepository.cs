@@ -12,4 +12,10 @@ public class PublisherRepository(GamestoreContext context) : Repository<Publishe
         return await Context.Publishers
             .FirstOrDefaultAsync(publisher => publisher.CompanyName == companyName);
     }
+
+    public async Task<Publisher?> GetByGameKeyAsync(string gameKey)
+    {
+        return await Context.Publishers
+            .FirstOrDefaultAsync(publisher => publisher.Games.Any(g => g.Key == gameKey));
+    }
 }

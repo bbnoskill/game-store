@@ -63,9 +63,13 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
     public async Task CreateAsync(CreateGenreRequestDto request)
     {
         logger.LogInformation("Creating genre named: {Name}", request.Genre.Name);
+
+        var newId = Guid.NewGuid();
+        await VerifyNoCycleAsync(newId, request.Genre.ParentGenreId);
+
         var genre = new Genre
         {
-            Id = Guid.NewGuid(),
+            Id = newId,
             Name = request.Genre.Name,
             ParentGenreId = request.Genre.ParentGenreId,
         };
@@ -103,7 +107,7 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
     {
         if (parentGenreId == null)
         {
-            return;
+            throw new ArgumentException("A parent genre id must be provided.");
         }
 
         if (genreId == parentGenreId)
@@ -117,6 +121,11 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
             var parent = await unitOfWork.Genres.GetByIdAsync(currentParentId.Value);
             if (parent == null)
             {
+                if (currentParentId == parentGenreId)
+                {
+                    throw new ArgumentException($"Parent genre with ID '{parentGenreId}' does not exist.");
+                }
+
                 break;
             }
 

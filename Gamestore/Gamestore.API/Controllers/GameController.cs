@@ -8,7 +8,7 @@ namespace Gamestore.API.Controllers;
 
 [ApiController]
 [Route("games")]
-public class GameController(IGameService gameService, IGenreService genreService, IPlatformService platformService) : ControllerBase
+public class GameController(IGameService gameService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateGame([FromBody] CreateGameRequestDto request)
@@ -50,6 +50,13 @@ public class GameController(IGameService gameService, IGenreService genreService
     {
         var platforms = await platformService.GetByGameKeyAsync(key);
         return Ok(platforms);
+    }
+
+    [HttpGet("{key}/publisher")]
+    public async Task<IActionResult> GetPublisherByGameKey(string key)
+    {
+        var publisher = await publisherService.GetByGameKeyAsync(key);
+        return Ok(publisher);
     }
 
     [HttpGet("{key}/file")]
