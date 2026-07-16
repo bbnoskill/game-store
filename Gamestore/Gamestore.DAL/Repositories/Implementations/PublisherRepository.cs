@@ -7,15 +7,15 @@ namespace Gamestore.DAL.Repositories.Implementations;
 
 public class PublisherRepository(GamestoreContext context) : Repository<Publisher>(context), IPublisherRepository
 {
-    public async Task<Publisher?> GetByCompanyNameAsync(string companyName)
+    public Task<Publisher?> GetByCompanyNameAsync(string companyName)
     {
-        return await Context.Publishers
+        return Context.Publishers
             .FirstOrDefaultAsync(publisher => publisher.CompanyName == companyName);
     }
 
-    public async Task<Publisher?> GetByGameKeyAsync(string gameKey)
+    public Task<Publisher?> GetByGameKeyAsync(string gameKey)
     {
-        return await Context.Publishers
+        return Context.Publishers
             .FirstOrDefaultAsync(publisher => publisher.Games.Any(g => g.Key == gameKey));
     }
 }
