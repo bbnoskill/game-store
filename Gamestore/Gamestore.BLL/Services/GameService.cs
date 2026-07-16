@@ -20,6 +20,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         };
     }
 
@@ -34,6 +37,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         };
     }
 
@@ -48,6 +54,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         });
     }
 
@@ -62,6 +71,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         });
     }
 
@@ -76,6 +88,26 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = game.Name,
             Key = game.Key,
             Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
+        });
+    }
+
+    public async Task<IEnumerable<GameDto>> GetByPublisherAsync(string companyName)
+    {
+        logger.LogInformation("Fetching games by publisher: {PublisherName}.", companyName);
+        var games = (await unitOfWork.Games.GetByPublisherAsync(companyName)).ToList();
+        logger.LogInformation("Fetched {Count} games.", games.Count);
+        return games.Select(game => new GameDto
+        {
+            Id = game.Id,
+            Name = game.Name,
+            Key = game.Key,
+            Description = game.Description,
+            Price = game.Price,
+            Discount = game.Discount,
+            UnitInStock = game.UnitInStock,
         });
     }
 
@@ -88,6 +120,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             Name = request.Game.Name,
             Key = string.IsNullOrEmpty(request.Game.Key) ? GenerateKey(request.Game.Name) : request.Game.Key,
             Description = request.Game.Description,
+            Price = request.Game.Price,
+            Discount = request.Game.Discount,
+            UnitInStock = request.Game.UnitInStock,
         };
 
         game.GameGenres = [..request.Genres.Select(genreId => new GameGenre
@@ -105,6 +140,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             })
         ];
 
+        await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
         await unitOfWork.Games.AddAsync(game);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Game '{Key}' created successfully.", request.Game.Key);
@@ -121,6 +157,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             ? GenerateKey(request.Game.Name)
             : request.Game.Key;
         game.Description = request.Game.Description;
+        game.Price = request.Game.Price;
+        game.Discount = request.Game.Discount;
+        game.UnitInStock = request.Game.UnitInStock;
 
         game.GameGenres =
         [
@@ -140,6 +179,7 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
             })
         ];
 
+        await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
         unitOfWork.Games.Update(game);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Game '{Key}' updated successfully.", request.Game.Key);
@@ -163,5 +203,23 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
     private static string GenerateKey(string name)
     {
         return name.ToLower(System.Globalization.CultureInfo.CurrentCulture).Replace(" ", "-");
+    }
+
+    private async Task ValidateRequest(List<Guid> genreIds, List<Guid> platformIds, Guid publisherId)
+    {
+        _ = await unitOfWork.Publishers.GetByIdAsync(publisherId)
+           ?? throw new ArgumentException($"Publisher with ID '{publisherId}' not found.");
+
+        foreach (var genreId in genreIds)
+        {
+            _ = await unitOfWork.Genres.GetByIdAsync(genreId) ??
+                throw new ArgumentException($"Genre with ID '{genreId}' not found.");
+        }
+
+        foreach (var platformId in platformIds)
+        {
+            _ = await unitOfWork.Platforms.GetByIdAsync(platformId) ??
+                throw new ArgumentException($"Platform with ID '{platformId}' not found.");
+        }
     }
 }

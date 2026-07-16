@@ -15,6 +15,8 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
 
     public DbSet<GamePlatform> GamePlatforms => Set<GamePlatform>();
 
+    public DbSet<Publisher> Publishers => Set<Publisher>();
+
     public static void SeedData(ModelBuilder modelBuilder)
     {
         var mobile = new Platform { Id = new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"), Type = "Mobile" };
@@ -61,6 +63,22 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
 
         modelBuilder.Entity<Genre>().HasData(
             strategy, rts, tbs, rpg, simulator, sports, races, rally, arcade, formula, offroad, action, fps, tps, fighting, battleRoyale, heroShooter, adventure, puzzle);
+
+        var publisher1 = new Publisher
+        {
+            Id = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c"),
+            CompanyName = "Electronic Arts",
+            HomePage = "https://www.ea.com",
+            Description = "American video game company",
+        };
+        var publisher2 = new Publisher
+        {
+            Id = new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd"),
+            CompanyName = "Test Name",
+            HomePage = "https://localhost:7091/swagger/index.html",
+            Description = "Some text",
+        };
+        modelBuilder.Entity<Publisher>().HasData(publisher1, publisher2);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -71,15 +89,26 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
         modelBuilder.Entity<GamePlatform>()
             .HasKey(gp => new { gp.GameId, gp.PlatformId });
 
+        modelBuilder.Entity<Game>()
+            .Property(g => g.PublisherId)
+            .HasDefaultValue(new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd"));
+
         modelBuilder.Entity<Game>().HasIndex(g => g.Key).IsUnique();
         modelBuilder.Entity<Genre>().HasIndex(g => g.Name).IsUnique();
-        modelBuilder.Entity<Platform>().HasIndex(g => g.Type).IsUnique();
+        modelBuilder.Entity<Platform>().HasIndex(p => p.Type).IsUnique();
+        modelBuilder.Entity<Publisher>().HasIndex(p => p.CompanyName).IsUnique();
 
         modelBuilder.Entity<Genre>()
             .HasOne(g => g.ParentGenre)
             .WithMany(g => g.SubGenres)
             .HasForeignKey(g => g.ParentGenreId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Game>()
+            .HasOne(g => g.Publisher)
+            .WithMany(p => p.Games)
+            .HasForeignKey(g => g.PublisherId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         SeedData(modelBuilder);
     }

@@ -10,5 +10,7 @@ public interface IUnitOfWork
 
     IPlatformRepository Platforms { get; }
 
+    IPublisherRepository Publishers { get; }
+
     Task SaveChangesAsync();
 }

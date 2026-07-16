@@ -29,6 +29,13 @@ public class GameRepository(GamestoreContext context) : Repository<Game>(context
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Game>> GetByPublisherAsync(string companyName)
+    {
+        return await Context.Games
+            .Where(game => game.Publisher != null && game.Publisher.CompanyName == companyName)
+            .ToListAsync();
+    }
+
     public async Task<int> GetCountAsync()
     {
         return await Context.Games.CountAsync();
