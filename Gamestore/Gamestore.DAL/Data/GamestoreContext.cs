@@ -17,6 +17,10 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
 
     public DbSet<Publisher> Publishers => Set<Publisher>();
 
+    public DbSet<Order> Orders => Set<Order>();
+
+    public DbSet<OrderGame> OrderGames => Set<OrderGame>();
+
     public static void SeedData(ModelBuilder modelBuilder)
     {
         var mobile = new Platform { Id = new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"), Type = "Mobile" };
@@ -89,6 +93,9 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
         modelBuilder.Entity<GamePlatform>()
             .HasKey(gp => new { gp.GameId, gp.PlatformId });
 
+        modelBuilder.Entity<OrderGame>()
+            .HasKey(og => new { og.OrderId, og.ProductId });
+
         modelBuilder.Entity<Game>()
             .Property(g => g.PublisherId)
             .HasDefaultValue(new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd"));
@@ -108,6 +115,16 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             .HasOne(g => g.Publisher)
             .WithMany(p => p.Games)
             .HasForeignKey(g => g.PublisherId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<OrderGame>()
+            .HasOne(og => og.Order)
+            .WithMany(o => o.OrderGames)
+            .HasForeignKey(og => og.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<OrderGame>()
+            .HasOne(og => og.Game)
+            .WithMany(g => g.OrderGames)
+            .HasForeignKey(og => og.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
         SeedData(modelBuilder);
