@@ -191,7 +191,7 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
     {
         var validityDays = configuration.GetValue<int>("Payment:BankInvoiceValidityDays");
 
-        // Тут будe генерувати PDF
+        // Тут буду генерувати PDF
         // Поки що заглушка — потім заміню на реальну
         var content = $"""
                        Invoice

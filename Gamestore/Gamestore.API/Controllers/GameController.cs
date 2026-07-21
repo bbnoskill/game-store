@@ -8,12 +8,20 @@ namespace Gamestore.API.Controllers;
 
 [ApiController]
 [Route("games")]
-public class GameController(IGameService gameService, IGenreService genreService, IPlatformService platformService, IPublisherService publisherService) : ControllerBase
+public class GameController(IGameService gameService, IGenreService genreService, IPlatformService platformService,
+    IPublisherService publisherService, IOrderService orderService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateGame([FromBody] CreateGameRequestDto request)
     {
         await gameService.CreateAsync(request);
+        return Ok();
+    }
+
+    [HttpPost("{key}/buy")]
+    public async Task<IActionResult> AddGameToCart(string key)
+    {
+        await orderService.AddToCartAsync(key);
         return Ok();
     }
 
