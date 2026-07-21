@@ -126,8 +126,6 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
         {
             logger.LogError(ex, "Payment failed for order {OrderId}", order.Id);
             order.Status = OrderStatus.Cancelled;
-            await unitOfWork.SaveChangesAsync();
-            throw new InvalidOperationException("Payment processing failed. " + ex.Message, ex);
         }
 
         await unitOfWork.SaveChangesAsync();
@@ -222,7 +220,7 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
                 });
 
                 page.Footer().AlignCenter()
-                    .Text("Thank you for your purchase!");
+                    .Text("Thank you for Your purchase!");
             });
         });
 
