@@ -5,6 +5,9 @@ using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace Gamestore.BLL.Services;
 
@@ -123,6 +126,8 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
         {
             logger.LogError(ex, "Payment failed for order {OrderId}", order.Id);
             order.Status = OrderStatus.Cancelled;
+            await unitOfWork.SaveChangesAsync();
+            throw new InvalidOperationException("Payment processing failed. " + ex.Message, ex);
         }
 
         await unitOfWork.SaveChangesAsync();
@@ -190,19 +195,38 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
     private byte[] GenerateBankInvoice(Order order, double sum)
     {
         var validityDays = configuration.GetValue<int>("Payment:BankInvoiceValidityDays");
+        var creationDate = DateTime.UtcNow;
+        var validUntil = creationDate.AddDays(validityDays);
 
-        // Тут буду генерувати PDF
-        // Поки що заглушка — потім заміню на реальну
-        var content = $"""
-                       Invoice
-                       User ID: {order.CustomerId}
-                       Order ID: {order.Id}
-                       Creation Date: {DateTime.UtcNow}
-                       Valid Until: {DateTime.UtcNow.AddDays(validityDays)}
-                       Sum: {sum:F2}
-                       """;
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
 
-        return System.Text.Encoding.UTF8.GetBytes(content);
+                page.Header().Text("Game Store Invoice")
+                    .SemiBold().FontSize(24).FontColor(Colors.Blue.Medium);
+
+                page.Content().PaddingVertical(10).Column(column =>
+                {
+                    column.Spacing(8);
+
+                    column.Item().Text($"User ID: {order.CustomerId}");
+                    column.Item().Text($"Order ID: {order.Id}");
+                    column.Item().Text($"Creation Date: {creationDate:yyyy-MM-dd HH:mm}");
+                    column.Item().Text($"Valid Until: {validUntil:yyyy-MM-dd HH:mm}");
+
+                    column.Item().PaddingTop(10).Text($"Total Sum: ${sum:F2}")
+                        .SemiBold().FontSize(16);
+                });
+
+                page.Footer().AlignCenter()
+                    .Text("Thank you for your purchase!");
+            });
+        });
+
+        return document.GeneratePdf();
     }
 
     private async Task<IBoxPaymentResultDto> ProcessMicroservicePaymentAsync(
@@ -213,11 +237,31 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
 
         for (int attempt = 0; attempt < MaxRetries; attempt++)
         {
-            var payload = request.Method == "Visa"
-                ? (object)new { request.Method, request.Model }
-                : new { request.Method };
+            HttpResponseMessage response;
 
-            var response = await client.PostAsJsonAsync($"{microserviceUrl}/api/payments", payload);
+            if (request.Method == "Visa")
+            {
+                var visaPayload = new
+                {
+                    transactionAmount = sum,
+                    cardHolderName = request.Model!.Holder,
+                    cardNumber = request.Model.CardNumber,
+                    expirationMonth = request.Model.MonthExpire,
+                    expirationYear = request.Model.YearExpire,
+                    cvv = request.Model.Cvv2,
+                };
+                response = await client.PostAsJsonAsync($"{microserviceUrl}/api/payments/visa", visaPayload);
+            }
+            else
+            {
+                var iboxPayload = new
+                {
+                    transactionAmount = sum,
+                    accountNumber = order.CustomerId,
+                    invoiceNumber = order.Id,
+                };
+                response = await client.PostAsJsonAsync($"{microserviceUrl}/api/payments/ibox", iboxPayload);
+            }
 
             if (response.IsSuccessStatusCode)
             {

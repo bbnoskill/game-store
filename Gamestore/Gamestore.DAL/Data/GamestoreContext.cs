@@ -82,7 +82,36 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             HomePage = "https://localhost:7091/swagger/index.html",
             Description = "Some text",
         };
-        modelBuilder.Entity<Publisher>().HasData(publisher1, publisher2);
+        var pubValve = new Publisher { Id = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac"), CompanyName = "Valve", HomePage = "https://www.valvesoftware.com", Description = "Creators of Steam" };
+        var pubBethesda = new Publisher { Id = new Guid("5bc5d6a2-6f91-4d3f-91ab-64213d8e578c"), CompanyName = "Bethesda", HomePage = "https://bethesda.net", Description = "Makers of Skyrim" };
+        var pubCdpr = new Publisher { Id = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1"), CompanyName = "CD Projekt Red", HomePage = "https://cdprojekt.com", Description = "Witcher and Cyberpunk developers" };
+        modelBuilder.Entity<Publisher>().HasData(publisher1, publisher2, pubValve, pubBethesda, pubCdpr);
+
+        var halo = new Game { Id = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"), Name = "Halo", Key = "halo", Description = "Sci-fi shooter", Price = 30.0, UnitInStock = 100, Discount = 0, PublisherId = publisher1.Id };
+        var skyrim = new Game { Id = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"), Name = "Skyrim", Key = "skyrim", Description = "Epic fantasy RPG", Price = 40.0, UnitInStock = 50, Discount = 10, PublisherId = pubBethesda.Id };
+        var witcher3 = new Game { Id = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"), Name = "The Witcher 3", Key = "witcher-3", Description = "Geralt's adventure", Price = 25.0, UnitInStock = 200, Discount = 5, PublisherId = pubCdpr.Id };
+        var portal2 = new Game { Id = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"), Name = "Portal 2", Key = "portal-2", Description = "Thinking with portals", Price = 10.0, UnitInStock = 500, Discount = 2, PublisherId = pubValve.Id };
+        var fifa = new Game { Id = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"), Name = "FIFA 24", Key = "fifa-24", Description = "Football simulator", Price = 60.0, UnitInStock = 1000, Discount = 15, PublisherId = publisher1.Id };
+        modelBuilder.Entity<Game>().HasData(halo, skyrim, witcher3, portal2, fifa);
+
+        modelBuilder.Entity<GameGenre>().HasData(
+            new GameGenre { GameId = halo.Id, GenreId = fps.Id },
+            new GameGenre { GameId = skyrim.Id, GenreId = rpg.Id },
+            new GameGenre { GameId = skyrim.Id, GenreId = adventure.Id },
+            new GameGenre { GameId = witcher3.Id, GenreId = rpg.Id },
+            new GameGenre { GameId = witcher3.Id, GenreId = action.Id },
+            new GameGenre { GameId = portal2.Id, GenreId = puzzle.Id },
+            new GameGenre { GameId = fifa.Id, GenreId = sports.Id });
+
+        modelBuilder.Entity<GamePlatform>().HasData(
+            new GamePlatform { GameId = halo.Id, PlatformId = console.Id },
+            new GamePlatform { GameId = skyrim.Id, PlatformId = desktop.Id },
+            new GamePlatform { GameId = skyrim.Id, PlatformId = console.Id },
+            new GamePlatform { GameId = witcher3.Id, PlatformId = desktop.Id },
+            new GamePlatform { GameId = witcher3.Id, PlatformId = console.Id },
+            new GamePlatform { GameId = portal2.Id, PlatformId = desktop.Id },
+            new GamePlatform { GameId = portal2.Id, PlatformId = console.Id },
+            new GamePlatform { GameId = fifa.Id, PlatformId = console.Id });
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

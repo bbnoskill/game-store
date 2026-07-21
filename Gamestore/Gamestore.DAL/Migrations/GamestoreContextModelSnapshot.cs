@@ -61,6 +61,63 @@ namespace Gamestore.DAL.Migrations
                     b.HasIndex("PublisherId");
 
                     b.ToTable("Games");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"),
+                            Description = "Sci-fi shooter",
+                            Discount = 0,
+                            Key = "halo",
+                            Name = "Halo",
+                            Price = 30.0,
+                            PublisherId = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c"),
+                            UnitInStock = 100
+                        },
+                        new
+                        {
+                            Id = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            Description = "Epic fantasy RPG",
+                            Discount = 10,
+                            Key = "skyrim",
+                            Name = "Skyrim",
+                            Price = 40.0,
+                            PublisherId = new Guid("5bc5d6a2-6f91-4d3f-91ab-64213d8e578c"),
+                            UnitInStock = 50
+                        },
+                        new
+                        {
+                            Id = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            Description = "Geralt's adventure",
+                            Discount = 5,
+                            Key = "witcher-3",
+                            Name = "The Witcher 3",
+                            Price = 25.0,
+                            PublisherId = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1"),
+                            UnitInStock = 200
+                        },
+                        new
+                        {
+                            Id = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
+                            Description = "Thinking with portals",
+                            Discount = 2,
+                            Key = "portal-2",
+                            Name = "Portal 2",
+                            Price = 10.0,
+                            PublisherId = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac"),
+                            UnitInStock = 500
+                        },
+                        new
+                        {
+                            Id = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"),
+                            Description = "Football simulator",
+                            Discount = 15,
+                            Key = "fifa-24",
+                            Name = "FIFA 24",
+                            Price = 60.0,
+                            PublisherId = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c"),
+                            UnitInStock = 1000
+                        });
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.GameGenre", b =>
@@ -76,6 +133,43 @@ namespace Gamestore.DAL.Migrations
                     b.HasIndex("GenreId");
 
                     b.ToTable("GameGenres");
+
+                    b.HasData(
+                        new
+                        {
+                            GameId = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"),
+                            GenreId = new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7")
+                        },
+                        new
+                        {
+                            GameId = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            GenreId = new Guid("d4e5f6a7-b8c9-4d0e-1f2a-b3c4d5e6f7a8")
+                        },
+                        new
+                        {
+                            GameId = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            GenreId = new Guid("f8a9b0c1-d2e3-4f4a-5b6c-d7e8f9a0b1c2")
+                        },
+                        new
+                        {
+                            GameId = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            GenreId = new Guid("d4e5f6a7-b8c9-4d0e-1f2a-b3c4d5e6f7a8")
+                        },
+                        new
+                        {
+                            GameId = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            GenreId = new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6")
+                        },
+                        new
+                        {
+                            GameId = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
+                            GenreId = new Guid("a9b0c1d2-e3f4-4a5b-6c7d-e8f9a0b1c2d3")
+                        },
+                        new
+                        {
+                            GameId = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"),
+                            GenreId = new Guid("f6a7b8c9-d0e1-4f2a-3b4c-d5e6f7a8b9c0")
+                        });
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.GamePlatform", b =>
@@ -91,6 +185,48 @@ namespace Gamestore.DAL.Migrations
                     b.HasIndex("PlatformId");
 
                     b.ToTable("GamePlatforms");
+
+                    b.HasData(
+                        new
+                        {
+                            GameId = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"),
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d")
+                        },
+                        new
+                        {
+                            GameId = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            PlatformId = new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b")
+                        },
+                        new
+                        {
+                            GameId = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d")
+                        },
+                        new
+                        {
+                            GameId = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            PlatformId = new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b")
+                        },
+                        new
+                        {
+                            GameId = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d")
+                        },
+                        new
+                        {
+                            GameId = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
+                            PlatformId = new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b")
+                        },
+                        new
+                        {
+                            GameId = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d")
+                        },
+                        new
+                        {
+                            GameId = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"),
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d")
+                        });
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.Genre", b =>
@@ -350,6 +486,27 @@ namespace Gamestore.DAL.Migrations
                             CompanyName = "Test Name",
                             Description = "Some text",
                             HomePage = "https://localhost:7091/swagger/index.html"
+                        },
+                        new
+                        {
+                            Id = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac"),
+                            CompanyName = "Valve",
+                            Description = "Creators of Steam",
+                            HomePage = "https://www.valvesoftware.com"
+                        },
+                        new
+                        {
+                            Id = new Guid("5bc5d6a2-6f91-4d3f-91ab-64213d8e578c"),
+                            CompanyName = "Bethesda",
+                            Description = "Makers of Skyrim",
+                            HomePage = "https://bethesda.net"
+                        },
+                        new
+                        {
+                            Id = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1"),
+                            CompanyName = "CD Projekt Red",
+                            Description = "Witcher and Cyberpunk developers",
+                            HomePage = "https://cdprojekt.com"
                         });
                 });
 
