@@ -220,7 +220,7 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
                 });
 
                 page.Footer().AlignCenter()
-                    .Text("Thank you for Your purchase!");
+                    .Text("Thank you for your purchase!");
             });
         });
 
