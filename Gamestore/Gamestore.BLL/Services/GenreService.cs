@@ -12,7 +12,7 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
     {
         logger.LogInformation("Fetching genre by id: {Id}", id);
         var genre = await unitOfWork.Genres.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException($"Genre with id '{id}' was not found.");
+            ?? throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
         return new GenreDto
         {
             Id = genre.Id,
