@@ -227,7 +227,7 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
         return document.GeneratePdf();
     }
 
-    private async Task<IBoxPaymentResultDto> ProcessMicroservicePaymentAsync(
+    private async Task<IboxPaymentResultDto> ProcessMicroservicePaymentAsync(
         Order order, double sum, PaymentRequestDto request)
     {
         var microserviceUrl = configuration["Payment:MicroserviceUrl"];
@@ -263,7 +263,7 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
 
             if (response.IsSuccessStatusCode)
             {
-                return new IBoxPaymentResultDto
+                return new IboxPaymentResultDto
                 {
                     UserId = order.CustomerId,
                     OrderId = order.Id,

@@ -4,5 +4,5 @@ public class PaymentResultDto
 {
     public byte[]? InvoiceFile { get; set; }
 
-    public IBoxPaymentResultDto? IBoxResult { get; set; }
+    public IboxPaymentResultDto? IBoxResult { get; set; }
 }

@@ -105,11 +105,12 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
 
     private Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
     {
-        return parentGenreId == null
-            ? throw new ArgumentException("A parent genre id must be provided.")
-            : genreId == parentGenreId
-                ? throw new ArgumentException("A genre cannot be its own parent.")
-                : VerifyNoCycleInternalAsync(genreId, parentGenreId);
+        return parentGenreId switch
+        {
+            null => throw new ArgumentException("A parent genre id must be provided."),
+            _ when genreId == parentGenreId => throw new ArgumentException("A genre cannot be its own parent."),
+            _ => VerifyNoCycleInternalAsync(genreId, parentGenreId),
+        };
     }
 
     private async Task VerifyNoCycleInternalAsync(Guid genreId, Guid? parentGenreId)

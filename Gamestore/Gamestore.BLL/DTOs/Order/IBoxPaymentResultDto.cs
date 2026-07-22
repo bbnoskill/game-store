@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.BLL.DTOs.Order;
 
-public class IBoxPaymentResultDto
+public class IboxPaymentResultDto
 {
     public Guid UserId { get; set; }
 
