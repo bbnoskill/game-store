@@ -103,18 +103,17 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
         logger.LogInformation("Genre with id: {Id} deleted successfully", id);
     }
 
-    private async Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
+    private Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
     {
-        if (parentGenreId == null)
-        {
-            throw new ArgumentException("A parent genre id must be provided.");
-        }
+        return parentGenreId == null
+            ? throw new ArgumentException("A parent genre id must be provided.")
+            : genreId == parentGenreId
+                ? throw new ArgumentException("A genre cannot be its own parent.")
+                : VerifyNoCycleInternalAsync(genreId, parentGenreId);
+    }
 
-        if (genreId == parentGenreId)
-        {
-            throw new ArgumentException("A genre cannot be its own parent.");
-        }
-
+    private async Task VerifyNoCycleInternalAsync(Guid genreId, Guid? parentGenreId)
+    {
         var currentParentId = parentGenreId;
         while (currentParentId != null)
         {

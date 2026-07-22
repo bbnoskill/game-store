@@ -116,7 +116,7 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
                     break;
 
                 default:
-                    throw new Exception($"Unsupported method: {request.Method}");
+                    throw new ArgumentException($"Unsupported method: {request.Method}");
             }
 
             order.Status = OrderStatus.Paid;

@@ -126,7 +126,6 @@ public class OrderServiceTests
         _orderRepo.Setup(r => r.GetOpenOrderByCustomerIdAsync(_stubCustomerId)).ReturnsAsync(order);
         _orderRepo.Setup(r => r.GetByIdWithDetailsAsync(order.Id)).ReturnsAsync(orderWithDetails);
 
-        // Settings required by QuestPDF (though we mock most)
         QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
         var request = new PaymentRequestDto { Method = "Bank" };
@@ -187,7 +186,7 @@ public class OrderServiceTests
         var result = await _service.PayAsync(request);
 
         Assert.Null(result.InvoiceFile);
-        Assert.Null(result.IBoxResult); // Visa returns empty success response
+        Assert.Null(result.IBoxResult);
         Assert.Equal(OrderStatus.Paid, order.Status);
     }
 }
