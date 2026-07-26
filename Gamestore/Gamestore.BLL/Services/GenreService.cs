@@ -12,7 +12,7 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
     {
         logger.LogInformation("Fetching genre by id: {Id}", id);
         var genre = await unitOfWork.Genres.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException($"Genre with id '{id}' was not found.");
+            ?? throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
         return new GenreDto
         {
             Id = genre.Id,
@@ -103,18 +103,18 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
         logger.LogInformation("Genre with id: {Id} deleted successfully", id);
     }
 
-    private async Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
+    private Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
     {
-        if (parentGenreId == null)
+        return parentGenreId switch
         {
-            throw new ArgumentException("A parent genre id must be provided.");
-        }
+            null => throw new ArgumentException("A parent genre id must be provided."),
+            _ when genreId == parentGenreId => throw new ArgumentException("A genre cannot be its own parent."),
+            _ => VerifyNoCycleInternalAsync(genreId, parentGenreId),
+        };
+    }
 
-        if (genreId == parentGenreId)
-        {
-            throw new ArgumentException("A genre cannot be its own parent.");
-        }
-
+    private async Task VerifyNoCycleInternalAsync(Guid genreId, Guid? parentGenreId)
+    {
         var currentParentId = parentGenreId;
         while (currentParentId != null)
         {

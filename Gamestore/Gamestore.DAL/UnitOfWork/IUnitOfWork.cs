@@ -12,5 +12,9 @@ public interface IUnitOfWork
 
     IPublisherRepository Publishers { get; }
 
+    IOrderRepository Orders { get; }
+
+    IOrderGameRepository OrderGames { get; }
+
     Task SaveChangesAsync();
 }

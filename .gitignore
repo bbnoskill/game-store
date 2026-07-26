@@ -30,6 +30,9 @@ bld/
 #Logs
 Gamestore/Gamestore.API/logs/
 
+#account for orders
+Gamestore/account.json
+
 #MD Files
 *.md
 
