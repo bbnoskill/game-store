@@ -18,6 +18,8 @@ public class UnitOfWork(GamestoreContext context) : IUnitOfWork
 
     public IOrderGameRepository OrderGames { get; } = new OrderGameRepository(context);
 
+    public ICommentRepository Comments { get; } = new CommentRepository(context);
+
     public async Task SaveChangesAsync()
     {
         await context.SaveChangesAsync();

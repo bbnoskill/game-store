@@ -24,5 +24,7 @@ public class Game
 
     public ICollection<GamePlatform> GamePlatforms { get; set; } = [];
 
+    public ICollection<Comment> GameComments { get; set; } = [];
+
     public ICollection<OrderGame> OrderGames { get; set; } = [];
 }

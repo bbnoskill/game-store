@@ -21,6 +21,8 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
 
     public DbSet<OrderGame> OrderGames => Set<OrderGame>();
 
+    public DbSet<Comment> Comments => Set<Comment>();
+
     public static void SeedData(ModelBuilder modelBuilder)
     {
         var mobile = new Platform { Id = new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"), Type = "Mobile" };
@@ -139,7 +141,6 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             .WithMany(g => g.SubGenres)
             .HasForeignKey(g => g.ParentGenreId)
             .OnDelete(DeleteBehavior.Restrict);
-
         modelBuilder.Entity<Game>()
             .HasOne(g => g.Publisher)
             .WithMany(p => p.Games)
@@ -155,7 +156,16 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             .WithMany(g => g.OrderGames)
             .HasForeignKey(og => og.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
-
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Game)
+            .WithMany(g => g.GameComments)
+            .HasForeignKey(c => c.GameId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.ParentComment)
+            .WithMany(c => c.ChildComments)
+            .HasForeignKey(c => c.ParentCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
         SeedData(modelBuilder);
     }
 }
