@@ -36,5 +36,12 @@
   "cancelGameBuyApiUrl": "orders/cart/{key}",
   "basketApiUrl": "orders/cart",
   "makeOrderInfoApiUrl": "orders/payment-methods",
-  "payApiUrl": "orders/payment"
+  "payApiUrl": "orders/payment",
+  "commentsByGameApiUrl": "games/{key}/comments",
+  "addCommentApiUrl": "games/{key}/comments",
+  "addReplyCommentApiUrl": "games/{key}/comments",
+  "addQouteCommentApiUrl": "games/{key}/comments",
+  "deleteCommentApiUrl": "games/{key}/comments/{id}",
+  "getBanDurationsApiUrl": "comments/ban/durations",
+  "banUserApiUrl": "comments/ban"
 }
