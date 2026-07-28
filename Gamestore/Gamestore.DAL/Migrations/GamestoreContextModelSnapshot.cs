@@ -22,6 +22,35 @@ namespace Gamestore.DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
                 {
                     b.Property<Guid>("Id")
@@ -510,6 +539,24 @@ namespace Gamestore.DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.Comment", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Game", "Game")
+                        .WithMany("GameComments")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gamestore.DAL.Entities.Comment", "ParentComment")
+                        .WithMany("ChildComments")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Game");
+
+                    b.Navigation("ParentComment");
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
                 {
                     b.HasOne("Gamestore.DAL.Entities.Publisher", "Publisher")
@@ -588,8 +635,15 @@ namespace Gamestore.DAL.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.Comment", b =>
+                {
+                    b.Navigation("ChildComments");
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
                 {
+                    b.Navigation("GameComments");
+
                     b.Navigation("GameGenres");
 
                     b.Navigation("GamePlatforms");
