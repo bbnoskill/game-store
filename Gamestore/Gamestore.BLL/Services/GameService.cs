@@ -13,7 +13,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
         logger.LogInformation("Fetching game by key: {Key}", key);
         var game = await unitOfWork.Games.GetByKeyAsync(key)
                    ?? throw new KeyNotFoundException($"Game with key '{key}' was not found.");
-
+        game.ViewCount++;
+        unitOfWork.Games.Update(game);
+        await unitOfWork.SaveChangesAsync();
         return new GameDto
         {
             Id = game.Id,
@@ -31,6 +33,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
         logger.LogInformation("Fetching game by id: {Id}", id);
         var game = await unitOfWork.Games.GetByIdAsync(id)
                    ?? throw new KeyNotFoundException($"Game with id '{id}' was not found.");
+        game.ViewCount++;
+        unitOfWork.Games.Update(game);
+        await unitOfWork.SaveChangesAsync();
         return new GameDto
         {
             Id = game.Id,
