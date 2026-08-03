@@ -16,9 +16,9 @@ public class GameFilterDto
 
     public double? MaxPrice { get; set; }
 
-    public List<Guid?> Publishers { get; set; }
+    public List<Guid?>? Publishers { get; set; }
 
-    public List<Guid?> Platforms { get; set; }
+    public List<Guid?>? Platforms { get; set; }
 
-    public List<Guid?> Genres { get; set; }
+    public List<Guid?>? Genres { get; set; }
 }

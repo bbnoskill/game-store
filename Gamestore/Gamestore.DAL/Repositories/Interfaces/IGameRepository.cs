@@ -13,4 +13,6 @@ public interface IGameRepository : IRepository<Game>
     Task<IEnumerable<Game>> GetByPublisherAsync(string companyName);
 
     Task<int> GetCountAsync();
+
+    IQueryable<Game> GetQueryable();
 }

@@ -1,6 +1,9 @@
 using Gamestore.API.Interfaces;
 using Gamestore.API.Middleware;
 using Gamestore.API.Services;
+using Gamestore.BLL.Filtering;
+using Gamestore.BLL.Filtering.Implementations;
+using Gamestore.BLL.Filtering.Interfaces;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Data;
@@ -22,6 +25,15 @@ builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+
+builder.Services.AddScoped<IGameFilterStep, GenreFilterStep>();
+builder.Services.AddScoped<IGameFilterStep, PlatformFilterStep>();
+builder.Services.AddScoped<IGameFilterStep, PublisherFilterStep>();
+builder.Services.AddScoped<IGameFilterStep, PriceFilterStep>();
+builder.Services.AddScoped<IGameFilterStep, PublishDateFilterStep>();
+builder.Services.AddScoped<IGameFilterStep, NameFilterStep>();
+builder.Services.AddScoped<IGameFilterStep, SortStep>();
+builder.Services.AddScoped<GameFilterPipeline>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

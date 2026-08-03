@@ -40,4 +40,12 @@ public class GameRepository(GamestoreContext context) : Repository<Game>(context
     {
         return await Context.Games.CountAsync();
     }
+
+    public IQueryable<Game> GetQueryable()
+    {
+        return Context.Games
+            .Include(g => g.GameGenres)
+            .Include(g => g.GamePlatforms)
+            .Include(g => g.GameComments);
+    }
 }

@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Gamestore.BLL.DTOs.Comment;
 using Gamestore.BLL.DTOs.Game;
+using Gamestore.BLL.DTOs.Game.Filtering;
 using Gamestore.BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +13,10 @@ namespace Gamestore.API.Controllers;
 public class GameController(IGameService gameService, IGenreService genreService, IPlatformService platformService,
     IPublisherService publisherService, IOrderService orderService, ICommentService commentService) : ControllerBase
 {
+    private static readonly string[] PaginationOptions = ["10", "20", "50", "100", "all"];
+    private static readonly string[] SortingOptions = ["Most popular", "Most commented", "Price ASC", "Price DESC", "New"];
+    private static readonly string[] PublishDateOptions = ["last week", "last month", "last year", "2 years", "3 years"];
+
     [HttpPost]
     public async Task<IActionResult> CreateGame([FromBody] CreateGameRequestDto request)
     {
@@ -34,9 +39,9 @@ public class GameController(IGameService gameService, IGenreService genreService
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllGames()
+    public async Task<IActionResult> GetAllGames([FromQuery] GameFilterDto filter)
     {
-        var games = await gameService.GetAllAsync();
+        var games = await gameService.GetFilteredAsync(filter);
         return Ok(games);
     }
 
@@ -97,6 +102,18 @@ public class GameController(IGameService gameService, IGenreService genreService
         var comments = await commentService.GetByGameKeyAsync(key);
         return Ok(comments);
     }
+
+    [HttpGet("pagination-options")] // US1
+    public IActionResult GetPaginationOptions()
+        => Ok(PaginationOptions);
+
+    [HttpGet("sorting-options")] // US2
+    public IActionResult GetSortingOptions()
+        => Ok(SortingOptions);
+
+    [HttpGet("publish-date-options")] // US3
+    public IActionResult GetPublishDateOptions()
+        => Ok(PublishDateOptions);
 
     [HttpPut]
     public async Task<IActionResult> UpdateGame([FromBody] UpdateGameRequestDto request)
