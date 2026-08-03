@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using Gamestore.BLL.DTOs.Comment;
 using Gamestore.BLL.DTOs.Game;
@@ -103,15 +103,15 @@ public class GameController(IGameService gameService, IGenreService genreService
         return Ok(comments);
     }
 
-    [HttpGet("pagination-options")] // US1
+    [HttpGet("pagination-options")]
     public IActionResult GetPaginationOptions()
         => Ok(PaginationOptions);
 
-    [HttpGet("sorting-options")] // US2
+    [HttpGet("sorting-options")]
     public IActionResult GetSortingOptions()
         => Ok(SortingOptions);
 
-    [HttpGet("publish-date-options")] // US3
+    [HttpGet("publish-date-options")]
     public IActionResult GetPublishDateOptions()
         => Ok(PublishDateOptions);
 
