@@ -1,4 +1,5 @@
 ﻿using Gamestore.BLL.DTOs.Game;
+using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Interfaces;
@@ -14,11 +15,12 @@ public class GameServiceTests
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly GameService _service;
     private readonly Mock<ILogger<GameService>> _loggerMock = new();
+    private readonly GameFilterPipeline _pipeline = new([]);
 
     public GameServiceTests()
     {
         _uow.Setup(u => u.Games).Returns(_gameRepo.Object);
-        _service = new GameService(_uow.Object, _loggerMock.Object);
+        _service = new GameService(_uow.Object, _loggerMock.Object, _pipeline);
     }
 
     [Fact]

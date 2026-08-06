@@ -1,4 +1,5 @@
 ﻿using Gamestore.BLL.DTOs.Game;
+using Gamestore.BLL.DTOs.Game.Filtering;
 
 namespace Gamestore.BLL.Interfaces;
 
@@ -23,4 +24,6 @@ public interface IGameService
     Task DeleteAsync(string key);
 
     Task<int> GetTotalCountAsync();
+
+    Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter);
 }

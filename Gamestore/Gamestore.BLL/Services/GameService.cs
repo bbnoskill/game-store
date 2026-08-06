@@ -1,19 +1,24 @@
 ﻿using Gamestore.BLL.DTOs.Game;
+using Gamestore.BLL.DTOs.Game.Filtering;
+using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.BLL.Services;
 
-public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : IGameService
+public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger, GameFilterPipeline pipeline) : IGameService
 {
     public async Task<GameDto?> GetByKeyAsync(string key)
     {
         logger.LogInformation("Fetching game by key: {Key}", key);
         var game = await unitOfWork.Games.GetByKeyAsync(key)
                    ?? throw new KeyNotFoundException($"Game with key '{key}' was not found.");
-
+        game.ViewCount++;
+        unitOfWork.Games.Update(game);
+        await unitOfWork.SaveChangesAsync();
         return new GameDto
         {
             Id = game.Id,
@@ -31,6 +36,9 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
         logger.LogInformation("Fetching game by id: {Id}", id);
         var game = await unitOfWork.Games.GetByIdAsync(id)
                    ?? throw new KeyNotFoundException($"Game with id '{id}' was not found.");
+        game.ViewCount++;
+        unitOfWork.Games.Update(game);
+        await unitOfWork.SaveChangesAsync();
         return new GameDto
         {
             Id = game.Id,
@@ -198,6 +206,40 @@ public class GameService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : 
     public async Task<int> GetTotalCountAsync()
     {
         return await unitOfWork.Games.GetCountAsync();
+    }
+
+    public async Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter)
+    {
+        logger.LogInformation("Fetching filtered games.");
+        var query = unitOfWork.Games.GetQueryable();
+        query = pipeline.Execute(query, filter);
+        var totalCount = await query.CountAsync();
+        int pageSize = filter.PageSize == "all" || string.IsNullOrEmpty(filter.PageSize)
+            ? totalCount
+            : int.Parse(filter.PageSize);
+        int page = filter.Page > 0 ? filter.Page : 1;
+        int totalPages = pageSize > 0 ? (int)Math.Ceiling((double)totalCount / pageSize) : 1;
+        var games = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize == 0 ? totalCount : pageSize)
+            .Select(game => new GameDto
+            {
+                Id = game.Id,
+                Name = game.Name,
+                Key = game.Key,
+                Description = game.Description,
+                Price = game.Price,
+                Discount = game.Discount,
+                UnitInStock = game.UnitInStock,
+            })
+            .ToListAsync();
+        logger.LogInformation("Fetched {Count} of {Total} games (page {Page}).", games.Count, totalCount, page);
+        return new GameFilterResultDto
+        {
+            Games = games,
+            TotalPages = totalPages,
+            CurrentPage = page,
+        };
     }
 
     private static string GenerateKey(string name)
