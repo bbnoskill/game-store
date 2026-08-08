@@ -6,7 +6,7 @@ public interface IMongoRepository<T>
 {
     IQueryable<T> GetAllQueryable();
 
-    Task<IEnumerable<T>> GetByIdAsync(Guid id);
+    Task<T?> GetByIdAsync(Guid id);
 
     Task<IEnumerable<T>> GetAllAsync();
 

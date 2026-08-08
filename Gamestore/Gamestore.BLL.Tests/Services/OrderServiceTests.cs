@@ -4,6 +4,7 @@ using Gamestore.BLL.Services;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Interfaces;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -21,6 +22,8 @@ public class OrderServiceTests
     private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new();
     private readonly Mock<IHttpClientFactory> _clientFactoryMock = new();
     private readonly Mock<IConfiguration> _configMock = new();
+    private readonly Mock<IMongoOrderRepository> _mongoOrderRepo = new();
+    private readonly Mock<IMongoProductRepository> _mongoProductRepo = new();
 
     private readonly OrderService _service;
     private readonly Guid _stubCustomerId = Guid.Parse("5aa1c97e-e6b3-497c-8e00-270e96aa0b63");
@@ -45,7 +48,16 @@ public class OrderServiceTests
         validitySectionMock.Setup(c => c.Value).Returns("3");
         _configMock.Setup(c => c.GetSection("Payment:BankInvoiceValidityDays")).Returns(validitySectionMock.Object);
 
-        _service = new OrderService(_uow.Object, _loggerMock.Object, _clientFactoryMock.Object, _configMock.Object);
+        _mongoOrderRepo.Setup(m => m.GetHistoryAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+            .ReturnsAsync([]);
+
+        _service = new OrderService(
+            _uow.Object,
+            _loggerMock.Object,
+            _clientFactoryMock.Object,
+            _configMock.Object,
+            _mongoOrderRepo.Object,
+            _mongoProductRepo.Object);
     }
 
     [Fact]

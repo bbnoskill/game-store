@@ -42,4 +42,7 @@ public class MongoProduct
     [BsonElement("GameStoreKey")]
     [BsonIgnoreIfNull]
     public string? GameStoreKey { get; set; }
+
+    [BsonElement("ViewsCount")]
+    public int ViewsCount { get; set; }
 }

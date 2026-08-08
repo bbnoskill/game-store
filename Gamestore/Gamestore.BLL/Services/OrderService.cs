@@ -1,8 +1,9 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Gamestore.BLL.DTOs.Order;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QuestPDF.Fluent;
@@ -11,8 +12,13 @@ using QuestPDF.Infrastructure;
 
 namespace Gamestore.BLL.Services;
 
-public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
-    IHttpClientFactory clientFactory, IConfiguration configuration) : IOrderService
+public class OrderService(
+    IUnitOfWork unitOfWork,
+    ILogger<OrderService> logger,
+    IHttpClientFactory clientFactory,
+    IConfiguration configuration,
+    IMongoOrderRepository mongoOrderRepository,
+    IMongoProductRepository mongoProductRepository) : IOrderService
 {
     private const int MaxRetries = 5;
     private static readonly Guid StubCustomerId = Guid.Parse("5aa1c97e-e6b3-497c-8e00-270e96aa0b63");
@@ -121,6 +127,21 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
 
             order.Status = OrderStatus.Paid;
             order.Date = DateTime.UtcNow;
+
+            foreach (var og in orderWithDetails.OrderGames)
+            {
+                var game = await unitOfWork.Games.GetByIdAsync(og.ProductId);
+                if (game != null)
+                {
+                    game.UnitInStock = Math.Max(0, game.UnitInStock - og.Quantity);
+                    unitOfWork.Games.Update(game);
+
+                    if (!string.IsNullOrEmpty(game.Key))
+                    {
+                        await mongoProductRepository.DecrementUnitsInStockAsync(game.Key, og.Quantity);
+                    }
+                }
+            }
         }
         catch (Exception ex) when (ex is not ArgumentException and not KeyNotFoundException)
         {
@@ -137,12 +158,40 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
         logger.LogInformation("Fetching all orders.");
         var orders = (await unitOfWork.Orders.GetAllAsync()).ToList();
         logger.LogInformation("Fetched {Count} orders.", orders.Count);
-        return orders.Select(order => new OrderDto()
+        return orders.Select(order => new OrderDto
         {
             CustomerId = order.CustomerId,
             Id = order.Id,
             Date = order.Date,
         });
+    }
+
+    public async Task<IEnumerable<OrderDto>> GetHistoryAsync(DateTime? startDate, DateTime? endDate)
+    {
+        logger.LogInformation("Fetching orders history from SQL and MongoDB (startDate: {Start}, endDate: {End}).", startDate, endDate);
+
+        var sqlOrders = (await unitOfWork.Orders.GetAllAsync())
+            .Where(o => o.Status == OrderStatus.Paid)
+            .Where(o => !startDate.HasValue || (o.Date.HasValue && o.Date.Value >= startDate.Value))
+            .Where(o => !endDate.HasValue || (o.Date.HasValue && o.Date.Value <= endDate.Value))
+            .Select(o => new OrderDto
+            {
+                Id = o.Id,
+                CustomerId = o.CustomerId,
+                Date = o.Date,
+            }).ToList();
+
+        var mongoOrders = (await mongoOrderRepository.GetHistoryAsync(startDate, endDate))
+            .Select(o => new OrderDto
+            {
+                Id = Guid.Empty,
+                CustomerId = Guid.Empty,
+                Date = o.OrderDate,
+            }).ToList();
+
+        var combined = sqlOrders.Concat(mongoOrders).OrderByDescending(o => o.Date).ToList();
+        logger.LogInformation("Fetched total {Count} historical orders ({SqlCount} SQL, {MongoCount} Mongo).", combined.Count, sqlOrders.Count, mongoOrders.Count);
+        return combined;
     }
 
     public async Task<OrderDto?> GetOrderByIdAsync(Guid id)

@@ -1,4 +1,4 @@
-﻿using Gamestore.BLL.DTOs.Platform;
+using Gamestore.BLL.DTOs.Platform;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Interfaces;
@@ -35,13 +35,11 @@ public class PlatformServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsyncReturnsNullWhenNotFound()
+    public async Task GetByIdAsyncThrowsWhenNotFound()
     {
         _platformRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Platform?)null);
 
-        var result = await _service.GetByIdAsync(Guid.NewGuid());
-
-        Assert.Null(result);
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.GetByIdAsync(Guid.NewGuid()));
     }
 
     [Fact]

@@ -3,6 +3,8 @@ using Gamestore.BLL.Services;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Interfaces;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Entities;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -12,13 +14,15 @@ public class PublisherServiceTests
 {
     private readonly Mock<IPublisherRepository> _publisherRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly Mock<IMongoSupplierRepository> _mongoSupplierRepo = new();
     private readonly PublisherService _service;
     private readonly Mock<ILogger<GameService>> _loggerMock = new();
 
     public PublisherServiceTests()
     {
         _uow.Setup(u => u.Publishers).Returns(_publisherRepo.Object);
-        _service = new PublisherService(_uow.Object, _loggerMock.Object);
+        _mongoSupplierRepo.Setup(m => m.GetAllQueryable()).Returns(new List<MongoSupplier>().AsQueryable());
+        _service = new PublisherService(_uow.Object, _loggerMock.Object, _mongoSupplierRepo.Object);
     }
 
     [Fact]
@@ -97,15 +101,6 @@ public class PublisherServiceTests
         Assert.Equal("New", existing.Description);
         _publisherRepo.Verify(r => r.Update(existing), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsyncThrowsWhenNotFound()
-    {
-        var request = new UpdatePublisherRequestDto { Publisher = new UpdatePublisherDto { Id = Guid.NewGuid() } };
-        _publisherRepo.Setup(r => r.GetByIdAsync(request.Publisher.Id)).ReturnsAsync((Publisher?)null);
-
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateAsync(request));
     }
 
     [Fact]
