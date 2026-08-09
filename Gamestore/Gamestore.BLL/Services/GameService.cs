@@ -97,15 +97,7 @@ public class GameService(
         var sqlKeys = new HashSet<string>(sqlGames.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
         var sqlNames = new HashSet<string>(sqlGames.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
 
-        List<MongoProduct> mongoProducts = [];
-        try
-        {
-            mongoProducts = [.. mongoProductRepository.GetAllQueryable()];
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Could not fetch products from MongoDB.");
-        }
+        List<MongoProduct> mongoProducts = FetchMongoProducts();
 
         var uniqueMongoDtos = mongoProducts
             .Where(p => (string.IsNullOrEmpty(p.GameStoreKey) || !sqlKeys.Contains(p.GameStoreKey))
@@ -301,6 +293,25 @@ public class GameService(
     public async Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter)
     {
         logger.LogInformation("Fetching filtered games.");
+        var (sqlDtos, sqlKeys, sqlNames) = await FetchSqlGamesAsync(filter);
+        var mongoProducts = FetchMongoProducts();
+
+        var mongoDtos = mongoProducts
+            .Where(p => (string.IsNullOrEmpty(p.GameStoreKey) || !sqlKeys.Contains(p.GameStoreKey))
+                        && !sqlNames.Contains(p.ProductName))
+            .GroupBy(p => p.ProductName, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .Select(MapMongoToDto);
+
+        mongoDtos = await FilterMongoDtosAsync(mongoDtos, mongoProducts, filter);
+
+        var combined = SortGames([.. sqlDtos.Concat(mongoDtos)], filter.SortBy ?? filter.Sort);
+
+        return PaginateGames(combined, filter.PageSize, filter.Page);
+    }
+
+    private async Task<(List<GameDto> SqlDtos, HashSet<string> SqlKeys, HashSet<string> SqlNames)> FetchSqlGamesAsync(GameFilterDto filter)
+    {
         var sqlQuery = unitOfWork.Games.GetQueryable();
         sqlQuery = pipeline.Execute(sqlQuery, filter);
         var sqlGames = sqlQuery is IAsyncEnumerable<Game> ? await sqlQuery.ToListAsync() : [.. sqlQuery];
@@ -309,110 +320,133 @@ public class GameService(
         var sqlKeys = new HashSet<string>(sqlGames.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
         var sqlNames = new HashSet<string>(sqlGames.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
 
-        List<MongoProduct> mongoProducts = [];
+        return (sqlDtos, sqlKeys, sqlNames);
+    }
+
+    private List<MongoProduct> FetchMongoProducts()
+    {
         try
         {
-            mongoProducts = [.. mongoProductRepository.GetAllQueryable()];
+            return [.. mongoProductRepository.GetAllQueryable()];
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Could not fetch products from MongoDB.");
+            return [];
         }
+    }
 
-        var uniqueMongoDtos = mongoProducts
-            .Where(p => (string.IsNullOrEmpty(p.GameStoreKey) || !sqlKeys.Contains(p.GameStoreKey))
-                        && !sqlNames.Contains(p.ProductName))
-            .GroupBy(p => p.ProductName, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .Select(MapMongoToDto);
-
+    private async Task<IEnumerable<GameDto>> FilterMongoDtosAsync(
+        IEnumerable<GameDto> mongoDtos,
+        List<MongoProduct> mongoProducts,
+        GameFilterDto filter)
+    {
         if (!string.IsNullOrWhiteSpace(filter.Name))
         {
-            uniqueMongoDtos = uniqueMongoDtos.Where(g => g.Name.Contains(filter.Name, StringComparison.OrdinalIgnoreCase));
+            mongoDtos = mongoDtos.Where(g => g.Name.Contains(filter.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         if (filter.MinPrice.HasValue)
         {
-            uniqueMongoDtos = uniqueMongoDtos.Where(g => g.Price >= (double)filter.MinPrice.Value);
+            mongoDtos = mongoDtos.Where(g => g.Price >= filter.MinPrice.Value);
         }
 
         if (filter.MaxPrice.HasValue)
         {
-            uniqueMongoDtos = uniqueMongoDtos.Where(g => g.Price <= (double)filter.MaxPrice.Value);
+            mongoDtos = mongoDtos.Where(g => g.Price <= filter.MaxPrice.Value);
         }
 
-        var activeGenreIds = filter.Genres?.Where(g => g.HasValue).Select(g => g!.Value).ToList();
-        if (activeGenreIds != null && activeGenreIds.Count > 0 && unitOfWork.Genres != null && mongoCategoryRepository != null)
-        {
-            var selectedGenreNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var genreId in activeGenreIds)
-            {
-                var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
-                if (genre != null)
-                {
-                    selectedGenreNames.Add(genre.Name);
-                }
-            }
-
-            var mongoCategories = mongoCategoryRepository.GetAllQueryable().ToList();
-            var categoryIdToName = mongoCategories.ToDictionary(c => c.CategoryID, c => c.CategoryName);
-
-            var matchingMongoProducts = mongoProducts
-                .Where(p => p.CategoryID.HasValue && categoryIdToName.TryGetValue(p.CategoryID.Value, out var catName) && selectedGenreNames.Contains(catName))
-                .Select(p => p.ProductName)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            uniqueMongoDtos = uniqueMongoDtos.Where(g => matchingMongoProducts.Contains(g.Name));
-        }
+        mongoDtos = await FilterMongoByGenresAsync(mongoDtos, mongoProducts, filter.Genres);
+        mongoDtos = await FilterMongoByPublishersAsync(mongoDtos, mongoProducts, filter.Publishers);
 
         var activePlatformIds = filter.Platforms?.Where(p => p.HasValue).Select(p => p!.Value).ToList();
-        if (activePlatformIds != null && activePlatformIds.Count > 0)
+        return activePlatformIds != null && activePlatformIds.Count > 0 ? [] : mongoDtos;
+    }
+
+    private async Task<IEnumerable<GameDto>> FilterMongoByGenresAsync(
+        IEnumerable<GameDto> mongoDtos,
+        List<MongoProduct> mongoProducts,
+        List<Guid?>? genres)
+    {
+        var activeGenreIds = genres?.Where(g => g.HasValue).Select(g => g!.Value).ToList();
+        if (activeGenreIds == null || activeGenreIds.Count == 0 || unitOfWork.Genres == null || mongoCategoryRepository == null)
         {
-            uniqueMongoDtos = [];
+            return mongoDtos;
         }
 
-        var activePublisherIds = filter.Publishers?.Where(p => p.HasValue).Select(p => p!.Value).ToList();
-        if (activePublisherIds != null && activePublisherIds.Count > 0 && unitOfWork.Publishers != null && mongoSupplierRepository != null)
+        var selectedGenreNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var genreId in activeGenreIds)
         {
-            var selectedPublisherNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var pubId in activePublisherIds)
+            var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
+            if (genre != null)
             {
-                var pub = await unitOfWork.Publishers.GetByIdAsync(pubId);
-                if (pub != null)
-                {
-                    selectedPublisherNames.Add(pub.CompanyName);
-                }
+                selectedGenreNames.Add(genre.Name);
             }
-
-            var mongoSuppliers = mongoSupplierRepository.GetAllQueryable().ToList();
-            var supplierIdToName = mongoSuppliers.ToDictionary(s => s.SupplierID, s => s.CompanyName);
-
-            var matchingMongoProducts = mongoProducts
-                .Where(p => p.SupplierID.HasValue && supplierIdToName.TryGetValue(p.SupplierID.Value, out var suppName) && selectedPublisherNames.Contains(suppName))
-                .Select(p => p.ProductName)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            uniqueMongoDtos = uniqueMongoDtos.Where(g => matchingMongoProducts.Contains(g.Name));
         }
 
-        var combined = sqlDtos.Concat(uniqueMongoDtos).ToList();
+        var mongoCategories = mongoCategoryRepository.GetAllQueryable().ToList();
+        var categoryIdToName = mongoCategories.ToDictionary(c => c.CategoryID, c => c.CategoryName);
 
-        var sortOption = filter.SortBy ?? filter.Sort;
-        combined = sortOption switch
+        var matchingMongoProducts = mongoProducts
+            .Where(p => p.CategoryID.HasValue && categoryIdToName.TryGetValue(p.CategoryID.Value, out var catName) && selectedGenreNames.Contains(catName))
+            .Select(p => p.ProductName)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return mongoDtos.Where(g => matchingMongoProducts.Contains(g.Name));
+    }
+
+    private async Task<IEnumerable<GameDto>> FilterMongoByPublishersAsync(
+        IEnumerable<GameDto> mongoDtos,
+        List<MongoProduct> mongoProducts,
+        List<Guid?>? publishers)
+    {
+        var activePublisherIds = publishers?.Where(p => p.HasValue).Select(p => p!.Value).ToList();
+        if (activePublisherIds == null || activePublisherIds.Count == 0 || unitOfWork.Publishers == null || mongoSupplierRepository == null)
         {
-            "Price ASC" or "price asc" => [.. combined.OrderBy(g => g.Price)],
-            "Price DESC" or "price desc" => [.. combined.OrderByDescending(g => g.Price)],
-            "Most popular" or "most popular" => [.. combined.OrderByDescending(g => g.Name)],
-            "Most commented" or "most commented" => [.. combined.OrderByDescending(g => g.Name)],
-            "New" or "new" => [.. combined.OrderByDescending(g => g.Name)],
-            _ => [.. combined.OrderBy(g => g.Name)],
-        };
+            return mongoDtos;
+        }
 
+        var selectedPublisherNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pubId in activePublisherIds)
+        {
+            var pub = await unitOfWork.Publishers.GetByIdAsync(pubId);
+            if (pub != null)
+            {
+                selectedPublisherNames.Add(pub.CompanyName);
+            }
+        }
+
+        var mongoSuppliers = mongoSupplierRepository.GetAllQueryable().ToList();
+        var supplierIdToName = mongoSuppliers.ToDictionary(s => s.SupplierID, s => s.CompanyName);
+
+        var matchingMongoProducts = mongoProducts
+            .Where(p => p.SupplierID.HasValue && supplierIdToName.TryGetValue(p.SupplierID.Value, out var suppName) && selectedPublisherNames.Contains(suppName))
+            .Select(p => p.ProductName)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return mongoDtos.Where(g => matchingMongoProducts.Contains(g.Name));
+    }
+
+    private static List<GameDto> SortGames(List<GameDto> games, string? sortOption)
+    {
+        return sortOption switch
+        {
+            "Price ASC" or "price asc" => [.. games.OrderBy(g => g.Price)],
+            "Price DESC" or "price desc" => [.. games.OrderByDescending(g => g.Price)],
+            "Most popular" or "most popular" => [.. games.OrderByDescending(g => g.Name)],
+            "Most commented" or "most commented" => [.. games.OrderByDescending(g => g.Name)],
+            "New" or "new" => [.. games.OrderByDescending(g => g.Name)],
+            _ => [.. games.OrderBy(g => g.Name)],
+        };
+    }
+
+    private GameFilterResultDto PaginateGames(List<GameDto> combined, string? pageSizeRaw, int pageRaw)
+    {
         int totalCount = combined.Count;
-        int pageSize = filter.PageSize == "all" || string.IsNullOrEmpty(filter.PageSize)
+        int pageSize = pageSizeRaw == "all" || string.IsNullOrEmpty(pageSizeRaw)
             ? totalCount
-            : int.Parse(filter.PageSize);
-        int page = filter.Page > 0 ? filter.Page : 1;
+            : int.Parse(pageSizeRaw);
+        int page = pageRaw > 0 ? pageRaw : 1;
         int totalPages = pageSize > 0 ? (int)Math.Ceiling((double)totalCount / pageSize) : 1;
 
         List<GameDto> pagedGames = [.. combined
