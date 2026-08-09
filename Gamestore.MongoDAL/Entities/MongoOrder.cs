@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Gamestore.MongoDAL.Entities;
 
+[BsonIgnoreExtraElements]
 public class MongoOrder
 {
     [BsonId]

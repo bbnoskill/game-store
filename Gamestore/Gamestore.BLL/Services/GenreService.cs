@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Gamestore.BLL.DTOs.Genre;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
@@ -5,20 +7,44 @@ using Gamestore.DAL.UnitOfWork;
 using Gamestore.MongoDAL.Entities;
 using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace Gamestore.BLL.Services;
 
 public class GenreService(
     IUnitOfWork unitOfWork,
     ILogger<GameService> logger,
-    IMongoCategoryRepository mongoCategoryRepository) : IGenreService
+    IMongoCategoryRepository mongoCategoryRepository,
+    IMongoChangeLogRepository? mongoChangeLogRepository = null) : IGenreService
 {
+    private static readonly JsonSerializerOptions LogJsonOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+    };
+
     public async Task<GenreDto?> GetByIdAsync(Guid id)
     {
         logger.LogInformation("Fetching genre by id: {Id}", id);
-        var genre = await unitOfWork.Genres.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
-        return MapSqlToDto(genre);
+        var genre = await unitOfWork.Genres.GetByIdAsync(id);
+        if (genre != null)
+        {
+            return MapSqlToDto(genre);
+        }
+
+        try
+        {
+            var mongoCategory = mongoCategoryRepository.GetAllQueryable().FirstOrDefault(c => c.Id == id.ToString());
+            if (mongoCategory != null)
+            {
+                return MapMongoToDto(mongoCategory);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "MongoDB query failed when searching genre by id {Id}", id);
+        }
+
+        throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
     }
 
     public async Task<IEnumerable<GenreDto>> GetAllAsync()
@@ -29,10 +55,18 @@ public class GenreService(
 
         var sqlNames = new HashSet<string>(sqlGenres.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
 
-        var mongoCategories = mongoCategoryRepository.GetAllQueryable().ToList();
+        List<MongoCategory> mongoCategories = [];
+        try
+        {
+            mongoCategories = [.. mongoCategoryRepository.GetAllQueryable()];
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not fetch genres from MongoDB. Falling back to SQL genres only.");
+        }
 
         var uniqueMongoDtos = mongoCategories
-            .Where(c => !sqlNames.Contains(c.CategoryName))
+            .Where(c => !string.IsNullOrEmpty(c.CategoryName) && !sqlNames.Contains(c.CategoryName))
             .GroupBy(c => c.CategoryName, StringComparer.OrdinalIgnoreCase)
             .Select(c => c.First())
             .Select(MapMongoToDto);
@@ -74,6 +108,8 @@ public class GenreService(
 
         await unitOfWork.Genres.AddAsync(genre);
         await unitOfWork.SaveChangesAsync();
+
+        await LogChangeAsync("Create", newVersion: genre);
         logger.LogInformation("Genre '{Name}' created successfully in SQL DB.", request.Genre.Name);
     }
 
@@ -84,12 +120,16 @@ public class GenreService(
 
         if (sqlGenre != null)
         {
+            var oldVersion = MapSqlToDto(sqlGenre);
+
             await VerifyNoCycleAsync(request.Genre.Id, request.Genre.ParentGenreId);
             sqlGenre.Name = request.Genre.Name;
             sqlGenre.ParentGenreId = request.Genre.ParentGenreId;
 
             unitOfWork.Genres.Update(sqlGenre);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Update", oldVersion, MapSqlToDto(sqlGenre));
             logger.LogInformation("Genre '{Id}' updated successfully in SQL DB.", request.Genre.Id);
         }
         else
@@ -104,6 +144,8 @@ public class GenreService(
             await VerifyNoCycleAsync(newGenre.Id, newGenre.ParentGenreId);
             await unitOfWork.Genres.AddAsync(newGenre);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Create", newVersion: newGenre);
             logger.LogInformation("Mongo category copied and created as new SQL Genre '{Name}'.", request.Genre.Name);
         }
     }
@@ -114,16 +156,52 @@ public class GenreService(
         var genre = await unitOfWork.Genres.GetByIdAsync(id);
         if (genre != null)
         {
+            var oldVersion = MapSqlToDto(genre);
             unitOfWork.Genres.Delete(genre);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Delete", oldVersion: oldVersion);
             logger.LogInformation("Genre with id: {Id} deleted successfully from SQL DB.", id);
             return;
         }
 
-        _ = mongoCategoryRepository.GetAllQueryable().FirstOrDefault(c => c.Id == id.ToString())
-            ?? throw new KeyNotFoundException($"Genre with id {id} not found");
+        try
+        {
+            var mongoCategory = mongoCategoryRepository.GetAllQueryable().FirstOrDefault(c => c.Id == id.ToString());
+            if (mongoCategory != null)
+            {
+                logger.LogInformation("Mongo category '{Id}' delete ignored (read-only per US7).", id);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "MongoDB query failed when checking genre by id {Id}", id);
+        }
 
-        logger.LogInformation("Mongo category '{Id}' delete ignored (read-only per US7).", id);
+        throw new KeyNotFoundException($"Genre with id {id} not found");
+    }
+
+    private async Task LogChangeAsync<T>(string action, T? oldVersion = default, T? newVersion = default)
+    {
+        if (mongoChangeLogRepository != null)
+        {
+            try
+            {
+                await mongoChangeLogRepository.InsertLogRawAsync(new MongoChangeLog
+                {
+                    DateTime = DateTime.UtcNow,
+                    Action = action,
+                    EntityType = typeof(T).Name,
+                    OldVersion = oldVersion != null ? ToLogDocument(oldVersion) : null,
+                    NewVersion = newVersion != null ? ToLogDocument(newVersion) : null,
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to write change log into MongoDB.");
+            }
+        }
     }
 
     private Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
@@ -161,6 +239,12 @@ public class GenreService(
         }
     }
 
+    private static BsonDocument ToLogDocument<T>(T entity)
+    {
+        var json = JsonSerializer.Serialize(entity, LogJsonOptions);
+        return BsonDocument.Parse(json);
+    }
+
     private static GenreDto MapSqlToDto(Genre genre)
     {
         return new GenreDto
@@ -176,7 +260,7 @@ public class GenreService(
         return new GenreDto
         {
             Id = Guid.Empty,
-            Name = category.CategoryName,
+            Name = category.CategoryName ?? string.Empty,
             ParentGenreId = Guid.Empty,
         };
     }

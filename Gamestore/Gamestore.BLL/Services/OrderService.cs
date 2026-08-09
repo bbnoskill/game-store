@@ -1,11 +1,15 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Gamestore.BLL.DTOs.Order;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Entities;
 using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -18,10 +22,17 @@ public class OrderService(
     IHttpClientFactory clientFactory,
     IConfiguration configuration,
     IMongoOrderRepository mongoOrderRepository,
-    IMongoProductRepository mongoProductRepository) : IOrderService
+    IMongoProductRepository mongoProductRepository,
+    IMongoChangeLogRepository? mongoChangeLogRepository = null) : IOrderService
 {
     private const int MaxRetries = 5;
     private static readonly Guid StubCustomerId = Guid.Parse("5aa1c97e-e6b3-497c-8e00-270e96aa0b63");
+
+    private static readonly JsonSerializerOptions LogJsonOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+    };
+
     private static readonly List<PaymentMethodDto> PaymentMethods =
     [
         new() { Title = "Bank", Description = "Pay via bank invoice", ImageUrl = "https://img.icons8.com/ios/50/bank-building.png" },
@@ -103,6 +114,8 @@ public class OrderService(
                   ?? throw new KeyNotFoundException("Order was not found.");
         var orderWithDetails = await unitOfWork.Orders.GetByIdWithDetailsAsync(order.Id)
             ?? throw new KeyNotFoundException($"Order details for id '{order.Id}' were not found.");
+
+        var oldVersion = new OrderDto { Id = order.Id, CustomerId = order.CustomerId, Date = order.Date };
         order.Status = OrderStatus.Checkout;
         await unitOfWork.SaveChangesAsync();
         var sum = orderWithDetails.OrderGames.Sum(og => og.Price * og.Quantity * (1 - (og.Discount / 100.0)));
@@ -142,6 +155,8 @@ public class OrderService(
                     }
                 }
             }
+
+            await LogChangeAsync("Update", oldVersion, new OrderDto { Id = order.Id, CustomerId = order.CustomerId, Date = order.Date });
         }
         catch (Exception ex) when (ex is not ArgumentException and not KeyNotFoundException)
         {
@@ -237,6 +252,27 @@ public class OrderService(
     public IEnumerable<PaymentMethodDto> GetPaymentMethods()
     {
         return PaymentMethods;
+    }
+
+    private async Task LogChangeAsync<T>(string action, T? oldVersion = default, T? newVersion = default)
+    {
+        if (mongoChangeLogRepository != null)
+        {
+            await mongoChangeLogRepository.InsertLogRawAsync(new MongoChangeLog
+            {
+                DateTime = DateTime.UtcNow,
+                Action = action,
+                EntityType = typeof(T).Name,
+                OldVersion = oldVersion != null ? ToLogDocument(oldVersion) : null,
+                NewVersion = newVersion != null ? ToLogDocument(newVersion) : null,
+            });
+        }
+    }
+
+    private static BsonDocument ToLogDocument<T>(T entity)
+    {
+        var json = JsonSerializer.Serialize(entity, LogJsonOptions);
+        return BsonDocument.Parse(json);
     }
 
     private byte[] GenerateBankInvoice(Order order, double sum)

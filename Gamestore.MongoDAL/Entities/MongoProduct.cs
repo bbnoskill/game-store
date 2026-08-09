@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Gamestore.MongoDAL.Entities;
 
+[BsonIgnoreExtraElements]
 public class MongoProduct
 {
     [BsonId]
@@ -28,21 +29,20 @@ public class MongoProduct
     public decimal? UnitPrice { get; set; }
 
     [BsonElement("UnitsInStock")]
-    public int? UnitsInStock { get; set; }
+    public short? UnitsInStock { get; set; }
 
     [BsonElement("UnitsOnOrder")]
-    public int? UnitsOnOrder { get; set; }
+    public short? UnitsOnOrder { get; set; }
 
     [BsonElement("ReorderLevel")]
-    public int? ReorderLevel { get; set; }
+    public short? ReorderLevel { get; set; }
 
     [BsonElement("Discontinued")]
     public bool Discontinued { get; set; }
 
     [BsonElement("GameStoreKey")]
-    [BsonIgnoreIfNull]
     public string? GameStoreKey { get; set; }
 
     [BsonElement("ViewsCount")]
-    public int ViewsCount { get; set; }
+    public long ViewsCount { get; set; }
 }

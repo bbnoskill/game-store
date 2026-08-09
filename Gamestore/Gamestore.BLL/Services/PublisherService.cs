@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Gamestore.BLL.DTOs.Publisher;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
@@ -5,14 +7,21 @@ using Gamestore.DAL.UnitOfWork;
 using Gamestore.MongoDAL.Entities;
 using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace Gamestore.BLL.Services;
 
 public class PublisherService(
     IUnitOfWork unitOfWork,
     ILogger<GameService> logger,
-    IMongoSupplierRepository mongoSupplierRepository) : IPublisherService
+    IMongoSupplierRepository mongoSupplierRepository,
+    IMongoChangeLogRepository? mongoChangeLogRepository = null) : IPublisherService
 {
+    private static readonly JsonSerializerOptions LogJsonOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+    };
+
     public async Task<PublisherDto?> GetByNameAsync(string companyName)
     {
         logger.LogInformation("Fetching publisher by name: {CompanyName}", companyName);
@@ -22,17 +31,27 @@ public class PublisherService(
             return MapSqlToDto(publisher);
         }
 
-        var mongoSupplier = await mongoSupplierRepository.GetByCompanyNameAsync(companyName)
-            ?? throw new KeyNotFoundException($"Publisher with company name '{companyName}' was not found.");
-        return MapMongoToDto(mongoSupplier);
+        try
+        {
+            var mongoSupplier = await mongoSupplierRepository.GetByCompanyNameAsync(companyName);
+            if (mongoSupplier != null)
+            {
+                return MapMongoToDto(mongoSupplier);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "MongoDB query failed when searching publisher by company name '{Name}'", companyName);
+        }
+
+        throw new KeyNotFoundException($"Publisher with company name '{companyName}' was not found.");
     }
 
     public async Task<PublisherDto?> GetByGameKeyAsync(string gameKey)
     {
         logger.LogInformation("Fetching publisher by game key: {GameKey}", gameKey);
-        var publisher = await unitOfWork.Publishers.GetByGameKeyAsync(gameKey)
-            ?? throw new KeyNotFoundException($"Publisher with game key '{gameKey}' was not found.");
-        return MapSqlToDto(publisher);
+        var publisher = await unitOfWork.Publishers.GetByGameKeyAsync(gameKey);
+        return publisher != null ? MapSqlToDto(publisher) : null;
     }
 
     public async Task<IEnumerable<PublisherDto>> GetAllAsync()
@@ -43,10 +62,18 @@ public class PublisherService(
 
         var sqlCompanyNames = new HashSet<string>(sqlPublishers.Select(p => p.CompanyName), StringComparer.OrdinalIgnoreCase);
 
-        var mongoSuppliers = mongoSupplierRepository.GetAllQueryable().ToList();
+        List<MongoSupplier> mongoSuppliers = [];
+        try
+        {
+            mongoSuppliers = [.. mongoSupplierRepository.GetAllQueryable()];
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not fetch suppliers from MongoDB. Falling back to SQL publishers only.");
+        }
 
         var uniqueMongoDtos = mongoSuppliers
-            .Where(s => !sqlCompanyNames.Contains(s.CompanyName))
+            .Where(s => !string.IsNullOrEmpty(s.CompanyName) && !sqlCompanyNames.Contains(s.CompanyName))
             .GroupBy(s => s.CompanyName, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
             .Select(MapMongoToDto);
@@ -69,6 +96,8 @@ public class PublisherService(
 
         await unitOfWork.Publishers.AddAsync(publisher);
         await unitOfWork.SaveChangesAsync();
+
+        await LogChangeAsync("Create", newVersion: publisher);
         logger.LogInformation("Created publisher in SQL DB: {CompanyName}", publisher.CompanyName);
     }
 
@@ -79,12 +108,16 @@ public class PublisherService(
 
         if (publisher != null)
         {
+            var oldVersion = MapSqlToDto(publisher);
+
             publisher.CompanyName = request.Publisher.CompanyName;
             publisher.Description = request.Publisher.Description;
             publisher.HomePage = request.Publisher.HomePage;
 
             unitOfWork.Publishers.Update(publisher);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Update", oldVersion, MapSqlToDto(publisher));
             logger.LogInformation("Updated publisher in SQL DB: {Id}", publisher.Id);
         }
         else
@@ -99,6 +132,8 @@ public class PublisherService(
 
             await unitOfWork.Publishers.AddAsync(newPublisher);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Create", newVersion: newPublisher);
             logger.LogInformation("Mongo supplier copied and created as new SQL Publisher '{Name}'.", request.Publisher.CompanyName);
         }
     }
@@ -109,16 +144,58 @@ public class PublisherService(
         var publisher = await unitOfWork.Publishers.GetByIdAsync(id);
         if (publisher != null)
         {
+            var oldVersion = MapSqlToDto(publisher);
             unitOfWork.Publishers.Delete(publisher);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Delete", oldVersion: oldVersion);
             logger.LogInformation("Deleted publisher from SQL DB: {Id}", id);
             return;
         }
 
-        _ = mongoSupplierRepository.GetAllQueryable().FirstOrDefault(s => s.Id == id.ToString())
-            ?? throw new KeyNotFoundException($"Publisher with id {id} not found");
+        try
+        {
+            var mongoSupplier = mongoSupplierRepository.GetAllQueryable().FirstOrDefault(s => s.Id == id.ToString());
+            if (mongoSupplier != null)
+            {
+                logger.LogInformation("Mongo supplier '{Id}' delete ignored (read-only per US7).", id);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "MongoDB query failed when checking supplier by id {Id}", id);
+        }
 
-        logger.LogInformation("Mongo supplier '{Id}' delete ignored (read-only per US7).", id);
+        throw new KeyNotFoundException($"Publisher with id {id} not found");
+    }
+
+    private async Task LogChangeAsync<T>(string action, T? oldVersion = default, T? newVersion = default)
+    {
+        if (mongoChangeLogRepository != null)
+        {
+            try
+            {
+                await mongoChangeLogRepository.InsertLogRawAsync(new MongoChangeLog
+                {
+                    DateTime = DateTime.UtcNow,
+                    Action = action,
+                    EntityType = typeof(T).Name,
+                    OldVersion = oldVersion != null ? ToLogDocument(oldVersion) : null,
+                    NewVersion = newVersion != null ? ToLogDocument(newVersion) : null,
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to write change log into MongoDB.");
+            }
+        }
+    }
+
+    private static BsonDocument ToLogDocument<T>(T entity)
+    {
+        var json = JsonSerializer.Serialize(entity, LogJsonOptions);
+        return BsonDocument.Parse(json);
     }
 
     private static PublisherDto MapSqlToDto(Publisher publisher)
@@ -137,7 +214,7 @@ public class PublisherService(
         return new PublisherDto
         {
             Id = Guid.Empty,
-            CompanyName = supplier.CompanyName,
+            CompanyName = supplier.CompanyName ?? string.Empty,
             Description = $"{supplier.ContactName} ({supplier.ContactTitle}), {supplier.City}, {supplier.Country}",
             HomePage = supplier.HomePage,
         };

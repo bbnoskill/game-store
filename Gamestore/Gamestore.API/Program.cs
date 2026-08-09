@@ -8,6 +8,9 @@ using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Data;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Data;
+using Gamestore.MongoDAL.Repositories.Implementations;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +19,7 @@ builder.Services.AddDbContext<GamestoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSingleton<IFileLoggerService, FileLoggerService>();
+builder.Services.AddSingleton<NorthwindMongoContext>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -25,6 +29,13 @@ builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+
+builder.Services.AddScoped<IMongoProductRepository, MongoProductRepository>();
+builder.Services.AddScoped<IMongoCategoryRepository, MongoCategoryRepository>();
+builder.Services.AddScoped<IMongoSupplierRepository, MongoSupplierRepository>();
+builder.Services.AddScoped<IMongoOrderRepository, MongoOrderRepository>();
+builder.Services.AddScoped<IMongoShipperRepository, MongoShipperRepository>();
+builder.Services.AddScoped<IMongoChangeLogRepository, MongoChangeLogRepository>();
 
 builder.Services.AddScoped<IGameFilterStep, GenreFilterStep>();
 builder.Services.AddScoped<IGameFilterStep, PlatformFilterStep>();

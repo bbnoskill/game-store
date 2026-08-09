@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Gamestore.MongoDAL.Entities;
 
+[BsonIgnoreExtraElements]
 public class MongoOrderDetail
 {
     [BsonId]
@@ -19,8 +20,8 @@ public class MongoOrderDetail
     public decimal UnitPrice { get; set; }
 
     [BsonElement("Quantity")]
-    public int Quantity { get; set; }
+    public short Quantity { get; set; }
 
     [BsonElement("Discount")]
-    public double Discount { get; set; }
+    public float Discount { get; set; }
 }

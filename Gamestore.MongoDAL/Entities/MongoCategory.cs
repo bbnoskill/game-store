@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Gamestore.MongoDAL.Entities;
 
+[BsonIgnoreExtraElements]
 public class MongoCategory
 {
     [BsonId]
@@ -19,5 +20,6 @@ public class MongoCategory
     public string? Description { get; set; }
 
     [BsonElement("Picture")]
-    public string? Picture { get; set; }
+    [BsonIgnoreIfNull]
+    public object? Picture { get; set; }
 }

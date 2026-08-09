@@ -22,10 +22,11 @@ public class MongoProductRepository(NorthwindMongoContext context) : MongoReposi
 
     public async Task DecrementUnitsInStockAsync(string gameKey, int quantity)
     {
+        short qty = (short)quantity;
         var filter = Builders<MongoProduct>.Filter.And(
             Builders<MongoProduct>.Filter.Eq(p => p.GameStoreKey, gameKey),
-            Builders<MongoProduct>.Filter.Gte(p => p.UnitsInStock, quantity));
-        var update = Builders<MongoProduct>.Update.Inc(p => p.UnitsInStock, -quantity);
+            Builders<MongoProduct>.Filter.Gte(p => p.UnitsInStock, qty));
+        var update = Builders<MongoProduct>.Update.Inc(p => p.UnitsInStock, (short)-qty);
         await Collection.UpdateOneAsync(filter, update);
     }
 

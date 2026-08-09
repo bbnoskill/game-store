@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Gamestore.BLL.DTOs.Game;
 using Gamestore.BLL.DTOs.Game.Filtering;
 using Gamestore.BLL.Filtering;
@@ -8,6 +10,7 @@ using Gamestore.MongoDAL.Entities;
 using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace Gamestore.BLL.Services;
 
@@ -15,13 +18,24 @@ public class GameService(
     IUnitOfWork unitOfWork,
     ILogger<GameService> logger,
     GameFilterPipeline pipeline,
-    IMongoProductRepository mongoProductRepository) : IGameService
+    IMongoProductRepository mongoProductRepository,
+    IMongoCategoryRepository? mongoCategoryRepository = null,
+    IMongoSupplierRepository? mongoSupplierRepository = null,
+    IMongoChangeLogRepository? mongoChangeLogRepository = null) : IGameService
 {
+    private static readonly JsonSerializerOptions LogJsonOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+    };
+
     public async Task<GameDto?> GetByKeyAsync(string key)
     {
         logger.LogInformation("Fetching game by key: {Key}", key);
+        var decodedKey = Uri.UnescapeDataString(key);
 
-        var sqlGame = await unitOfWork.Games.GetByKeyAsync(key);
+        var sqlGame = await unitOfWork.Games.GetByKeyAsync(key)
+            ?? await unitOfWork.Games.GetByKeyAsync(decodedKey);
+
         if (sqlGame != null)
         {
             sqlGame.ViewCount++;
@@ -30,9 +44,25 @@ public class GameService(
             return MapSqlToDto(sqlGame);
         }
 
-        var mongoProduct = await mongoProductRepository.GetByGameStoreKeyAsync(key)
-            ?? mongoProductRepository.GetAllQueryable()
-                .FirstOrDefault(p => (string.IsNullOrEmpty(p.GameStoreKey) ? GenerateKey(p.ProductName) : p.GameStoreKey) == key);
+        MongoProduct? mongoProduct = null;
+        try
+        {
+            mongoProduct = await mongoProductRepository.GetByGameStoreKeyAsync(key)
+                ?? await mongoProductRepository.GetByGameStoreKeyAsync(decodedKey);
+
+            if (mongoProduct == null)
+            {
+                List<MongoProduct> allMongoProducts = [.. mongoProductRepository.GetAllQueryable()];
+                mongoProduct = allMongoProducts.FirstOrDefault(p =>
+                    (!string.IsNullOrEmpty(p.GameStoreKey) && (p.GameStoreKey.Equals(key, StringComparison.OrdinalIgnoreCase) || p.GameStoreKey.Equals(decodedKey, StringComparison.OrdinalIgnoreCase)))
+                    || GenerateKey(p.ProductName).Equals(key, StringComparison.OrdinalIgnoreCase)
+                    || GenerateKey(p.ProductName).Equals(decodedKey, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not fetch product from MongoDB by key '{Key}'", key);
+        }
 
         if (mongoProduct != null)
         {
@@ -67,7 +97,15 @@ public class GameService(
         var sqlKeys = new HashSet<string>(sqlGames.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
         var sqlNames = new HashSet<string>(sqlGames.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
 
-        var mongoProducts = mongoProductRepository.GetAllQueryable().ToList();
+        List<MongoProduct> mongoProducts = [];
+        try
+        {
+            mongoProducts = [.. mongoProductRepository.GetAllQueryable()];
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not fetch products from MongoDB.");
+        }
 
         var uniqueMongoDtos = mongoProducts
             .Where(p => (string.IsNullOrEmpty(p.GameStoreKey) || !sqlKeys.Contains(p.GameStoreKey))
@@ -138,6 +176,8 @@ public class GameService(
         await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
         await unitOfWork.Games.AddAsync(game);
         await unitOfWork.SaveChangesAsync();
+
+        await LogChangeAsync("Create", newVersion: game);
         logger.LogInformation("Game '{Key}' created successfully.", request.Game.Key);
     }
 
@@ -148,6 +188,8 @@ public class GameService(
 
         if (sqlGame != null)
         {
+            var oldVersion = MapSqlToDto(sqlGame);
+
             sqlGame.Name = request.Game.Name;
             sqlGame.Key = string.IsNullOrWhiteSpace(request.Game.Key)
                 ? GenerateKey(request.Game.Name)
@@ -179,6 +221,8 @@ public class GameService(
             await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
             unitOfWork.Games.Update(sqlGame);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Update", oldVersion, MapSqlToDto(sqlGame));
             logger.LogInformation("Game '{Key}' updated successfully in SQL DB.", request.Game.Key);
         }
         else
@@ -220,6 +264,8 @@ public class GameService(
             await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
             await unitOfWork.Games.AddAsync(newGame);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Create", newVersion: newGame);
             logger.LogInformation("Mongo game copied and created as new SQL Game '{Key}'.", newKey);
         }
     }
@@ -230,8 +276,11 @@ public class GameService(
         var game = await unitOfWork.Games.GetByKeyAsync(key);
         if (game != null)
         {
+            var oldVersion = MapSqlToDto(game);
             unitOfWork.Games.Delete(game);
             await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Delete", oldVersion: oldVersion);
             logger.LogInformation("Game '{Key}' deleted from SQL DB successfully.", key);
             return;
         }
@@ -252,28 +301,159 @@ public class GameService(
     public async Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter)
     {
         logger.LogInformation("Fetching filtered games.");
-        var query = unitOfWork.Games.GetQueryable();
-        query = pipeline.Execute(query, filter);
-        var totalCount = query is IAsyncEnumerable<Game> ? await query.CountAsync() : query.Count();
+        var sqlQuery = unitOfWork.Games.GetQueryable();
+        sqlQuery = pipeline.Execute(sqlQuery, filter);
+        var sqlGames = sqlQuery is IAsyncEnumerable<Game> ? await sqlQuery.ToListAsync() : [.. sqlQuery];
+        List<GameDto> sqlDtos = [.. sqlGames.Select(MapSqlToDto)];
+
+        var sqlKeys = new HashSet<string>(sqlGames.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
+        var sqlNames = new HashSet<string>(sqlGames.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
+
+        List<MongoProduct> mongoProducts = [];
+        try
+        {
+            mongoProducts = [.. mongoProductRepository.GetAllQueryable()];
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not fetch products from MongoDB.");
+        }
+
+        var uniqueMongoDtos = mongoProducts
+            .Where(p => (string.IsNullOrEmpty(p.GameStoreKey) || !sqlKeys.Contains(p.GameStoreKey))
+                        && !sqlNames.Contains(p.ProductName))
+            .GroupBy(p => p.ProductName, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .Select(MapMongoToDto);
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+        {
+            uniqueMongoDtos = uniqueMongoDtos.Where(g => g.Name.Contains(filter.Name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (filter.MinPrice.HasValue)
+        {
+            uniqueMongoDtos = uniqueMongoDtos.Where(g => g.Price >= (double)filter.MinPrice.Value);
+        }
+
+        if (filter.MaxPrice.HasValue)
+        {
+            uniqueMongoDtos = uniqueMongoDtos.Where(g => g.Price <= (double)filter.MaxPrice.Value);
+        }
+
+        var activeGenreIds = filter.Genres?.Where(g => g.HasValue).Select(g => g!.Value).ToList();
+        if (activeGenreIds != null && activeGenreIds.Count > 0 && unitOfWork.Genres != null && mongoCategoryRepository != null)
+        {
+            var selectedGenreNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var genreId in activeGenreIds)
+            {
+                var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
+                if (genre != null)
+                {
+                    selectedGenreNames.Add(genre.Name);
+                }
+            }
+
+            var mongoCategories = mongoCategoryRepository.GetAllQueryable().ToList();
+            var categoryIdToName = mongoCategories.ToDictionary(c => c.CategoryID, c => c.CategoryName);
+
+            var matchingMongoProducts = mongoProducts
+                .Where(p => p.CategoryID.HasValue && categoryIdToName.TryGetValue(p.CategoryID.Value, out var catName) && selectedGenreNames.Contains(catName))
+                .Select(p => p.ProductName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            uniqueMongoDtos = uniqueMongoDtos.Where(g => matchingMongoProducts.Contains(g.Name));
+        }
+
+        var activePlatformIds = filter.Platforms?.Where(p => p.HasValue).Select(p => p!.Value).ToList();
+        if (activePlatformIds != null && activePlatformIds.Count > 0)
+        {
+            uniqueMongoDtos = [];
+        }
+
+        var activePublisherIds = filter.Publishers?.Where(p => p.HasValue).Select(p => p!.Value).ToList();
+        if (activePublisherIds != null && activePublisherIds.Count > 0 && unitOfWork.Publishers != null && mongoSupplierRepository != null)
+        {
+            var selectedPublisherNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var pubId in activePublisherIds)
+            {
+                var pub = await unitOfWork.Publishers.GetByIdAsync(pubId);
+                if (pub != null)
+                {
+                    selectedPublisherNames.Add(pub.CompanyName);
+                }
+            }
+
+            var mongoSuppliers = mongoSupplierRepository.GetAllQueryable().ToList();
+            var supplierIdToName = mongoSuppliers.ToDictionary(s => s.SupplierID, s => s.CompanyName);
+
+            var matchingMongoProducts = mongoProducts
+                .Where(p => p.SupplierID.HasValue && supplierIdToName.TryGetValue(p.SupplierID.Value, out var suppName) && selectedPublisherNames.Contains(suppName))
+                .Select(p => p.ProductName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            uniqueMongoDtos = uniqueMongoDtos.Where(g => matchingMongoProducts.Contains(g.Name));
+        }
+
+        var combined = sqlDtos.Concat(uniqueMongoDtos).ToList();
+
+        var sortOption = filter.SortBy ?? filter.Sort;
+        combined = sortOption switch
+        {
+            "Price ASC" or "price asc" => [.. combined.OrderBy(g => g.Price)],
+            "Price DESC" or "price desc" => [.. combined.OrderByDescending(g => g.Price)],
+            "Most popular" or "most popular" => [.. combined.OrderByDescending(g => g.Name)],
+            "Most commented" or "most commented" => [.. combined.OrderByDescending(g => g.Name)],
+            "New" or "new" => [.. combined.OrderByDescending(g => g.Name)],
+            _ => [.. combined.OrderBy(g => g.Name)],
+        };
+
+        int totalCount = combined.Count;
         int pageSize = filter.PageSize == "all" || string.IsNullOrEmpty(filter.PageSize)
             ? totalCount
             : int.Parse(filter.PageSize);
         int page = filter.Page > 0 ? filter.Page : 1;
         int totalPages = pageSize > 0 ? (int)Math.Ceiling((double)totalCount / pageSize) : 1;
-        var pagedQuery = query
+
+        List<GameDto> pagedGames = [.. combined
             .Skip((page - 1) * pageSize)
-            .Take(pageSize == 0 ? totalCount : pageSize)
-            .Select(game => MapSqlToDto(game));
-        var games = pagedQuery is IAsyncEnumerable<GameDto>
-            ? await pagedQuery.ToListAsync()
-            : [.. pagedQuery];
-        logger.LogInformation("Fetched {Count} of {Total} games (page {Page}).", games.Count, totalCount, page);
+            .Take(pageSize == 0 ? totalCount : pageSize)];
+
+        logger.LogInformation("Fetched {Count} of {Total} games (page {Page}).", pagedGames.Count, totalCount, page);
         return new GameFilterResultDto
         {
-            Games = games,
+            Games = pagedGames,
             TotalPages = totalPages,
             CurrentPage = page,
         };
+    }
+
+    private async Task LogChangeAsync<T>(string action, T? oldVersion = default, T? newVersion = default)
+    {
+        if (mongoChangeLogRepository != null)
+        {
+            try
+            {
+                await mongoChangeLogRepository.InsertLogRawAsync(new MongoChangeLog
+                {
+                    DateTime = DateTime.UtcNow,
+                    Action = action,
+                    EntityType = typeof(T).Name,
+                    OldVersion = oldVersion != null ? ToLogDocument(oldVersion) : null,
+                    NewVersion = newVersion != null ? ToLogDocument(newVersion) : null,
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to write change log into MongoDB.");
+            }
+        }
+    }
+
+    private static BsonDocument ToLogDocument<T>(T entity)
+    {
+        var json = JsonSerializer.Serialize(entity, LogJsonOptions);
+        return BsonDocument.Parse(json);
     }
 
     private static GameDto MapSqlToDto(Game game)
