@@ -1,37 +1,79 @@
-﻿using Gamestore.BLL.DTOs.Genre;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Gamestore.BLL.DTOs.Genre;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Entities;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace Gamestore.BLL.Services;
 
-public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : IGenreService
+public class GenreService(
+    IUnitOfWork unitOfWork,
+    ILogger<GameService> logger,
+    IMongoCategoryRepository mongoCategoryRepository,
+    IMongoChangeLogRepository? mongoChangeLogRepository = null) : IGenreService
 {
+    private static readonly JsonSerializerOptions LogJsonOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+    };
+
     public async Task<GenreDto?> GetByIdAsync(Guid id)
     {
         logger.LogInformation("Fetching genre by id: {Id}", id);
-        var genre = await unitOfWork.Genres.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
-        return new GenreDto
+        var genre = await unitOfWork.Genres.GetByIdAsync(id);
+        if (genre != null)
         {
-            Id = genre.Id,
-            Name = genre.Name,
-            ParentGenreId = genre.ParentGenreId,
-        };
+            return MapSqlToDto(genre);
+        }
+
+        try
+        {
+            var mongoCategory = mongoCategoryRepository.GetAllQueryable().FirstOrDefault(c => c.Id == id.ToString());
+            if (mongoCategory != null)
+            {
+                return MapMongoToDto(mongoCategory);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "MongoDB query failed when searching genre by id {Id}", id);
+        }
+
+        throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
     }
 
     public async Task<IEnumerable<GenreDto>> GetAllAsync()
     {
-        logger.LogInformation("Fetching all genres.");
-        var genres = (await unitOfWork.Genres.GetAllAsync()).ToList();
-        logger.LogInformation("Fetched {Count} genres.", genres.Count);
-        return genres.Select(genre => new GenreDto
+        logger.LogInformation("Fetching all genres from SQL and MongoDB.");
+        var sqlGenres = (await unitOfWork.Genres.GetAllAsync()).ToList();
+        var sqlDtos = sqlGenres.Select(MapSqlToDto).ToList();
+
+        var sqlNames = new HashSet<string>(sqlGenres.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
+
+        List<MongoCategory> mongoCategories = [];
+        try
         {
-            Id = genre.Id,
-            Name = genre.Name,
-            ParentGenreId = genre.ParentGenreId,
-        });
+            mongoCategories = [.. mongoCategoryRepository.GetAllQueryable()];
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not fetch genres from MongoDB. Falling back to SQL genres only.");
+        }
+
+        var uniqueMongoDtos = mongoCategories
+            .Where(c => !string.IsNullOrEmpty(c.CategoryName) && !sqlNames.Contains(c.CategoryName))
+            .GroupBy(c => c.CategoryName, StringComparer.OrdinalIgnoreCase)
+            .Select(c => c.First())
+            .Select(MapMongoToDto);
+
+        var result = sqlDtos.Concat(uniqueMongoDtos).ToList();
+        logger.LogInformation("Fetched total {Count} genres ({SqlCount} SQL, {MongoCount} Mongo).", result.Count, sqlDtos.Count, result.Count - sqlDtos.Count);
+        return result;
     }
 
     public async Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string gameKey)
@@ -39,12 +81,7 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
         logger.LogInformation("Fetching genres by game key: {GameKey}.", gameKey);
         var genres = (await unitOfWork.Genres.GetByGameKeyAsync(gameKey)).ToList();
         logger.LogInformation("Fetched {Count} genres.", genres.Count);
-        return genres.Select(genre => new GenreDto
-        {
-            Id = genre.Id,
-            Name = genre.Name,
-            ParentGenreId = genre.ParentGenreId,
-        });
+        return genres.Select(MapSqlToDto);
     }
 
     public async Task<IEnumerable<GenreDto>> GetByParentIdAsync(Guid parentId)
@@ -52,12 +89,7 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
         logger.LogInformation("Fetching genres by parent genre id: {ParentId}.", parentId);
         var genres = (await unitOfWork.Genres.GetByParentIdAsync(parentId)).ToList();
         logger.LogInformation("Fetched {Count} genres.", genres.Count);
-        return genres.Select(genre => new GenreDto
-        {
-            Id = genre.Id,
-            Name = genre.Name,
-            ParentGenreId = genre.ParentGenreId,
-        });
+        return genres.Select(MapSqlToDto);
     }
 
     public async Task CreateAsync(CreateGenreRequestDto request)
@@ -76,38 +108,107 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
 
         await unitOfWork.Genres.AddAsync(genre);
         await unitOfWork.SaveChangesAsync();
-        logger.LogInformation("Genre '{Name}' created successfully.", request.Genre.Name);
+
+        await LogChangeAsync("Create", newVersion: genre);
+        logger.LogInformation("Genre '{Name}' created successfully in SQL DB.", request.Genre.Name);
     }
 
     public async Task UpdateAsync(UpdateGenreRequestDto request)
     {
         logger.LogInformation("Updating genre with id: {Id}", request.Genre.Id);
-        var genre = await unitOfWork.Genres.GetByIdAsync(request.Genre.Id)
-                    ?? throw new KeyNotFoundException($"Genre with id {request.Genre.Id} not found");
-        await VerifyNoCycleAsync(request.Genre.Id, request.Genre.ParentGenreId);
-        genre.Name = request.Genre.Name;
-        genre.ParentGenreId = request.Genre.ParentGenreId;
+        var sqlGenre = await unitOfWork.Genres.GetByIdAsync(request.Genre.Id);
 
-        unitOfWork.Genres.Update(genre);
-        await unitOfWork.SaveChangesAsync();
-        logger.LogInformation("Genre '{Id}' updated successfully.", request.Genre.Id);
+        if (sqlGenre != null)
+        {
+            var oldVersion = MapSqlToDto(sqlGenre);
+
+            await VerifyNoCycleAsync(request.Genre.Id, request.Genre.ParentGenreId);
+            sqlGenre.Name = request.Genre.Name;
+            sqlGenre.ParentGenreId = request.Genre.ParentGenreId;
+
+            unitOfWork.Genres.Update(sqlGenre);
+            await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Update", oldVersion, MapSqlToDto(sqlGenre));
+            logger.LogInformation("Genre '{Id}' updated successfully in SQL DB.", request.Genre.Id);
+        }
+        else
+        {
+            var newGenre = new Genre
+            {
+                Id = request.Genre.Id != Guid.Empty ? request.Genre.Id : Guid.NewGuid(),
+                Name = request.Genre.Name,
+                ParentGenreId = request.Genre.ParentGenreId,
+            };
+
+            await VerifyNoCycleAsync(newGenre.Id, newGenre.ParentGenreId);
+            await unitOfWork.Genres.AddAsync(newGenre);
+            await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Create", newVersion: newGenre);
+            logger.LogInformation("Mongo category copied and created as new SQL Genre '{Name}'.", request.Genre.Name);
+        }
     }
 
     public async Task DeleteAsync(Guid id)
     {
         logger.LogInformation("Deleting genre with id: {Id}", id);
-        var genre = await unitOfWork.Genres.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException($"Genre with id {id} not found");
-        unitOfWork.Genres.Delete(genre);
-        await unitOfWork.SaveChangesAsync();
-        logger.LogInformation("Genre with id: {Id} deleted successfully", id);
+        var genre = await unitOfWork.Genres.GetByIdAsync(id);
+        if (genre != null)
+        {
+            var oldVersion = MapSqlToDto(genre);
+            unitOfWork.Genres.Delete(genre);
+            await unitOfWork.SaveChangesAsync();
+
+            await LogChangeAsync("Delete", oldVersion: oldVersion);
+            logger.LogInformation("Genre with id: {Id} deleted successfully from SQL DB.", id);
+            return;
+        }
+
+        try
+        {
+            var mongoCategory = mongoCategoryRepository.GetAllQueryable().FirstOrDefault(c => c.Id == id.ToString());
+            if (mongoCategory != null)
+            {
+                logger.LogInformation("Mongo category '{Id}' delete ignored (read-only per US7).", id);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "MongoDB query failed when checking genre by id {Id}", id);
+        }
+
+        throw new KeyNotFoundException($"Genre with id {id} not found");
+    }
+
+    private async Task LogChangeAsync<T>(string action, T? oldVersion = default, T? newVersion = default)
+    {
+        if (mongoChangeLogRepository != null)
+        {
+            try
+            {
+                await mongoChangeLogRepository.InsertLogRawAsync(new MongoChangeLog
+                {
+                    DateTime = DateTime.UtcNow,
+                    Action = action,
+                    EntityType = typeof(T).Name,
+                    OldVersion = oldVersion != null ? ToLogDocument(oldVersion) : null,
+                    NewVersion = newVersion != null ? ToLogDocument(newVersion) : null,
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to write change log into MongoDB.");
+            }
+        }
     }
 
     private Task VerifyNoCycleAsync(Guid genreId, Guid? parentGenreId)
     {
         return parentGenreId switch
         {
-            null => throw new ArgumentException("A parent genre id must be provided."),
+            null => Task.CompletedTask,
             _ when genreId == parentGenreId => throw new ArgumentException("A genre cannot be its own parent."),
             _ => VerifyNoCycleInternalAsync(genreId, parentGenreId),
         };
@@ -136,5 +237,31 @@ public class GenreService(IUnitOfWork unitOfWork, ILogger<GameService> logger) :
 
             currentParentId = parent.ParentGenreId;
         }
+    }
+
+    private static BsonDocument ToLogDocument<T>(T entity)
+    {
+        var json = JsonSerializer.Serialize(entity, LogJsonOptions);
+        return BsonDocument.Parse(json);
+    }
+
+    private static GenreDto MapSqlToDto(Genre genre)
+    {
+        return new GenreDto
+        {
+            Id = genre.Id,
+            Name = genre.Name,
+            ParentGenreId = genre.ParentGenreId,
+        };
+    }
+
+    private static GenreDto MapMongoToDto(MongoCategory category)
+    {
+        return new GenreDto
+        {
+            Id = Guid.Empty,
+            Name = category.CategoryName ?? string.Empty,
+            ParentGenreId = Guid.Empty,
+        };
     }
 }

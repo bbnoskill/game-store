@@ -1,21 +1,38 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Gamestore.BLL.DTOs.Order;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Entities;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace Gamestore.BLL.Services;
 
-public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
-    IHttpClientFactory clientFactory, IConfiguration configuration) : IOrderService
+public class OrderService(
+    IUnitOfWork unitOfWork,
+    ILogger<OrderService> logger,
+    IHttpClientFactory clientFactory,
+    IConfiguration configuration,
+    IMongoOrderRepository mongoOrderRepository,
+    IMongoProductRepository mongoProductRepository,
+    IMongoChangeLogRepository? mongoChangeLogRepository = null) : IOrderService
 {
     private const int MaxRetries = 5;
     private static readonly Guid StubCustomerId = Guid.Parse("5aa1c97e-e6b3-497c-8e00-270e96aa0b63");
+
+    private static readonly JsonSerializerOptions LogJsonOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+    };
+
     private static readonly List<PaymentMethodDto> PaymentMethods =
     [
         new() { Title = "Bank", Description = "Pay via bank invoice", ImageUrl = "https://img.icons8.com/ios/50/bank-building.png" },
@@ -97,6 +114,8 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
                   ?? throw new KeyNotFoundException("Order was not found.");
         var orderWithDetails = await unitOfWork.Orders.GetByIdWithDetailsAsync(order.Id)
             ?? throw new KeyNotFoundException($"Order details for id '{order.Id}' were not found.");
+
+        var oldVersion = new OrderDto { Id = order.Id, CustomerId = order.CustomerId, Date = order.Date };
         order.Status = OrderStatus.Checkout;
         await unitOfWork.SaveChangesAsync();
         var sum = orderWithDetails.OrderGames.Sum(og => og.Price * og.Quantity * (1 - (og.Discount / 100.0)));
@@ -121,6 +140,23 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
 
             order.Status = OrderStatus.Paid;
             order.Date = DateTime.UtcNow;
+
+            foreach (var og in orderWithDetails.OrderGames)
+            {
+                var game = await unitOfWork.Games.GetByIdAsync(og.ProductId);
+                if (game != null)
+                {
+                    game.UnitInStock = Math.Max(0, game.UnitInStock - og.Quantity);
+                    unitOfWork.Games.Update(game);
+
+                    if (!string.IsNullOrEmpty(game.Key))
+                    {
+                        await mongoProductRepository.DecrementUnitsInStockAsync(game.Key, og.Quantity);
+                    }
+                }
+            }
+
+            await LogChangeAsync("Update", oldVersion, new OrderDto { Id = order.Id, CustomerId = order.CustomerId, Date = order.Date });
         }
         catch (Exception ex) when (ex is not ArgumentException and not KeyNotFoundException)
         {
@@ -137,12 +173,40 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
         logger.LogInformation("Fetching all orders.");
         var orders = (await unitOfWork.Orders.GetAllAsync()).ToList();
         logger.LogInformation("Fetched {Count} orders.", orders.Count);
-        return orders.Select(order => new OrderDto()
+        return orders.Select(order => new OrderDto
         {
             CustomerId = order.CustomerId,
             Id = order.Id,
             Date = order.Date,
         });
+    }
+
+    public async Task<IEnumerable<OrderDto>> GetHistoryAsync(DateTime? startDate, DateTime? endDate)
+    {
+        logger.LogInformation("Fetching orders history from SQL and MongoDB (startDate: {Start}, endDate: {End}).", startDate, endDate);
+
+        var sqlOrders = (await unitOfWork.Orders.GetAllAsync())
+            .Where(o => o.Status == OrderStatus.Paid)
+            .Where(o => !startDate.HasValue || (o.Date.HasValue && o.Date.Value >= startDate.Value))
+            .Where(o => !endDate.HasValue || (o.Date.HasValue && o.Date.Value <= endDate.Value))
+            .Select(o => new OrderDto
+            {
+                Id = o.Id,
+                CustomerId = o.CustomerId,
+                Date = o.Date,
+            }).ToList();
+
+        var mongoOrders = (await mongoOrderRepository.GetHistoryAsync(startDate, endDate))
+            .Select(o => new OrderDto
+            {
+                Id = Guid.Empty,
+                CustomerId = Guid.Empty,
+                Date = o.OrderDate,
+            }).ToList();
+
+        var combined = sqlOrders.Concat(mongoOrders).OrderByDescending(o => o.Date).ToList();
+        logger.LogInformation("Fetched total {Count} historical orders ({SqlCount} SQL, {MongoCount} Mongo).", combined.Count, sqlOrders.Count, mongoOrders.Count);
+        return combined;
     }
 
     public async Task<OrderDto?> GetOrderByIdAsync(Guid id)
@@ -188,6 +252,27 @@ public class OrderService(IUnitOfWork unitOfWork, ILogger<OrderService> logger,
     public IEnumerable<PaymentMethodDto> GetPaymentMethods()
     {
         return PaymentMethods;
+    }
+
+    private async Task LogChangeAsync<T>(string action, T? oldVersion = default, T? newVersion = default)
+    {
+        if (mongoChangeLogRepository != null)
+        {
+            await mongoChangeLogRepository.InsertLogRawAsync(new MongoChangeLog
+            {
+                DateTime = DateTime.UtcNow,
+                Action = action,
+                EntityType = typeof(T).Name,
+                OldVersion = oldVersion != null ? ToLogDocument(oldVersion) : null,
+                NewVersion = newVersion != null ? ToLogDocument(newVersion) : null,
+            });
+        }
+    }
+
+    private static BsonDocument ToLogDocument<T>(T entity)
+    {
+        var json = JsonSerializer.Serialize(entity, LogJsonOptions);
+        return BsonDocument.Parse(json);
     }
 
     private byte[] GenerateBankInvoice(Order order, double sum)

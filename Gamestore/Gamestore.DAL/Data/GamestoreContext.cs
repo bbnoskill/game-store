@@ -1,4 +1,4 @@
-﻿using Gamestore.DAL.Entities;
+using Gamestore.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Data;
@@ -70,7 +70,6 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
         modelBuilder.Entity<Genre>().HasData(
             strategy, rts, tbs, rpg, simulator, sports, races, rally, arcade, formula, offroad, action, fps, tps, fighting, battleRoyale, heroShooter, adventure, puzzle);
 
-        // Publishers (25)
         var pubEa = new Publisher { Id = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c"), CompanyName = "Electronic Arts", HomePage = "https://www.ea.com", Description = "American video game company" };
         var pubDefault = new Publisher { Id = new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd"), CompanyName = "Test Name", HomePage = "https://localhost:7091/swagger/index.html", Description = "Some text" };
         var pubValve = new Publisher { Id = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac"), CompanyName = "Valve", HomePage = "https://www.valvesoftware.com", Description = "Creators of Steam and Half-Life" };
@@ -123,7 +122,6 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             pubSupergiant,
             pubRiot);
 
-        // Games (25) — diverse prices, dates (spread last 3 years), view counts
         var halo = new Game { Id = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"), Name = "Halo Infinite", Key = "halo-infinite", Description = "Sci-fi FPS", Price = 30.0, UnitInStock = 100, Discount = 0, ViewCount = 450, ReleaseDate = new DateTime(2024, 12, 8, 0, 0, 0, DateTimeKind.Utc), PublisherId = pubMicrosoft.Id };
         var skyrim = new Game { Id = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"), Name = "Skyrim", Key = "skyrim", Description = "Epic fantasy RPG", Price = 40.0, UnitInStock = 50, Discount = 10, ViewCount = 1200, ReleaseDate = new DateTime(2023, 11, 11, 0, 0, 0, DateTimeKind.Utc), PublisherId = pubBethesda.Id };
         var witcher3 = new Game { Id = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"), Name = "The Witcher 3", Key = "witcher-3", Description = "Geralt's grand adventure", Price = 25.0, UnitInStock = 200, Discount = 5, ViewCount = 980, ReleaseDate = new DateTime(2024, 5, 19, 0, 0, 0, DateTimeKind.Utc), PublisherId = pubCdpr.Id };

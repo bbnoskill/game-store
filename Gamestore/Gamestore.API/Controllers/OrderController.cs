@@ -56,6 +56,13 @@ public class OrderController(IOrderService orderService) : ControllerBase
         return Ok(new { paymentMethods });
     }
 
+    [HttpGet("history")]
+    public async Task<IActionResult> GetHistory([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+    {
+        var history = await orderService.GetHistoryAsync(startDate, endDate);
+        return Ok(history);
+    }
+
     [HttpDelete("cart/{key}")]
     public async Task<IActionResult> DeleteFromCart(string key)
     {

@@ -1,4 +1,4 @@
-﻿using Gamestore.BLL.DTOs.Order;
+using Gamestore.BLL.DTOs.Order;
 
 namespace Gamestore.BLL.Interfaces;
 
@@ -9,6 +9,8 @@ public interface IOrderService
     Task RemoveFromCartAsync(string gameKey);
 
     Task<IEnumerable<OrderDto>> GetOrdersAsync();
+
+    Task<IEnumerable<OrderDto>> GetHistoryAsync(DateTime? startDate, DateTime? endDate);
 
     Task<OrderDto?> GetOrderByIdAsync(Guid id);
 

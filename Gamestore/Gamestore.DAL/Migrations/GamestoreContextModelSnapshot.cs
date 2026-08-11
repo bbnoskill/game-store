@@ -60,6 +60,9 @@ namespace Gamestore.DAL.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Discontinued")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Discount")
                         .HasColumnType("int");
 
@@ -79,8 +82,14 @@ namespace Gamestore.DAL.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValue(new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd"));
 
+                    b.Property<string>("QuantityPerUnit")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("ReorderLevel")
+                        .HasColumnType("int");
 
                     b.Property<int>("UnitInStock")
                         .HasColumnType("int");
@@ -102,12 +111,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"),
                             Description = "Sci-fi FPS",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "halo-infinite",
                             Name = "Halo Infinite",
                             Price = 30.0,
                             PublisherId = new Guid("a1110015-0015-4015-8015-000000000015"),
                             ReleaseDate = new DateTime(2024, 12, 8, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 100,
                             ViewCount = 450
                         },
@@ -115,12 +126,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
                             Description = "Epic fantasy RPG",
+                            Discontinued = false,
                             Discount = 10,
                             Key = "skyrim",
                             Name = "Skyrim",
                             Price = 40.0,
                             PublisherId = new Guid("5bc5d6a2-6f91-4d3f-91ab-64213d8e578c"),
                             ReleaseDate = new DateTime(2023, 11, 11, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 50,
                             ViewCount = 1200
                         },
@@ -128,12 +141,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
                             Description = "Geralt's grand adventure",
+                            Discontinued = false,
                             Discount = 5,
                             Key = "witcher-3",
                             Name = "The Witcher 3",
                             Price = 25.0,
                             PublisherId = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1"),
                             ReleaseDate = new DateTime(2024, 5, 19, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 200,
                             ViewCount = 980
                         },
@@ -141,12 +156,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
                             Description = "Thinking with portals",
+                            Discontinued = false,
                             Discount = 2,
                             Key = "portal-2",
                             Name = "Portal 2",
                             Price = 10.0,
                             PublisherId = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac"),
                             ReleaseDate = new DateTime(2024, 4, 18, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 500,
                             ViewCount = 650
                         },
@@ -154,12 +171,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"),
                             Description = "Football simulator",
+                            Discontinued = false,
                             Discount = 15,
                             Key = "ea-fc-25",
                             Name = "EA FC 25",
                             Price = 60.0,
                             PublisherId = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c"),
                             ReleaseDate = new DateTime(2025, 9, 27, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 1000,
                             ViewCount = 2100
                         },
@@ -167,12 +186,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220001-0001-4001-8001-000000000001"),
                             Description = "Open world dark fantasy RPG",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "elden-ring",
                             Name = "Elden Ring",
                             Price = 59.990000000000002,
                             PublisherId = new Guid("a1110012-0012-4012-8012-000000000012"),
                             ReleaseDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 300,
                             ViewCount = 3500
                         },
@@ -180,12 +201,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220002-0002-4002-8002-000000000002"),
                             Description = "Open world action-adventure",
+                            Discontinued = false,
                             Discount = 20,
                             Key = "gta-v",
                             Name = "Grand Theft Auto V",
                             Price = 29.989999999999998,
                             PublisherId = new Guid("a1110007-0007-4007-8007-000000000007"),
                             ReleaseDate = new DateTime(2024, 3, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 800,
                             ViewCount = 5000
                         },
@@ -193,12 +216,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220003-0003-4003-8003-000000000003"),
                             Description = "Futuristic action RPG",
+                            Discontinued = false,
                             Discount = 10,
                             Key = "cyberpunk-2077",
                             Name = "Cyberpunk 2077",
                             Price = 49.990000000000002,
                             PublisherId = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1"),
                             ReleaseDate = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 150,
                             ViewCount = 2800
                         },
@@ -206,12 +231,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220004-0004-4004-8004-000000000004"),
                             Description = "Adventure in Hyrule",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "zelda-totk",
                             Name = "Zelda: Tears of the Kingdom",
                             Price = 59.990000000000002,
                             PublisherId = new Guid("a1110001-0001-4001-8001-000000000001"),
                             ReleaseDate = new DateTime(2025, 5, 12, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 400,
                             ViewCount = 4200
                         },
@@ -219,12 +246,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220005-0005-4005-8005-000000000005"),
                             Description = "Norse mythology action",
+                            Discontinued = false,
                             Discount = 5,
                             Key = "god-of-war-ragnarok",
                             Name = "God of War Ragnarok",
                             Price = 49.990000000000002,
                             PublisherId = new Guid("a1110002-0002-4002-8002-000000000002"),
                             ReleaseDate = new DateTime(2024, 11, 9, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 250,
                             ViewCount = 3100
                         },
@@ -232,12 +261,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220006-0006-4006-8006-000000000006"),
                             Description = "Modern military FPS",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "cod-mw3",
                             Name = "Call of Duty: MW III",
                             Price = 69.989999999999995,
                             PublisherId = new Guid("a1110004-0004-4004-8004-000000000004"),
                             ReleaseDate = new DateTime(2025, 11, 10, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 600,
                             ViewCount = 4500
                         },
@@ -245,12 +276,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220007-0007-4007-8007-000000000007"),
                             Description = "Action JRPG",
+                            Discontinued = false,
                             Discount = 8,
                             Key = "ff-16",
                             Name = "Final Fantasy XVI",
                             Price = 49.990000000000002,
                             PublisherId = new Guid("a1110005-0005-4005-8005-000000000005"),
                             ReleaseDate = new DateTime(2025, 6, 22, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 180,
                             ViewCount = 1800
                         },
@@ -258,12 +291,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220008-0008-4008-8008-000000000008"),
                             Description = "Survival horror classic",
+                            Discontinued = false,
                             Discount = 12,
                             Key = "re4-remake",
                             Name = "Resident Evil 4 Remake",
                             Price = 39.990000000000002,
                             PublisherId = new Guid("a1110006-0006-4006-8006-000000000006"),
                             ReleaseDate = new DateTime(2025, 3, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 220,
                             ViewCount = 2200
                         },
@@ -271,12 +306,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220009-0009-4009-8009-000000000009"),
                             Description = "Superhero action-adventure",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "spider-man-2",
                             Name = "Spider-Man 2",
                             Price = 49.990000000000002,
                             PublisherId = new Guid("a1110017-0017-4017-8017-000000000017"),
                             ReleaseDate = new DateTime(2025, 10, 20, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 350,
                             ViewCount = 2900
                         },
@@ -284,12 +321,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220010-0010-4010-8010-000000000010"),
                             Description = "Online looter-shooter",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "destiny-2",
                             Name = "Destiny 2",
                             Price = 0.0,
                             PublisherId = new Guid("a1110009-0009-4009-8009-000000000009"),
                             ReleaseDate = new DateTime(2024, 2, 28, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 9999,
                             ViewCount = 3800
                         },
@@ -297,12 +336,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220011-0011-4011-8011-000000000011"),
                             Description = "Battle royale phenomenon",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "fortnite",
                             Name = "Fortnite",
                             Price = 0.0,
                             PublisherId = new Guid("a1110010-0010-4010-8010-000000000010"),
                             ReleaseDate = new DateTime(2024, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 9999,
                             ViewCount = 8000
                         },
@@ -310,12 +351,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220012-0012-4012-8012-000000000012"),
                             Description = "3D fighting game",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "tekken-8",
                             Name = "Tekken 8",
                             Price = 49.990000000000002,
                             PublisherId = new Guid("a1110012-0012-4012-8012-000000000012"),
                             ReleaseDate = new DateTime(2026, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 160,
                             ViewCount = 1500
                         },
@@ -323,12 +366,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220013-0013-4013-8013-000000000013"),
                             Description = "Viking open-world RPG",
+                            Discontinued = false,
                             Discount = 25,
                             Key = "ac-valhalla",
                             Name = "Assassin's Creed Valhalla",
                             Price = 39.990000000000002,
                             PublisherId = new Guid("a1110003-0003-4003-8003-000000000003"),
                             ReleaseDate = new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 270,
                             ViewCount = 2000
                         },
@@ -336,12 +381,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220014-0014-4014-8014-000000000014"),
                             Description = "Competitive tactical FPS",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "cs2",
                             Name = "Counter-Strike 2",
                             Price = 0.0,
                             PublisherId = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac"),
                             ReleaseDate = new DateTime(2025, 9, 27, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 9999,
                             ViewCount = 6500
                         },
@@ -349,12 +396,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220015-0015-4015-8015-000000000015"),
                             Description = "Roguelike action dungeon crawler",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "hades-2",
                             Name = "Hades II",
                             Price = 29.989999999999998,
                             PublisherId = new Guid("a1110019-0019-4019-8019-000000000019"),
                             ReleaseDate = new DateTime(2026, 5, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 500,
                             ViewCount = 3200
                         },
@@ -362,12 +411,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220016-0016-4016-8016-000000000016"),
                             Description = "Post-apocalyptic action-adventure",
+                            Discontinued = false,
                             Discount = 10,
                             Key = "tlou-2",
                             Name = "The Last of Us Part II",
                             Price = 39.990000000000002,
                             PublisherId = new Guid("a1110016-0016-4016-8016-000000000016"),
                             ReleaseDate = new DateTime(2024, 6, 19, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 190,
                             ViewCount = 2600
                         },
@@ -375,12 +426,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220017-0017-4017-8017-000000000017"),
                             Description = "Stealth action",
+                            Discontinued = false,
                             Discount = 30,
                             Key = "mgs-v",
                             Name = "Metal Gear Solid V",
                             Price = 19.989999999999998,
                             PublisherId = new Guid("a1110013-0013-4013-8013-000000000013"),
                             ReleaseDate = new DateTime(2023, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 320,
                             ViewCount = 1700
                         },
@@ -388,12 +441,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220018-0018-4018-8018-000000000018"),
                             Description = "Tactical hero shooter",
+                            Discontinued = false,
                             Discount = 0,
                             Key = "valorant",
                             Name = "Valorant",
                             Price = 0.0,
                             PublisherId = new Guid("a1110020-0020-4020-8020-000000000020"),
                             ReleaseDate = new DateTime(2024, 6, 2, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 9999,
                             ViewCount = 7200
                         },
@@ -401,12 +456,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220019-0019-4019-8019-000000000019"),
                             Description = "Open-zone platformer",
+                            Discontinued = false,
                             Discount = 15,
                             Key = "sonic-frontiers",
                             Name = "Sonic Frontiers",
                             Price = 39.990000000000002,
                             PublisherId = new Guid("a1110011-0011-4011-8011-000000000011"),
                             ReleaseDate = new DateTime(2024, 11, 8, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 230,
                             ViewCount = 900
                         },
@@ -414,12 +471,14 @@ namespace Gamestore.DAL.Migrations
                         {
                             Id = new Guid("b2220020-0020-4020-8020-000000000020"),
                             Description = "Basketball simulation",
+                            Discontinued = false,
                             Discount = 10,
                             Key = "nba-2k25",
                             Name = "NBA 2K25",
                             Price = 59.990000000000002,
                             PublisherId = new Guid("a1110014-0014-4014-8014-000000000014"),
                             ReleaseDate = new DateTime(2026, 7, 6, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ReorderLevel = 0,
                             UnitInStock = 400,
                             ViewCount = 1400
                         });
@@ -980,12 +1039,18 @@ namespace Gamestore.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("ParentGenreId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Picture")
+                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("Id");
 
@@ -1117,6 +1182,33 @@ namespace Gamestore.DAL.Migrations
                     b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal?>("Freight")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("ShipAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipCity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipCountry")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipPostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipRegion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ShipVia")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ShippedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -1200,14 +1292,41 @@ namespace Gamestore.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ContactName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Fax")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("HomePage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

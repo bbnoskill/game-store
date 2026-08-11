@@ -1,4 +1,4 @@
-﻿namespace Gamestore.DAL.Entities;
+namespace Gamestore.DAL.Entities;
 
 public class Game
 {
@@ -19,6 +19,12 @@ public class Game
     public int ViewCount { get; set; }
 
     public DateTime ReleaseDate { get; set; }
+
+    public string? QuantityPerUnit { get; set; }
+
+    public int ReorderLevel { get; set; }
+
+    public bool Discontinued { get; set; }
 
     public Guid PublisherId { get; set; }
 

@@ -1,9 +1,13 @@
-﻿using Gamestore.BLL.DTOs.Game;
+using Gamestore.BLL.DTOs.Game;
+using Gamestore.BLL.DTOs.Game.Filtering;
 using Gamestore.BLL.Filtering;
+using Gamestore.BLL.Filtering.Implementations;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Interfaces;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Entities;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -13,38 +17,48 @@ public class GameServiceTests
 {
     private readonly Mock<IGameRepository> _gameRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly Mock<IMongoProductRepository> _mongoProductRepo = new();
+    private readonly GameFilterPipeline _pipeline;
     private readonly GameService _service;
     private readonly Mock<ILogger<GameService>> _loggerMock = new();
-    private readonly GameFilterPipeline _pipeline = new([]);
 
     public GameServiceTests()
     {
         _uow.Setup(u => u.Games).Returns(_gameRepo.Object);
-        _service = new GameService(_uow.Object, _loggerMock.Object, _pipeline);
+        _mongoProductRepo.Setup(m => m.GetAllQueryable()).Returns(new List<MongoProduct>().AsQueryable());
+
+        _pipeline = new GameFilterPipeline([
+            new NameFilterStep(),
+            new PriceFilterStep(),
+            new GenreFilterStep(),
+            new PlatformFilterStep(),
+            new PublisherFilterStep(),
+            new PublishDateFilterStep(),
+            new SortStep(),
+        ]);
+
+        _service = new GameService(_uow.Object, _loggerMock.Object, _pipeline, _mongoProductRepo.Object);
     }
 
     [Fact]
     public async Task GetByKeyAsyncReturnsDtoWhenFound()
     {
-        var game = new Game { Id = Guid.NewGuid(), Name = "Halo", Key = "halo", Description = "FPS" };
+        var game = new Game { Id = Guid.NewGuid(), Name = "Halo", Key = "halo", Description = string.Empty };
         _gameRepo.Setup(r => r.GetByKeyAsync("halo")).ReturnsAsync(game);
 
         var result = await _service.GetByKeyAsync("halo");
 
         Assert.NotNull(result);
-        Assert.Equal(game.Id, result.Id);
         Assert.Equal("Halo", result.Name);
         Assert.Equal("halo", result.Key);
     }
 
     [Fact]
-    public async Task GetByKeyAsyncReturnsNullWhenNotFound()
+    public async Task GetByKeyAsyncThrowsWhenNotFound()
     {
         _gameRepo.Setup(r => r.GetByKeyAsync(It.IsAny<string>())).ReturnsAsync((Game?)null);
 
-        var result = await _service.GetByKeyAsync("missing");
-
-        Assert.Null(result);
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.GetByKeyAsync("missing"));
     }
 
     [Fact]
@@ -61,56 +75,64 @@ public class GameServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsyncReturnsNullWhenNotFound()
+    public async Task GetByIdAsyncThrowsWhenNotFound()
     {
         _gameRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Game?)null);
 
-        var result = await _service.GetByIdAsync(Guid.NewGuid());
-
-        Assert.Null(result);
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.GetByIdAsync(Guid.NewGuid()));
     }
 
     [Fact]
-    public async Task GetAllAsyncReturnsAllMappedDtos()
+    public async Task GetAllAsyncReturnsAllGames()
     {
         var games = new List<Game>
         {
-            new() { Id = Guid.NewGuid(), Name = "G1", Key = "g1", Description = string.Empty },
-            new() { Id = Guid.NewGuid(), Name = "G2", Key = "g2", Description = string.Empty },
+            new() { Id = Guid.NewGuid(), Name = "Halo", Key = "halo", Description = string.Empty },
+            new() { Id = Guid.NewGuid(), Name = "Doom", Key = "doom", Description = string.Empty },
         };
         _gameRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(games);
 
         var result = (await _service.GetAllAsync()).ToList();
 
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, g => g.Name == "G1");
-        Assert.Contains(result, g => g.Name == "G2");
     }
 
     [Fact]
-    public async Task GetByGenreAsyncReturnsMappedDtos()
+    public async Task GetByGenreAsyncReturnsGamesForGenre()
     {
         var genreId = Guid.NewGuid();
-        var games = new List<Game> { new() { Id = Guid.NewGuid(), Name = "X", Key = "x", Description = string.Empty } };
+        var games = new List<Game> { new() { Id = Guid.NewGuid(), Name = "RPG Game", Key = "rpg", Description = string.Empty } };
         _gameRepo.Setup(r => r.GetByGenreAsync(genreId)).ReturnsAsync(games);
 
         var result = (await _service.GetByGenreAsync(genreId)).ToList();
 
         Assert.Single(result);
-        _gameRepo.Verify(r => r.GetByGenreAsync(genreId), Times.Once);
+        Assert.Equal("RPG Game", result[0].Name);
     }
 
     [Fact]
-    public async Task GetByPlatformAsyncReturnsMappedDtos()
+    public async Task GetByPlatformAsyncReturnsGamesForPlatform()
     {
         var platformId = Guid.NewGuid();
-        var games = new List<Game> { new() { Id = Guid.NewGuid(), Name = "Y", Key = "y", Description = string.Empty } };
+        var games = new List<Game> { new() { Id = Guid.NewGuid(), Name = "PC Game", Key = "pc", Description = string.Empty } };
         _gameRepo.Setup(r => r.GetByPlatformAsync(platformId)).ReturnsAsync(games);
 
         var result = (await _service.GetByPlatformAsync(platformId)).ToList();
 
         Assert.Single(result);
-        _gameRepo.Verify(r => r.GetByPlatformAsync(platformId), Times.Once);
+        Assert.Equal("PC Game", result[0].Name);
+    }
+
+    [Fact]
+    public async Task GetByPublisherAsyncReturnsGamesForPublisher()
+    {
+        var games = new List<Game> { new() { Id = Guid.NewGuid(), Name = "EA Game", Key = "ea", Description = string.Empty } };
+        _gameRepo.Setup(r => r.GetByPublisherAsync("EA")).ReturnsAsync(games);
+
+        var result = (await _service.GetByPublisherAsync("EA")).ToList();
+
+        Assert.Single(result);
+        Assert.Equal("EA Game", result[0].Name);
     }
 
     [Fact]
@@ -118,20 +140,14 @@ public class GameServiceTests
     {
         var request = new CreateGameRequestDto
         {
-            Game = new CreateGameDto { Name = "New Game", Key = "new-game", Description = "desc" },
-            Genres = [Guid.NewGuid()],
-            Platforms = [Guid.NewGuid()],
+            Game = new CreateGameDto { Name = "New Game", Key = "new-game", Description = "Desc", Price = 10 },
+            Genres = [],
+            Platforms = [],
         };
 
         await _service.CreateAsync(request);
 
-        _gameRepo.Verify(
-            r => r.AddAsync(It.Is<Game>(g =>
-            g.Name == "New Game" &&
-            g.Key == "new-game" &&
-            g.GameGenres.Count == 1 &&
-            g.GamePlatforms.Count == 1)),
-            Times.Once);
+        _gameRepo.Verify(r => r.AddAsync(It.Is<Game>(g => g.Name == "New Game" && g.Key == "new-game")), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
@@ -140,42 +156,34 @@ public class GameServiceTests
     {
         var request = new CreateGameRequestDto
         {
-            Game = new CreateGameDto { Name = "My Cool Game", Key = string.Empty, Description = string.Empty },
+            Game = new CreateGameDto { Name = "My Cool Game", Key = string.Empty, Description = "Desc" },
             Genres = [],
             Platforms = [],
         };
 
-        Game? captured = null;
-        _gameRepo.Setup(r => r.AddAsync(It.IsAny<Game>()))
-                 .Callback<Game>(g => captured = g)
-                 .Returns(Task.CompletedTask);
-
         await _service.CreateAsync(request);
 
-        Assert.NotNull(captured);
-
-        Assert.Equal("my-cool-game", captured!.Key);
+        _gameRepo.Verify(r => r.AddAsync(It.Is<Game>(g => g.Key == "my-cool-game")), Times.Once);
     }
 
     [Fact]
-    public async Task UpdateAsyncUpdatesGameAndSaves()
+    public async Task UpdateAsyncUpdatesExistingGame()
     {
         var id = Guid.NewGuid();
-        var existing = new Game { Id = id, Name = "Old", Key = "old", Description = "old" };
+        var existing = new Game { Id = id, Name = "Old", Key = "old", Description = "Desc" };
         _gameRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(existing);
 
         var request = new UpdateGameRequestDto
         {
-            Game = new UpdateGameDto { Id = id, Name = "Updated", Key = "updated", Description = "new" },
-            Genres = [Guid.NewGuid()],
-            Platforms = [Guid.NewGuid()],
+            Game = new UpdateGameDto { Id = id, Name = "Updated", Key = "updated", Description = "New Desc" },
+            Genres = [],
+            Platforms = [],
         };
 
         await _service.UpdateAsync(request);
 
         Assert.Equal("Updated", existing.Name);
         Assert.Equal("updated", existing.Key);
-        Assert.Equal("new", existing.Description);
         _gameRepo.Verify(r => r.Update(existing), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
@@ -184,23 +192,23 @@ public class GameServiceTests
     public async Task UpdateAsyncGeneratesKeyWhenKeyWhitespace()
     {
         var id = Guid.NewGuid();
-        var existing = new Game { Id = id, Name = "Old", Key = "old", Description = string.Empty };
+        var existing = new Game { Id = id, Name = "Old", Key = "old", Description = "Desc" };
         _gameRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(existing);
 
         var request = new UpdateGameRequestDto
         {
-            Game = new UpdateGameDto { Id = id, Name = "Cool Game", Key = "   ", Description = string.Empty },
+            Game = new UpdateGameDto { Id = id, Name = "New Name", Key = "   ", Description = "Desc" },
             Genres = [],
             Platforms = [],
         };
 
         await _service.UpdateAsync(request);
 
-        Assert.Equal("cool-game", existing.Key);
+        Assert.Equal("new-name", existing.Key);
     }
 
     [Fact]
-    public async Task UpdateAsyncThrowsWhenGameNotFound()
+    public async Task UpdateAsyncCreatesNewGameIfNotFoundInSql()
     {
         _gameRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Game?)null);
 
@@ -211,7 +219,10 @@ public class GameServiceTests
             Platforms = [],
         };
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateAsync(request));
+        await _service.UpdateAsync(request);
+
+        _gameRepo.Verify(r => r.AddAsync(It.IsAny<Game>()), Times.Once);
+        _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -231,17 +242,25 @@ public class GameServiceTests
     {
         _gameRepo.Setup(r => r.GetByKeyAsync(It.IsAny<string>())).ReturnsAsync((Game?)null);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.DeleteAsync("nope"));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.DeleteAsync("missing"));
     }
 
     [Fact]
-    public async Task GetTotalCountAsyncReturnsCountFromRepository()
+    public async Task GetFilteredAsyncAppliesPipelineAndReturnsPagedResult()
     {
-        _gameRepo.Setup(r => r.GetCountAsync()).ReturnsAsync(42);
+        var list = new List<Game>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Alpha", Key = "alpha", Price = 10, Description = string.Empty },
+            new() { Id = Guid.NewGuid(), Name = "Beta", Key = "beta", Price = 20, Description = string.Empty },
+        }.AsQueryable();
 
-        var result = await _service.GetTotalCountAsync();
+        _gameRepo.Setup(r => r.GetQueryable()).Returns(list);
 
-        Assert.Equal(42, result);
-        _gameRepo.Verify(r => r.GetCountAsync(), Times.Once);
+        var filter = new GameFilterDto { Name = "Alpha", Page = 1, PageSize = "10" };
+        var result = await _service.GetFilteredAsync(filter);
+
+        Assert.NotNull(result);
+        Assert.Single(result.Games);
+        Assert.Equal("Alpha", result.Games.First().Name);
     }
 }

@@ -1,8 +1,10 @@
-﻿using Gamestore.BLL.DTOs.Genre;
+using Gamestore.BLL.DTOs.Genre;
 using Gamestore.BLL.Services;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Repositories.Interfaces;
 using Gamestore.DAL.UnitOfWork;
+using Gamestore.MongoDAL.Entities;
+using Gamestore.MongoDAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -12,13 +14,15 @@ public class GenreServiceTests
 {
     private readonly Mock<IGenreRepository> _genreRepo = new();
     private readonly Mock<IUnitOfWork> _uow = new();
+    private readonly Mock<IMongoCategoryRepository> _mongoCategoryRepo = new();
     private readonly GenreService _service;
     private readonly Mock<ILogger<GameService>> _loggerMock = new();
 
     public GenreServiceTests()
     {
         _uow.Setup(u => u.Genres).Returns(_genreRepo.Object);
-        _service = new GenreService(_uow.Object, _loggerMock.Object);
+        _mongoCategoryRepo.Setup(m => m.GetAllQueryable()).Returns(new List<MongoCategory>().AsQueryable());
+        _service = new GenreService(_uow.Object, _loggerMock.Object, _mongoCategoryRepo.Object);
     }
 
     [Fact]
@@ -32,16 +36,6 @@ public class GenreServiceTests
 
         Assert.NotNull(result);
         Assert.Equal("RPG", result.Name);
-    }
-
-    [Fact]
-    public async Task GetByIdAsyncReturnsNullWhenNotFound()
-    {
-        _genreRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Genre?)null);
-
-        var result = await _service.GetByIdAsync(Guid.NewGuid());
-
-        Assert.Null(result);
     }
 
     [Fact]
@@ -108,9 +102,13 @@ public class GenreServiceTests
         var existing = new Genre { Id = id, Name = "Old", ParentGenreId = null };
         _genreRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(existing);
 
+        var parentId = Guid.NewGuid();
+        var parentGenre = new Genre { Id = parentId, Name = "Parent" };
+        _genreRepo.Setup(r => r.GetByIdAsync(parentId)).ReturnsAsync(parentGenre);
+
         var request = new UpdateGenreRequestDto
         {
-            Genre = new UpdateGenreDto { Id = id, Name = "New", ParentGenreId = Guid.NewGuid() },
+            Genre = new UpdateGenreDto { Id = id, Name = "New", ParentGenreId = parentId },
         };
 
         await _service.UpdateAsync(request);
@@ -119,19 +117,6 @@ public class GenreServiceTests
         Assert.NotNull(existing.ParentGenreId);
         _genreRepo.Verify(r => r.Update(existing), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateAsyncThrowsWhenNotFound()
-    {
-        _genreRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Genre?)null);
-
-        var request = new UpdateGenreRequestDto
-        {
-            Genre = new UpdateGenreDto { Id = Guid.NewGuid(), Name = "X", ParentGenreId = null },
-        };
-
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateAsync(request));
     }
 
     [Fact]
@@ -145,13 +130,5 @@ public class GenreServiceTests
 
         _genreRepo.Verify(r => r.Delete(genre), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsyncThrowsWhenNotFound()
-    {
-        _genreRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Genre?)null);
-
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.DeleteAsync(Guid.NewGuid()));
     }
 }

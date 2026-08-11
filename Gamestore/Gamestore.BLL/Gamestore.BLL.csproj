@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Gamestore.MongoDAL\Gamestore.MongoDAL.csproj" />
     <ProjectReference Include="..\Gamestore.DAL\Gamestore.DAL.csproj" />
   </ItemGroup>
 
