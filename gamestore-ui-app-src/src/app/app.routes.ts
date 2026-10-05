@@ -1,0 +1,35 @@
+import { Routes } from '@angular/router';
+import { MainPageComponent } from './pages/main-page/main-page.component';
+import { GameListComponent } from './pages/game-list/game-list.component';
+import { GameDetailsComponent } from './pages/game-details/game-details.component';
+import { CartComponent } from './pages/cart/cart.component';
+import { OrderListComponent } from './pages/orders/order-list.component';
+import { OrderDetailsComponent } from './pages/orders/order-details.component';
+import { OrderHistoryComponent } from './pages/orders/order-history.component';
+import { GenreListComponent } from './pages/genres/genre-list.component';
+import { PlatformListComponent } from './pages/platforms/platform-list.component';
+import { PublisherListComponent } from './pages/publishers/publisher-list.component';
+import { PublisherDetailsComponent } from './pages/publishers/publisher-details.component';
+import { AddGameComponent } from './pages/admin/add-game.component';
+import { UpdateGameComponent } from './pages/admin/update-game.component';
+import { DeleteGameComponent } from './pages/admin/delete-game.component';
+import { LoginComponent } from './pages/auth/login.component';
+
+export const routes: Routes = [
+  { path: '', component: MainPageComponent },
+  { path: 'games', component: GameListComponent },
+  { path: 'game/:key', component: GameDetailsComponent },
+  { path: 'add-game', component: AddGameComponent },
+  { path: 'update-game/:key', component: UpdateGameComponent },
+  { path: 'delete-game/:key', component: DeleteGameComponent },
+  { path: 'genres', component: GenreListComponent },
+  { path: 'platforms', component: PlatformListComponent },
+  { path: 'publishers', component: PublisherListComponent },
+  { path: 'publisher/:companyname', component: PublisherDetailsComponent },
+  { path: 'basket', component: CartComponent },
+  { path: 'order/:id', component: OrderDetailsComponent },
+  { path: 'orders', component: OrderListComponent },
+  { path: 'history', component: OrderHistoryComponent },
+  { path: 'login', component: LoginComponent },
+  { path: '**', redirectTo: '' }
+];

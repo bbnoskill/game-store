@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ac955aeb-6d77-431a-bc81-3bb9d4145d38" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="game-store-epic-05" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;vladandriievskiy&quot;,
+      &quot;fullname&quot;: &quot;vladandriievskiy&quot;
+    }
+  }
+}</component>
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;https://autocode.git.epam.com/vladandriievskiy/game-store-v2-with-branches.git&quot;,
+    &quot;second&quot;: &quot;ef79c884-79db-4ace-983c-859b8ad88631&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.API/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.API/appsettings.Development.json" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.API/appsettings.json" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.BLL/DTOs/Order/OrderDto.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.BLL/DTOs/Order/PaymentMethodDto.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.BLL/DTOs/Order/PaymentRequestDto.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.BLL/DTOs/Order/PaymentResultDto.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.BLL/Services/GameService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/Gamestore.BLL/Services/OrderService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/gamestore-ui-app/assets/configuration/configuration.json" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/gamestore-ui-app/assets/configuration/route-configuration.json" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/gamestore-ui-app/main.js.map" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Gamestore/gamestore-ui-app/package-lock.json" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="3ELctKzWdJ4gazaLdZzEI1AvhfE" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;game-store-epic-13&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Study/epam/GameStore&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Study\\epam\\GameStore\\gamestore-ui-app-src\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;module&quot;,
+      &quot;repository&quot;
+    ]
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ac955aeb-6d77-431a-bc81-3bb9d4145d38" name="Changes" comment="" />
+      <created>1779961507802</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1779961507802</updated>
+      <workItem from="1779961508264" duration="2427000" />
+      <workItem from="1779964004819" duration="1169000" />
+      <workItem from="1780919028958" duration="428000" />
+      <workItem from="1782206234797" duration="1391000" />
+      <workItem from="1782295573874" duration="351000" />
+      <workItem from="1782485162369" duration="670000" />
+      <workItem from="1783257442367" duration="612000" />
+      <workItem from="1783337158167" duration="769000" />
+      <workItem from="1783934262240" duration="124000" />
+      <workItem from="1783937318412" duration="16000" />
+      <workItem from="1784028150814" duration="1193000" />
+      <workItem from="1784029415961" duration="165000" />
+      <workItem from="1784029691084" duration="492000" />
+      <workItem from="1784201424306" duration="20000" />
+      <workItem from="1784538717316" duration="126000" />
+      <workItem from="1784632759421" duration="1199000" />
+      <workItem from="1784639854255" duration="577000" />
+      <workItem from="1785149167842" duration="1408000" />
+      <workItem from="1785700595567" duration="49000" />
+      <workItem from="1785700794535" duration="211000" />
+      <workItem from="1785746017739" duration="2680000" />
+      <workItem from="1786012899059" duration="1540000" />
+      <workItem from="1786017645337" duration="177000" />
+      <workItem from="1786276252735" duration="1320000" />
+      <workItem from="1787050812636" duration="347000" />
+      <workItem from="1791023983800" duration="1686000" />
+      <workItem from="1791195786433" duration="564000" />
+    </task>
+    <task id="LOCAL-00001" summary="merge 1.2">
+      <option name="closed" value="true" />
+      <created>1780919369838</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1780919369838</updated>
+    </task>
+    <task id="LOCAL-00002" summary="deleted unnecessary files">
+      <option name="closed" value="true" />
+      <created>1782206496962</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1782206496962</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Deleted unnecessary files same way i did in epic 1">
+      <option name="closed" value="true" />
+      <created>1782207023661</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1782207023661</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Removed unneccessary file and added logs folder to .gitignore">
+      <option name="closed" value="true" />
+      <created>1783257715448</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1783257715448</updated>
+    </task>
+    <task id="LOCAL-00005" summary="epic 3 merge">
+      <option name="closed" value="true" />
+      <created>1783337631946</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1783337631946</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fixed autocode problems">
+      <option name="closed" value="true" />
+      <created>1786277324716</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1786277324716</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="merge 1.2" />
+    <MESSAGE value="deleted unnecessary files" />
+    <MESSAGE value="Deleted unnecessary files same way i did in epic 1" />
+    <MESSAGE value="Removed unneccessary file and added logs folder to .gitignore" />
+    <MESSAGE value="epic 3 merge" />
+    <MESSAGE value="fixed autocode problems" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed autocode problems" />
+  </component>
+</project>
