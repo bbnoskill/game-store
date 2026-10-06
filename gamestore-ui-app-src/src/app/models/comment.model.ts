@@ -13,6 +13,7 @@ export interface CreateCommentRequest {
     name: string;
     body: string;
   };
+  parentId?: string | null;
   parentCommentId?: string | null;
   action?: string | null;
 }

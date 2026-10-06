@@ -11,7 +11,10 @@ import { Observable } from 'rxjs';
   template: `
     <header class="app-header">
       <div class="header-container">
-        <a routerLink="/" class="logo">logo</a>
+        <a routerLink="/" class="logo">
+          <img src="assets/logo.png?v=4" alt="GameStore" class="logo-img" (error)="useTextLogo = true" *ngIf="!useTextLogo; else textLogo" />
+          <ng-template #textLogo><span class="logo-text">logo</span></ng-template>
+        </a>
         
         <nav class="nav-links">
           <a routerLink="/games" routerLinkActive="active" class="nav-item">GAMES</a>
@@ -37,7 +40,7 @@ import { Observable } from 'rxjs';
     .header-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 16px 24px;
+      padding: 8px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -51,6 +54,22 @@ import { Observable } from 'rxjs';
       letter-spacing: -0.5px;
       font-family: 'Roboto', sans-serif;
       transition: opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+    .logo-img {
+      height: 80px;
+      max-height: 80px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+    .logo-text {
+      font-size: 28px;
+      font-weight: 800;
+      font-style: italic;
+      color: #ffffff;
+      font-family: 'Roboto', sans-serif;
     }
     .logo:hover {
       opacity: 0.85;
@@ -98,6 +117,7 @@ import { Observable } from 'rxjs';
 })
 export class HeaderComponent implements OnInit {
   cartCount$!: Observable<number>;
+  useTextLogo: boolean = false;
 
   constructor(private cartService: CartService) {}
 

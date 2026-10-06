@@ -415,7 +415,7 @@ export class GameService {
       result = result.filter(g => {
         const gPubId = (g.publisherId || '').toLowerCase();
         const gPubName = (g.publisherName || '').toLowerCase();
-        return pubQueries.some(q => gPubId.includes(q) || gPubName.includes(q) || q.includes(gPubName) || q.includes(gPubId));
+        return pubQueries.some(q => gPubId === q || gPubName === q || gPubId.includes(q) || gPubName.includes(q) || q.includes(gPubName) || q.includes(gPubId));
       });
     }
 
@@ -423,8 +423,12 @@ export class GameService {
     if (filter?.genres && filter.genres.length > 0) {
       const genreQueries = filter.genres.map(g => g.toLowerCase());
       result = result.filter(g => {
-        const gGenres = (g.genreIds || []).map(id => id.toLowerCase());
-        return genreQueries.some(q => gGenres.some(id => id.includes(q) || q.includes(id)));
+        const gGenreIds = (g.genreIds || []).map(id => id.toLowerCase());
+        const gGenreNames = (g.genres || []).map(gen => gen.name.toLowerCase());
+        return genreQueries.some(q =>
+          gGenreIds.some(id => id === q || id.includes(q) || q.includes(id)) ||
+          gGenreNames.some(n => n === q || n.includes(q) || q.includes(n))
+        );
       });
     }
 
@@ -432,12 +436,45 @@ export class GameService {
     if (filter?.platforms && filter.platforms.length > 0) {
       const platQueries = filter.platforms.map(p => p.toLowerCase());
       result = result.filter(g => {
-        const gPlats = (g.platformTypes || []).map(t => t.toLowerCase());
-        return platQueries.some(q => gPlats.some(p => p.includes(q) || q.includes(p)));
+        const gPlatIds = (g.platformIds || []).map(id => id.toLowerCase());
+        const gPlatTypes = (g.platformTypes || g.platforms?.map(p => p.type) || []).map(t => t.toLowerCase());
+        return platQueries.some(q =>
+          gPlatIds.some(id => id === q || id.includes(q) || q.includes(id)) ||
+          gPlatTypes.some(t => t === q || t.includes(q) || q.includes(t))
+        );
       });
     }
 
-    // 6. Sorting
+    // 6. Release Date Filter
+    if (filter?.publishDate && filter.publishDate.trim()) {
+      const pubDate = filter.publishDate.trim().toLowerCase();
+      const now = new Date('2026-10-06T12:00:00Z');
+      let cutoff: Date | null = null;
+      if (pubDate === 'last week') {
+        cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (pubDate === 'last month') {
+        cutoff = new Date(now);
+        cutoff.setMonth(cutoff.getMonth() - 1);
+      } else if (pubDate === 'last year') {
+        cutoff = new Date(now);
+        cutoff.setFullYear(cutoff.getFullYear() - 1);
+      } else if (pubDate === '2 years') {
+        cutoff = new Date(now);
+        cutoff.setFullYear(cutoff.getFullYear() - 2);
+      } else if (pubDate === '3 years') {
+        cutoff = new Date(now);
+        cutoff.setFullYear(cutoff.getFullYear() - 3);
+      }
+
+      if (cutoff) {
+        result = result.filter(g => {
+          if (!g.releaseDate) return true;
+          return new Date(g.releaseDate) >= cutoff!;
+        });
+      }
+    }
+
+    // 7. Sorting
     if (filter?.sortBy) {
       const sort = filter.sortBy.toLowerCase();
       if (sort.includes('low to high') || sort.includes('asc')) {
@@ -447,7 +484,7 @@ export class GameService {
       } else if (sort.includes('popular')) {
         result.sort((a, b) => (b.discount || 0) - (a.discount || 0));
       } else if (sort.includes('date')) {
-        result.sort((a, b) => a.name.localeCompare(b.name));
+        result.sort((a, b) => (new Date(b.releaseDate || 0).getTime()) - (new Date(a.releaseDate || 0).getTime()));
       }
     }
 
@@ -527,21 +564,30 @@ export class GameService {
   getGenresByGameKey(key: string): Observable<any[]> {
     const url = this.configService.getApiUrl('genresByGameApiUrl', { key });
     return this.http.get<any[]>(url).pipe(
-      catchError(() => of([{ id: 'f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6', name: 'Action' }]))
+      catchError(() => {
+        const found = this.mockGames.find(g => g.key === key);
+        return of(found?.genres || [{ id: 'f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6', name: 'Action' }]);
+      })
     );
   }
 
   getPlatformsByGameKey(key: string): Observable<any[]> {
     const url = this.configService.getApiUrl('platformsByGameApiUrl', { key });
     return this.http.get<any[]>(url).pipe(
-      catchError(() => of([{ id: 'b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b', type: 'PC' }]))
+      catchError(() => {
+        const found = this.mockGames.find(g => g.key === key);
+        return of(found?.platforms || [{ id: 'b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b', type: 'Desktop' }]);
+      })
     );
   }
 
   getPublisherByGameKey(key: string): Observable<any> {
     const url = this.configService.getApiUrl('publisherByGameApiUrl', { key });
     return this.http.get<any>(url).pipe(
-      catchError(() => of({ id: '77c06fc6-f8a1-46f9-af03-2793e500112c', companyName: 'Electronic Arts' }))
+      catchError(() => {
+        const found = this.mockGames.find(g => g.key === key);
+        return of({ id: found?.publisherId || '77c06fc6-f8a1-46f9-af03-2793e500112c', companyName: found?.publisherName || 'Electronic Arts' });
+      })
     );
   }
 
@@ -555,7 +601,7 @@ export class GameService {
   getPublishDateOptions(): Observable<string[]> {
     const url = this.configService.getApiUrl('getPublishedDateOptionsApiUrl');
     return this.http.get<string[]>(url).pipe(
-      catchError(() => of(['Coming Soon', 'Last 7 Days', 'Last 30 Days']))
+      catchError(() => of(['last week', 'last month', 'last year', '2 years', '3 years']))
     );
   }
 

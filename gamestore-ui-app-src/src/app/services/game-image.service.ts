@@ -6,31 +6,31 @@ import { Injectable } from '@angular/core';
 export class GameImageService {
   // Real high quality cover image mappings for games
   private readonly realGameCovers: Record<string, string> = {
-    'halo-infinite': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80',
-    'skyrim': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
-    'witcher-3': 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80',
-    'portal-2': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80',
-    'ea-fc-25': 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80',
-    'elden-ring': 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=600&q=80',
-    'gta-v': 'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=600&q=80',
-    'cyberpunk-2077': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-    'zelda-totk': 'https://images.unsplash.com/photo-1612287233207-681966a3375b?auto=format&fit=crop&w=600&q=80',
-    'god-of-war-ragnarok': 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80',
-    'cod-mw3': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80',
-    'ff-16': 'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=600&q=80',
-    're4-remake': 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80',
-    'spider-man-2': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-    'destiny-2': 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=600&q=80',
-    'fortnite': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80',
-    'tekken-8': 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80',
-    'ac-valhalla': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
-    'cs2': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80',
-    'hades-2': 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80',
-    'tlou-2': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-    'mgs-v': 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=600&q=80',
-    'valorant': 'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=600&q=80',
-    'sonic-frontiers': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80',
-    'nba-2k25': 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80'
+    'halo-infinite': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1240440/header.jpg',
+    'skyrim': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/489830/header.jpg',
+    'witcher-3': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/292030/header.jpg',
+    'portal-2': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/620/header.jpg',
+    'ea-fc-25': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2195250/header.jpg',
+    'elden-ring': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg',
+    'gta-v': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/271590/header.jpg',
+    'cyberpunk-2077': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1091500/header.jpg',
+    'zelda-totk': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg',
+    'god-of-war-ragnarok': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2322010/header.jpg',
+    'cod-mw3': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2519060/header.jpg',
+    'ff-16': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2515020/header.jpg',
+    're4-remake': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2050650/header.jpg',
+    'spider-man-2': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1817070/header.jpg',
+    'destiny-2': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1085660/header.jpg',
+    'fortnite': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2519060/header.jpg',
+    'tekken-8': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1778820/header.jpg',
+    'ac-valhalla': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2208920/header.jpg',
+    'cs2': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/730/header.jpg',
+    'hades-2': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1145350/header.jpg',
+    'tlou-2': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1888930/header.jpg',
+    'mgs-v': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/287700/header.jpg',
+    'valorant': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1240440/header.jpg',
+    'sonic-frontiers': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1237320/header.jpg',
+    'nba-2k25': 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2878980/header.jpg'
   };
 
   private createSvgDataUri(title: string, color1: string, color2: string): string {
@@ -54,6 +54,16 @@ export class GameImageService {
   }
 
   getGameImage(key?: string, name?: string): string {
+    const k = (key || name || '').toLowerCase();
+    for (const gameKey of Object.keys(this.realGameCovers)) {
+      if (k.includes(gameKey) || gameKey.includes(k)) {
+        return `/assets/images/games/${gameKey}.jpg`;
+      }
+    }
+    return this.createSvgDataUri(name || 'Game Cover', '#1e88e5', '#1565c0');
+  }
+
+  getOnlineFallbackImage(key?: string, name?: string): string {
     const k = (key || name || '').toLowerCase();
     for (const [gameKey, url] of Object.entries(this.realGameCovers)) {
       if (k.includes(gameKey) || gameKey.includes(k)) {

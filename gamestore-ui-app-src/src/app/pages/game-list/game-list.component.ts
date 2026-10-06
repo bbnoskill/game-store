@@ -50,7 +50,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
           <div class="game-grid" *ngIf="games.length > 0; else noGames">
             <div class="game-card" *ngFor="let game of games" [routerLink]="['/game', game.key]">
               <div class="game-image-wrap">
-                <img [src]="getImageUrl(game.key, game.name)" [alt]="game.name" class="game-img" />
+                <img [src]="getImageUrl(game.key, game.name)" (error)="handleImgError($event, game.key, game.name)" [alt]="game.name" class="game-img" />
                 <span *ngIf="game.discount > 0" class="card-discount-tag">-{{ game.discount }}%</span>
               </div>
               <div class="game-card-body">
@@ -161,7 +161,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
                   [(ngModel)]="filter.publishDate"
                   (change)="applyFilter()"
                 />
-                <span>{{ opt }}</span>
+                <span>{{ formatPublishDateLabel(opt) }}</span>
               </label>
             </div>
           </div>
@@ -296,7 +296,8 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
     .game-image-wrap {
       position: relative;
       width: 100%;
-      height: 180px;
+      height: 280px;
+      aspect-ratio: 2 / 3;
       background: #111;
       overflow: hidden;
     }
@@ -701,11 +702,34 @@ export class GameListComponent implements OnInit, OnDestroy {
     return this.gameImageService.getGameImage(key, name);
   }
 
-  getPlatformText(game: Game): string {
-    if (game.platforms && game.platforms.length > 0) {
-      return game.platforms.map(p => p.type).join(', ');
+  handleImgError(event: Event, key?: string, name?: string): void {
+    const img = event.target as HTMLImageElement;
+    if (img && !img.dataset['fallback']) {
+      img.dataset['fallback'] = 'true';
+      img.src = this.gameImageService.getOnlineFallbackImage(key, name);
     }
-    return 'PlayStation / PC';
+  }
+
+  getPlatformText(game: any): string {
+    if (game.platforms && game.platforms.length > 0) {
+      return game.platforms.map((p: any) => p.type || p).join(', ');
+    }
+    if (game.platformTypes && game.platformTypes.length > 0) {
+      return game.platformTypes.join(', ');
+    }
+    return 'Desktop, Console';
+  }
+
+  formatPublishDateLabel(opt: string): string {
+    if (!opt) return 'All';
+    switch (opt.toLowerCase()) {
+      case 'last week': return 'Last 7 Days';
+      case 'last month': return 'Last 30 Days';
+      case 'last year': return 'Last Year';
+      case '2 years': return 'Last 2 Years';
+      case '3 years': return 'Last 3 Years';
+      default: return opt;
+    }
   }
 
   addToCart(event: Event, key: string): void {
