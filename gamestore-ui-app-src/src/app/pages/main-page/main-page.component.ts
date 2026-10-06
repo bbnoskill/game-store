@@ -28,7 +28,7 @@ import { GameImageService } from '../../services/game-image.service';
         <div class="featured-column">
           <h2 class="section-title">We Knocked Em'll</h2>
           <div class="featured-card" routerLink="/games">
-            <img [src]="vrImage" alt="Sony Playstation VR" class="featured-img" />
+            <img [src]="vrImage" (error)="onImgError($event)" alt="Sony Playstation VR" class="featured-img" />
             <div class="featured-overlay">
               <h3 class="featured-title">Sony Playstation VR <span class="arrow">&gt;</span></h3>
             </div>
@@ -154,5 +154,9 @@ export class MainPageComponent {
 
   constructor(private imageService: GameImageService) {
     this.vrImage = this.imageService.getFeaturedCardImage();
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.imageService.getFallbackImage();
   }
 }

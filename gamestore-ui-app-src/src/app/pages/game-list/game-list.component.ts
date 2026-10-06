@@ -34,6 +34,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
             type="text"
             [(ngModel)]="filter.name"
             placeholder="Search for Game"
+            (input)="applyFilter()"
             (keyup.enter)="applyFilter()"
           />
           <button type="button" class="search-btn" (click)="applyFilter()" title="Search">
@@ -130,8 +131,8 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
               <label *ngFor="let pub of publishers" class="checkbox-item">
                 <input
                   type="checkbox"
-                  [checked]="isPublisherSelected(pub.id)"
-                  (change)="togglePublisher(pub.id)"
+                  [checked]="isPublisherSelected(pub.id, pub.companyName)"
+                  (change)="togglePublisher(pub.id, pub.companyName)"
                 />
                 <span>{{ pub.companyName }}</span>
               </label>
@@ -172,8 +173,8 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
               <label *ngFor="let gen of genres" class="checkbox-item">
                 <input
                   type="checkbox"
-                  [checked]="isGenreSelected(gen.id)"
-                  (change)="toggleGenre(gen.id)"
+                  [checked]="isGenreSelected(gen.id, gen.name)"
+                  (change)="toggleGenre(gen.id, gen.name)"
                 />
                 <span>{{ gen.name }}</span>
               </label>
@@ -187,8 +188,8 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
               <label *ngFor="let plat of platforms" class="checkbox-item">
                 <input
                   type="checkbox"
-                  [checked]="isPlatformSelected(plat.id)"
-                  (change)="togglePlatform(plat.id)"
+                  [checked]="isPlatformSelected(plat.id, plat.type)"
+                  (change)="togglePlatform(plat.id, plat.type)"
                 />
                 <span>{{ plat.type }}</span>
               </label>
@@ -651,31 +652,40 @@ export class GameListComponent implements OnInit, OnDestroy {
     this.fetchGames();
   }
 
-  togglePublisher(id: string): void {
+  togglePublisher(id: string, name?: string): void {
     this.toggleArrayItem(this.filter.publishers!, id);
+    if (name) {
+      this.toggleArrayItem(this.filter.publishers!, name);
+    }
     this.applyFilter();
   }
 
-  isPublisherSelected(id: string): boolean {
-    return !!this.filter.publishers?.includes(id);
+  isPublisherSelected(id: string, name?: string): boolean {
+    return !!(this.filter.publishers?.includes(id) || (name && this.filter.publishers?.includes(name)));
   }
 
-  toggleGenre(id: string): void {
+  toggleGenre(id: string, name?: string): void {
     this.toggleArrayItem(this.filter.genres!, id);
+    if (name) {
+      this.toggleArrayItem(this.filter.genres!, name);
+    }
     this.applyFilter();
   }
 
-  isGenreSelected(id: string): boolean {
-    return !!this.filter.genres?.includes(id);
+  isGenreSelected(id: string, name?: string): boolean {
+    return !!(this.filter.genres?.includes(id) || (name && this.filter.genres?.includes(name)));
   }
 
-  togglePlatform(id: string): void {
+  togglePlatform(id: string, type?: string): void {
     this.toggleArrayItem(this.filter.platforms!, id);
+    if (type) {
+      this.toggleArrayItem(this.filter.platforms!, type);
+    }
     this.applyFilter();
   }
 
-  isPlatformSelected(id: string): boolean {
-    return !!this.filter.platforms?.includes(id);
+  isPlatformSelected(id: string, type?: string): boolean {
+    return !!(this.filter.platforms?.includes(id) || (type && this.filter.platforms?.includes(type)));
   }
 
   private toggleArrayItem(array: string[], item: string): void {

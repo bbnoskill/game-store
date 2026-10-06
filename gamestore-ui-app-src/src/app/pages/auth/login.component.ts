@@ -1,85 +1,147 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
-    <div class="login-container">
+    <div class="page-container">
       <div class="login-card">
-        <h2 class="login-title">Sign In</h2>
-        <form (ngSubmit)="onLogin()">
+        <h2 class="login-title">Sign In to GameStore</h2>
+
+        <div class="alert alert-error" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm">
           <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" [(ngModel)]="login" required />
+            <label for="username">Username or Email</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              [(ngModel)]="username"
+              required
+              class="form-input"
+              placeholder="Enter your username"
+            />
           </div>
+
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" [(ngModel)]="password" required />
+            <input
+              type="password"
+              id="password"
+              name="password"
+              [(ngModel)]="password"
+              required
+              class="form-input"
+              placeholder="Enter your password"
+            />
           </div>
-          <button type="submit" class="btn-orange">Log In</button>
+
+          <button type="submit" class="btn-submit" [disabled]="!loginForm.form.valid || loading">
+            {{ loading ? 'Signing In...' : 'Sign In' }}
+          </button>
         </form>
       </div>
     </div>
   `,
   styles: [`
-    .login-container {
-      max-width: 420px;
-      margin: 48px auto;
+    .page-container {
+      max-width: 440px;
+      margin: 64px auto;
       padding: 0 24px;
+      font-family: 'Roboto', sans-serif;
     }
+
     .login-card {
-      background: #ffffff;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
       padding: 32px;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     }
+
     .login-title {
       font-size: 24px;
       font-weight: 700;
-      margin-bottom: 24px;
       color: #222;
+      margin: 0 0 24px;
+      text-align: center;
     }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .alert-error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
     .form-group {
-      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      margin-bottom: 20px;
     }
+
     .form-group label {
-      font-size: 13px;
-      color: #555;
-    }
-    .form-group input {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
       font-size: 14px;
+      font-weight: 500;
+      color: #444;
     }
-    .btn-orange {
+
+    .form-input {
+      padding: 10px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #f57c00;
+    }
+
+    .btn-submit {
       width: 100%;
-      background-color: #f57c00;
-      color: #ffffff;
+      background: #f57c00;
+      color: #fff;
       border: none;
       padding: 12px;
-      font-size: 14px;
+      border-radius: 6px;
+      font-size: 16px;
       font-weight: 600;
-      border-radius: 4px;
       cursor: pointer;
-      margin-top: 8px;
+      transition: background 0.2s;
     }
-    .btn-orange:hover {
-      background-color: #e65100;
+
+    .btn-submit:hover:not(:disabled) {
+      background: #e65100;
+    }
+
+    .btn-submit:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
   `]
 })
 export class LoginComponent {
-  login = '';
-  password = '';
+  username: string = '';
+  password: string = '';
+  loading: boolean = false;
+  error: string = '';
 
   constructor(
     private authService: AuthService,
@@ -87,18 +149,19 @@ export class LoginComponent {
   ) {}
 
   onLogin(): void {
-    if (!this.login) return;
-    this.authService.login({
-      model: {
-        login: this.login,
-        password: this.password
-      }
-    }).subscribe({
+    if (!this.username || !this.password) return;
+
+    this.loading = true;
+    this.error = '';
+
+    this.authService.login({ model: { login: this.username, password: this.password } }).subscribe({
       next: () => {
+        this.loading = false;
         this.router.navigate(['/games']);
       },
       error: (err) => {
-        alert('Login failed: ' + (err?.error?.message || 'Invalid credentials'));
+        this.loading = false;
+        this.error = err?.error?.message || 'Invalid username or password';
       }
     });
   }

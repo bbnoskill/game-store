@@ -13,6 +13,8 @@ export class CartService {
   private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
 
+  private localCartItems: CartItem[] = [];
+
   constructor(
     private gameService: GameService,
     private orderService: OrderService,
@@ -29,34 +31,91 @@ export class CartService {
     this.cartCountSubject.next(count);
   }
 
+  getLocalCartItems(): CartItem[] {
+    return [...this.localCartItems];
+  }
+
   addToCart(key: string): Observable<any> {
-    return this.gameService.buyGame(key).pipe(
+    return this.gameService.getGameByKey(key).pipe(
+      tap((game) => {
+        if (game) {
+          const existing = this.localCartItems.find(i => i.gameKey === game.key || i.productId === game.id);
+          if (existing) {
+            existing.quantity++;
+          } else {
+            this.localCartItems.push({
+              id: game.id || game.key,
+              productId: game.id || game.key,
+              gameKey: game.key,
+              gameName: game.name,
+              price: game.price,
+              quantity: 1,
+              discount: game.discount || 0,
+              platform: 'PC / Console',
+              fileSize: '15 GB'
+            });
+          }
+          this.updateCount();
+        }
+      }),
       tap(() => {
-        this.cartCountSubject.next(this.cartCountSubject.value + 1);
-        this.refreshCart();
+        this.gameService.buyGame(key).pipe(catchError(() => of(null))).subscribe();
       })
     );
   }
 
   removeFromCart(key: string): Observable<any> {
+    this.localCartItems = this.localCartItems.filter(i => i.gameKey !== key && i.id !== key && i.productId !== key);
+    this.updateCount();
     return this.orderService.deleteFromCart(key).pipe(
-      tap(() => {
-        this.refreshCart();
-      })
+      catchError(() => of(null))
     );
+  }
+
+  updateLocalQuantity(id: string, count: number): void {
+    const item = this.localCartItems.find(i => i.id === id || i.gameKey === id || i.productId === id);
+    if (item) {
+      item.quantity = count;
+      if (item.quantity <= 0) {
+        this.localCartItems = this.localCartItems.filter(i => i !== item);
+      }
+      this.updateCount();
+    }
+  }
+
+  clearCart(): void {
+    this.localCartItems = [];
+    this.updateCount();
+  }
+
+  private updateCount(): void {
+    const totalCount = this.localCartItems.reduce((sum, item) => sum + item.quantity, 0);
+    this.cartCountSubject.next(totalCount);
   }
 
   refreshCart(): void {
     this.orderService.getCart().pipe(
       catchError(() => of(null))
     ).subscribe((cart) => {
-      if (cart && Array.isArray(cart.details)) {
-        const count = cart.details.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
-        this.cartCountSubject.next(count);
-      } else if (cart && Array.isArray(cart.orderGames)) {
-        const count = cart.orderGames.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
-        this.cartCountSubject.next(count);
+      if (cart && (Array.isArray(cart.details) || Array.isArray(cart.orderGames))) {
+        const rawDetails = cart.details || cart.orderGames || [];
+        if (rawDetails.length > 0) {
+          this.localCartItems = rawDetails.map((detail: any) => ({
+            id: detail.id || detail.productId || detail.gameKey,
+            productId: detail.productId || detail.gameKey,
+            gameKey: detail.gameKey || detail.productId,
+            gameName: detail.gameName || detail.productName || detail.name || 'Game',
+            price: detail.price || 0,
+            quantity: detail.quantity || 1,
+            discount: detail.discount !== undefined ? detail.discount : (detail.discountPercentage || 0),
+            platform: detail.platform || 'PC',
+            fileSize: detail.fileSize || '15 GB'
+          }));
+          this.updateCount();
+          return;
+        }
       }
+      this.updateCount();
     });
   }
 
