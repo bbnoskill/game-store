@@ -23,6 +23,14 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
 
     public DbSet<Comment> Comments => Set<Comment>();
 
+    public DbSet<GameLocalization> GameLocalizations => Set<GameLocalization>();
+
+    public DbSet<GenreLocalization> GenreLocalizations => Set<GenreLocalization>();
+
+    public DbSet<PlatformLocalization> PlatformLocalizations => Set<PlatformLocalization>();
+
+    public DbSet<PublisherLocalization> PublisherLocalizations => Set<PublisherLocalization>();
+
     public static void SeedData(ModelBuilder modelBuilder)
     {
         var mobile = new Platform { Id = new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"), Type = "Mobile" };
@@ -280,6 +288,8 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             new GamePlatform { GameId = sonic.Id, PlatformId = mobile.Id },
             new GamePlatform { GameId = nba.Id, PlatformId = console.Id },
             new GamePlatform { GameId = nba.Id, PlatformId = desktop.Id });
+
+        LocalizationSeedData.SeedLocalizations(modelBuilder);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -332,6 +342,43 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             .WithMany(c => c.ChildComments)
             .HasForeignKey(c => c.ParentCommentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<GameLocalization>()
+            .HasIndex(gl => new { gl.GameId, gl.LanguageCode })
+            .IsUnique();
+        modelBuilder.Entity<GameLocalization>()
+            .HasOne(gl => gl.Game)
+            .WithMany(g => g.Localizations)
+            .HasForeignKey(gl => gl.GameId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<GenreLocalization>()
+            .HasIndex(gl => new { gl.GenreId, gl.LanguageCode })
+            .IsUnique();
+        modelBuilder.Entity<GenreLocalization>()
+            .HasOne(gl => gl.Genre)
+            .WithMany(g => g.Localizations)
+            .HasForeignKey(gl => gl.GenreId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PlatformLocalization>()
+            .HasIndex(pl => new { pl.PlatformId, pl.LanguageCode })
+            .IsUnique();
+        modelBuilder.Entity<PlatformLocalization>()
+            .HasOne(pl => pl.Platform)
+            .WithMany(p => p.Localizations)
+            .HasForeignKey(pl => pl.PlatformId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PublisherLocalization>()
+            .HasIndex(pl => new { pl.PublisherId, pl.LanguageCode })
+            .IsUnique();
+        modelBuilder.Entity<PublisherLocalization>()
+            .HasOne(pl => pl.Publisher)
+            .WithMany(p => p.Localizations)
+            .HasForeignKey(pl => pl.PublisherId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         SeedData(modelBuilder);
     }
 }

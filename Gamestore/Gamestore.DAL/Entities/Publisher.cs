@@ -29,4 +29,6 @@ public class Publisher
     public string? Fax { get; set; }
 
     public ICollection<Game> Games { get; set; } = [];
+
+    public ICollection<PublisherLocalization> Localizations { get; set; } = [];
 }

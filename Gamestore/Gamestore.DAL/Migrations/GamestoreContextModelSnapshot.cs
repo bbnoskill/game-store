@@ -766,6 +766,636 @@ namespace Gamestore.DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.GameLocalization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId", "LanguageCode")
+                        .IsUnique();
+
+                    b.ToTable("GameLocalizations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("07872cfa-0216-aef2-b8a5-d4b8d00b37a0"),
+                            Description = "Sci-fi FPS",
+                            GameId = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"),
+                            LanguageCode = "en",
+                            Name = "Halo Infinite"
+                        },
+                        new
+                        {
+                            Id = new Guid("71fde20d-943d-b8ec-4aa0-b7871985542a"),
+                            Description = "Науково-фантастичний шутер від першої особи",
+                            GameId = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"),
+                            LanguageCode = "uk",
+                            Name = "Halo Infinite"
+                        },
+                        new
+                        {
+                            Id = new Guid("ce702be1-f8b7-56b7-92d3-a3b80d0a99ec"),
+                            Description = "マスターチーフの戦いを描く名作SFファーストパーソンシューター",
+                            GameId = new Guid("9c5e3d7f-2b1a-4c8d-93e1-38a4d7c6b9f2"),
+                            LanguageCode = "ja",
+                            Name = "Halo Infinite"
+                        },
+                        new
+                        {
+                            Id = new Guid("3a67277c-c180-02ae-7102-2531720898d7"),
+                            Description = "Epic fantasy RPG",
+                            GameId = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            LanguageCode = "en",
+                            Name = "Skyrim"
+                        },
+                        new
+                        {
+                            Id = new Guid("40289d3a-55bd-deec-5354-4d17f1d9dfa0"),
+                            Description = "Легендарна фентезійна рольова гра про Довакіна",
+                            GameId = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            LanguageCode = "uk",
+                            Name = "Скайрім"
+                        },
+                        new
+                        {
+                            Id = new Guid("edae5c31-6d27-e09e-596d-ffd0c6219c1a"),
+                            Description = "ドラゴンと戦う伝説のオープンワールド・ファンタジーRPG",
+                            GameId = new Guid("4a8b7c2d-9e6f-4315-81a9-d3c2b1f8e7a6"),
+                            LanguageCode = "ja",
+                            Name = "The Elder Scrolls V: Skyrim"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f3e1908-cdec-dde3-6209-9251ef8b850f"),
+                            Description = "Geralt's grand adventure",
+                            GameId = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            LanguageCode = "en",
+                            Name = "The Witcher 3"
+                        },
+                        new
+                        {
+                            Id = new Guid("fbdc5378-c8c8-2a5a-fcc8-a213dd4acb9a"),
+                            Description = "Велична пригода Ґеральта з Рівії",
+                            GameId = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            LanguageCode = "uk",
+                            Name = "Відьмак 3: Дикий Гін"
+                        },
+                        new
+                        {
+                            Id = new Guid("8d04c274-47bf-ced3-33c8-14aece50b6bf"),
+                            Description = "リヴィアのゲラルトの壮大な冒険",
+                            GameId = new Guid("2f1e9d8c-7b6a-45c3-84d2-f1e3a2b4c5d6"),
+                            LanguageCode = "ja",
+                            Name = "ウィッチャー3 ワイルドハント"
+                        },
+                        new
+                        {
+                            Id = new Guid("53dd91f4-e200-760b-9428-40b27adb457e"),
+                            Description = "Thinking with portals",
+                            GameId = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
+                            LanguageCode = "en",
+                            Name = "Portal 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("a0f620ba-faf6-f264-94df-202920a7ebda"),
+                            Description = "Геніальна просторова головоломка з порталами",
+                            GameId = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
+                            LanguageCode = "uk",
+                            Name = "Портал 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("be0beb35-c976-ae3b-fef9-02e0f157cbe0"),
+                            Description = "ポータル銃を駆使して謎を解く傑作パズルアドベンチャー",
+                            GameId = new Guid("3a4b5c6d-e7f8-4912-8c7d-6e5f4a3b2c1d"),
+                            LanguageCode = "ja",
+                            Name = "Portal 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("7239c37f-9f50-f283-730b-5f3c020b4860"),
+                            Description = "Football simulator",
+                            GameId = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"),
+                            LanguageCode = "en",
+                            Name = "EA FC 25"
+                        },
+                        new
+                        {
+                            Id = new Guid("3d6579c4-afa7-2fa5-c047-8d5f5f8557f6"),
+                            Description = "Найновіший симулятор футболу",
+                            GameId = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"),
+                            LanguageCode = "uk",
+                            Name = "EA FC 25"
+                        },
+                        new
+                        {
+                            Id = new Guid("e89488bb-0e2c-3057-946d-73ab8ba673f6"),
+                            Description = "世界的人気を誇る最新サッカーシミュレーション",
+                            GameId = new Guid("8e7f6d5c-4b3a-4198-a2b1-c3d4e5f6a7b8"),
+                            LanguageCode = "ja",
+                            Name = "EA SPORTS FC 25"
+                        },
+                        new
+                        {
+                            Id = new Guid("91d096b4-d1c1-33ea-df5c-e868f174e7d4"),
+                            Description = "Open world dark fantasy RPG",
+                            GameId = new Guid("b2220001-0001-4001-8001-000000000001"),
+                            LanguageCode = "en",
+                            Name = "Elden Ring"
+                        },
+                        new
+                        {
+                            Id = new Guid("a2215d44-fbfd-13fd-155f-41c2c5abc397"),
+                            Description = "Рольовий екшн у відкритому світі темного фентезі",
+                            GameId = new Guid("b2220001-0001-4001-8001-000000000001"),
+                            LanguageCode = "uk",
+                            Name = "Елден Рінг"
+                        },
+                        new
+                        {
+                            Id = new Guid("9a6521b9-918b-fc45-1b85-4806637e9840"),
+                            Description = "広大なダークファンタジー世界を舞台にしたオープンワールドRPG",
+                            GameId = new Guid("b2220001-0001-4001-8001-000000000001"),
+                            LanguageCode = "ja",
+                            Name = "ELDEN RING"
+                        },
+                        new
+                        {
+                            Id = new Guid("cb0c40f9-6c77-876a-e32a-2693e0ed5354"),
+                            Description = "Open world action-adventure",
+                            GameId = new Guid("b2220002-0002-4002-8002-000000000002"),
+                            LanguageCode = "en",
+                            Name = "Grand Theft Auto V"
+                        },
+                        new
+                        {
+                            Id = new Guid("0754f2c7-9519-8bb6-b5b4-10e2dfa28f90"),
+                            Description = "Культовий кримінальний екшн у місті Лос-Сантос",
+                            GameId = new Guid("b2220002-0002-4002-8002-000000000002"),
+                            LanguageCode = "uk",
+                            Name = "Grand Theft Auto V"
+                        },
+                        new
+                        {
+                            Id = new Guid("be1bdeb7-b281-3eb8-cf4e-5d0f1d481ced"),
+                            Description = "ロスサントスを駆け巡る大人気オープンワールドクライムアクション",
+                            GameId = new Guid("b2220002-0002-4002-8002-000000000002"),
+                            LanguageCode = "ja",
+                            Name = "グランド・セフト・オートV"
+                        },
+                        new
+                        {
+                            Id = new Guid("cf3334d7-6170-6c98-dd12-c77e35ae7f91"),
+                            Description = "Futuristic action RPG",
+                            GameId = new Guid("b2220003-0003-4003-8003-000000000003"),
+                            LanguageCode = "en",
+                            Name = "Cyberpunk 2077"
+                        },
+                        new
+                        {
+                            Id = new Guid("dc4b6085-fccd-0d15-c7d4-518d4a64dea4"),
+                            Description = "Футуристична рольова гра у відкритому місті Найт-Сіті",
+                            GameId = new Guid("b2220003-0003-4003-8003-000000000003"),
+                            LanguageCode = "uk",
+                            Name = "Кіберпанк 2077"
+                        },
+                        new
+                        {
+                            Id = new Guid("6199bac9-150c-910f-5654-1f0eae4088a6"),
+                            Description = "未来都市ナイトシティを舞台にしたオープンワールドアクションRPG",
+                            GameId = new Guid("b2220003-0003-4003-8003-000000000003"),
+                            LanguageCode = "ja",
+                            Name = "サイバーパンク2077"
+                        },
+                        new
+                        {
+                            Id = new Guid("300b6c1c-4c13-322e-5a2b-479deb9ac064"),
+                            Description = "Adventure in Hyrule",
+                            GameId = new Guid("b2220004-0004-4004-8004-000000000004"),
+                            LanguageCode = "en",
+                            Name = "Zelda: Tears of the Kingdom"
+                        },
+                        new
+                        {
+                            Id = new Guid("34ca1212-04c6-46f8-48e6-bc0753b26bb8"),
+                            Description = "Неймовірна пригода на землях і в небі Гайрулу",
+                            GameId = new Guid("b2220004-0004-4004-8004-000000000004"),
+                            LanguageCode = "uk",
+                            Name = "Зельда: Сльози Королівства"
+                        },
+                        new
+                        {
+                            Id = new Guid("21d6c532-0559-ae5d-592f-f54e5b32100f"),
+                            Description = "ハイラルの大地と大空を巡る冒険",
+                            GameId = new Guid("b2220004-0004-4004-8004-000000000004"),
+                            LanguageCode = "ja",
+                            Name = "ゼルダの伝説 ティアーズ オブ ザ キングダム"
+                        },
+                        new
+                        {
+                            Id = new Guid("39fa3ebb-2295-6ebc-6bfc-86e5587284d3"),
+                            Description = "Norse mythology action",
+                            GameId = new Guid("b2220005-0005-4005-8005-000000000005"),
+                            LanguageCode = "en",
+                            Name = "God of War Ragnarok"
+                        },
+                        new
+                        {
+                            Id = new Guid("39eacc2a-bbfd-3e1c-26e8-f2ec223472a9"),
+                            Description = "Скандинавська епічна пригода Кратоса та Атрея",
+                            GameId = new Guid("b2220005-0005-4005-8005-000000000005"),
+                            LanguageCode = "uk",
+                            Name = "Бог Війни: Рагнарок"
+                        },
+                        new
+                        {
+                            Id = new Guid("88e3e88e-3524-95d9-c3ea-b809d43870db"),
+                            Description = "北欧神話を舞台にしたクレイトスとアトレウスの壮大な旅",
+                            GameId = new Guid("b2220005-0005-4005-8005-000000000005"),
+                            LanguageCode = "ja",
+                            Name = "ゴッド・オブ・ウォー ラグナロク"
+                        },
+                        new
+                        {
+                            Id = new Guid("9522c8b9-05b5-1fea-5832-cac42b5b83c2"),
+                            Description = "Modern military FPS",
+                            GameId = new Guid("b2220006-0006-4006-8006-000000000006"),
+                            LanguageCode = "en",
+                            Name = "Call of Duty: MW III"
+                        },
+                        new
+                        {
+                            Id = new Guid("6cc1ba49-d827-0454-6496-c5aad58510b9"),
+                            Description = "Військовий тактичний шутер сучасності",
+                            GameId = new Guid("b2220006-0006-4006-8006-000000000006"),
+                            LanguageCode = "uk",
+                            Name = "Call of Duty: MW III"
+                        },
+                        new
+                        {
+                            Id = new Guid("24556582-05cc-9748-3d86-6ed349862fca"),
+                            Description = "臨場感溢れる現代戦を描くミリタリーFPS",
+                            GameId = new Guid("b2220006-0006-4006-8006-000000000006"),
+                            LanguageCode = "ja",
+                            Name = "コール オブ デューティ モダン・ウォーフェアIII"
+                        },
+                        new
+                        {
+                            Id = new Guid("0a92f055-77f9-aed3-8c7f-27c53fc6bf3e"),
+                            Description = "Action JRPG",
+                            GameId = new Guid("b2220007-0007-4007-8007-000000000007"),
+                            LanguageCode = "en",
+                            Name = "Final Fantasy XVI"
+                        },
+                        new
+                        {
+                            Id = new Guid("12646f6d-f33b-0ec7-7d9f-80ced197fc0a"),
+                            Description = "Масштабна рольова гра в темному середньовічному фентезі",
+                            GameId = new Guid("b2220007-0007-4007-8007-000000000007"),
+                            LanguageCode = "uk",
+                            Name = "Final Fantasy XVI"
+                        },
+                        new
+                        {
+                            Id = new Guid("4ad17cf8-63eb-6a1a-7458-ddb21b22c75c"),
+                            Description = "重厚なダークファンタジーを舞台にした本格アクションRPG",
+                            GameId = new Guid("b2220007-0007-4007-8007-000000000007"),
+                            LanguageCode = "ja",
+                            Name = "ファイナルファンタジーXVI"
+                        },
+                        new
+                        {
+                            Id = new Guid("e47d470f-66a9-4b82-cfda-3a3eadd12159"),
+                            Description = "Survival horror classic",
+                            GameId = new Guid("b2220008-0008-4008-8008-000000000008"),
+                            LanguageCode = "en",
+                            Name = "Resident Evil 4 Remake"
+                        },
+                        new
+                        {
+                            Id = new Guid("c9c5e953-3299-5506-21e1-d5bfb3e9544b"),
+                            Description = "Культова класика горору на виживання",
+                            GameId = new Guid("b2220008-0008-4008-8008-000000000008"),
+                            LanguageCode = "uk",
+                            Name = "Оселя Зла 4 Ремейк"
+                        },
+                        new
+                        {
+                            Id = new Guid("3fee8841-bc63-66b1-725b-839231aa33cd"),
+                            Description = "サバイバルホラーの金字塔を最新技術で再構築",
+                            GameId = new Guid("b2220008-0008-4008-8008-000000000008"),
+                            LanguageCode = "ja",
+                            Name = "バイオハザード RE:4"
+                        },
+                        new
+                        {
+                            Id = new Guid("ec714226-8ef2-7ef2-8b59-a7bf0f4048a5"),
+                            Description = "Superhero action-adventure",
+                            GameId = new Guid("b2220009-0009-4009-8009-000000000009"),
+                            LanguageCode = "en",
+                            Name = "Spider-Man 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("e912727d-aa2a-96f7-772a-aa1501d69dc5"),
+                            Description = "Супергеройська пригода Пітера Паркера та Майлза Моралеса",
+                            GameId = new Guid("b2220009-0009-4009-8009-000000000009"),
+                            LanguageCode = "uk",
+                            Name = "Людина-Павук 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("c2ca3a33-ac6e-c57a-0f9e-9761097aee8b"),
+                            Description = "ピーターとマイルズの2人が活躍するオープンワールドアクション",
+                            GameId = new Guid("b2220009-0009-4009-8009-000000000009"),
+                            LanguageCode = "ja",
+                            Name = "Marvel's Spider-Man 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("f2a29f25-0945-a5b8-7e59-52e3fa9487d1"),
+                            Description = "Online looter-shooter",
+                            GameId = new Guid("b2220010-0010-4010-8010-000000000010"),
+                            LanguageCode = "en",
+                            Name = "Destiny 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("5a260e14-2d3c-c17d-dfcc-2cdb6488fafb"),
+                            Description = "Командний онлайн лутер-шутер у космосі",
+                            GameId = new Guid("b2220010-0010-4010-8010-000000000010"),
+                            LanguageCode = "uk",
+                            Name = "Destiny 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("5da4fcd8-37b4-5dcb-9ef6-d564dff30e1b"),
+                            Description = "進化を続ける壮大なオンラインマルチプレイ・アクションFPS",
+                            GameId = new Guid("b2220010-0010-4010-8010-000000000010"),
+                            LanguageCode = "ja",
+                            Name = "Destiny 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("f35deb3d-0cf9-9cac-4627-8eaa3699d724"),
+                            Description = "Battle royale phenomenon",
+                            GameId = new Guid("b2220011-0011-4011-8011-000000000011"),
+                            LanguageCode = "en",
+                            Name = "Fortnite"
+                        },
+                        new
+                        {
+                            Id = new Guid("533f1ea1-46c0-8bef-5fe3-e004e37844ed"),
+                            Description = "Всесвітньо відома королівська битва",
+                            GameId = new Guid("b2220011-0011-4011-8011-000000000011"),
+                            LanguageCode = "uk",
+                            Name = "Фортнайт"
+                        },
+                        new
+                        {
+                            Id = new Guid("1057770d-358b-57f5-2332-6b5a2a3ed2be"),
+                            Description = "世界的大ヒットを記録したバトルロイヤルゲーム",
+                            GameId = new Guid("b2220011-0011-4011-8011-000000000011"),
+                            LanguageCode = "ja",
+                            Name = "フォートナイト"
+                        },
+                        new
+                        {
+                            Id = new Guid("0241cb63-f2a6-ea9e-e211-4bee3089cc9e"),
+                            Description = "3D fighting game",
+                            GameId = new Guid("b2220012-0012-4012-8012-000000000012"),
+                            LanguageCode = "en",
+                            Name = "Tekken 8"
+                        },
+                        new
+                        {
+                            Id = new Guid("b3517746-f164-5520-e06e-182c62351a63"),
+                            Description = "Нова частина легендарного 3D-файтингу",
+                            GameId = new Guid("b2220012-0012-4012-8012-000000000012"),
+                            LanguageCode = "uk",
+                            Name = "Теккен 8"
+                        },
+                        new
+                        {
+                            Id = new Guid("5947abbf-2e60-964c-91ce-528f34efd310"),
+                            Description = "圧倒的な迫力を誇る3D対戦格闘ゲームの最新作",
+                            GameId = new Guid("b2220012-0012-4012-8012-000000000012"),
+                            LanguageCode = "ja",
+                            Name = "鉄拳8"
+                        },
+                        new
+                        {
+                            Id = new Guid("e2ead6cf-0d73-9c8f-efdd-57eb52625e7a"),
+                            Description = "Viking open-world RPG",
+                            GameId = new Guid("b2220013-0013-4013-8013-000000000013"),
+                            LanguageCode = "en",
+                            Name = "Assassin's Creed Valhalla"
+                        },
+                        new
+                        {
+                            Id = new Guid("3c36ef01-d91e-0fac-6776-624913d13026"),
+                            Description = "Сага про вікінгів у середньовічній Англії",
+                            GameId = new Guid("b2220013-0013-4013-8013-000000000013"),
+                            LanguageCode = "uk",
+                            Name = "Assassin's Creed Вальгалла"
+                        },
+                        new
+                        {
+                            Id = new Guid("101e0be8-7fe8-5ee7-5de3-e8ae087ad39a"),
+                            Description = "ヴァイキングの栄光と征服を描くオープンワールドRPG",
+                            GameId = new Guid("b2220013-0013-4013-8013-000000000013"),
+                            LanguageCode = "ja",
+                            Name = "アサシン クリード ヴァルハラ"
+                        },
+                        new
+                        {
+                            Id = new Guid("9e72485e-106f-e91f-5988-a3a56f1e9023"),
+                            Description = "Competitive tactical FPS",
+                            GameId = new Guid("b2220014-0014-4014-8014-000000000014"),
+                            LanguageCode = "en",
+                            Name = "Counter-Strike 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("4a2a7b6b-7301-9eaf-f219-b30b3a501c46"),
+                            Description = "Змагальний командний тактичний шутер",
+                            GameId = new Guid("b2220014-0014-4014-8014-000000000014"),
+                            LanguageCode = "uk",
+                            Name = "Counter-Strike 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("806a4bbc-1d8d-dba7-3b07-c5dc436345c3"),
+                            Description = "最高峰の競技性を誇るタクティカルマルチプレイFPS",
+                            GameId = new Guid("b2220014-0014-4014-8014-000000000014"),
+                            LanguageCode = "ja",
+                            Name = "Counter-Strike 2"
+                        },
+                        new
+                        {
+                            Id = new Guid("8ffa9d96-3095-8131-2bf4-0255c6412eaf"),
+                            Description = "Roguelike action dungeon crawler",
+                            GameId = new Guid("b2220015-0015-4015-8015-000000000015"),
+                            LanguageCode = "en",
+                            Name = "Hades II"
+                        },
+                        new
+                        {
+                            Id = new Guid("e07258ce-593e-b358-3e12-98d13eb5eda2"),
+                            Description = "Динамічний рогалик у давньогрецькому підземному царстві",
+                            GameId = new Guid("b2220015-0015-4015-8015-000000000015"),
+                            LanguageCode = "uk",
+                            Name = "Аїд II"
+                        },
+                        new
+                        {
+                            Id = new Guid("22a4a88c-74f3-87b9-66df-a28943ec950a"),
+                            Description = "ギリシャ神話を題材にした大人気ローグライク・アクション",
+                            GameId = new Guid("b2220015-0015-4015-8015-000000000015"),
+                            LanguageCode = "ja",
+                            Name = "Hades II"
+                        },
+                        new
+                        {
+                            Id = new Guid("82681496-2424-a00d-b27c-acf78716f90f"),
+                            Description = "Post-apocalyptic action-adventure",
+                            GameId = new Guid("b2220016-0016-4016-8016-000000000016"),
+                            LanguageCode = "en",
+                            Name = "The Last of Us Part II"
+                        },
+                        new
+                        {
+                            Id = new Guid("cfdb7731-3c59-dc24-96de-e30f5f2a90ed"),
+                            Description = "Драматична пригодницька історія в постапокаліптичному світі",
+                            GameId = new Guid("b2220016-0016-4016-8016-000000000016"),
+                            LanguageCode = "uk",
+                            Name = "Останні з нас: Частина II"
+                        },
+                        new
+                        {
+                            Id = new Guid("3b55fa86-2630-ec31-f9b2-2556085f9035"),
+                            Description = "感染者が蠢く過酷な世界を生き抜くサバイバルアクション",
+                            GameId = new Guid("b2220016-0016-4016-8016-000000000016"),
+                            LanguageCode = "ja",
+                            Name = "The Last of Us Part II"
+                        },
+                        new
+                        {
+                            Id = new Guid("a2adb435-9af9-2794-8466-a12ea8aad55f"),
+                            Description = "Stealth action",
+                            GameId = new Guid("b2220017-0017-4017-8017-000000000017"),
+                            LanguageCode = "en",
+                            Name = "Metal Gear Solid V"
+                        },
+                        new
+                        {
+                            Id = new Guid("cc7896b3-cbe9-f0db-570f-892315a16bfa"),
+                            Description = "Тактичний шпигунський стелс-екшн",
+                            GameId = new Guid("b2220017-0017-4017-8017-000000000017"),
+                            LanguageCode = "uk",
+                            Name = "Metal Gear Solid V"
+                        },
+                        new
+                        {
+                            Id = new Guid("337b86f5-79ac-3bff-c2a1-45e0e6997b63"),
+                            Description = "究極の自由度を誇るステルスアクションゲーム",
+                            GameId = new Guid("b2220017-0017-4017-8017-000000000017"),
+                            LanguageCode = "ja",
+                            Name = "メタルギア ソリッド V"
+                        },
+                        new
+                        {
+                            Id = new Guid("201b2a7f-381a-f205-89a3-ee7c5f47d745"),
+                            Description = "Tactical hero shooter",
+                            GameId = new Guid("b2220018-0018-4018-8018-000000000018"),
+                            LanguageCode = "en",
+                            Name = "Valorant"
+                        },
+                        new
+                        {
+                            Id = new Guid("0d957fad-0794-3953-7042-17a59d58ad6e"),
+                            Description = "Тактичний геройський шутер 5 на 5",
+                            GameId = new Guid("b2220018-0018-4018-8018-000000000018"),
+                            LanguageCode = "uk",
+                            Name = "Валорант"
+                        },
+                        new
+                        {
+                            Id = new Guid("cb75e15f-ba82-1085-8aa5-948d68cad24a"),
+                            Description = "個性豊かなエージェントが激突する5対5のタクティカルシューター",
+                            GameId = new Guid("b2220018-0018-4018-8018-000000000018"),
+                            LanguageCode = "ja",
+                            Name = "VALORANT"
+                        },
+                        new
+                        {
+                            Id = new Guid("71dcbee4-f4f1-e234-b6ee-bf7aa9d73e3a"),
+                            Description = "Open-zone platformer",
+                            GameId = new Guid("b2220019-0019-4019-8019-000000000019"),
+                            LanguageCode = "en",
+                            Name = "Sonic Frontiers"
+                        },
+                        new
+                        {
+                            Id = new Guid("9bdd937d-d9ed-9444-3498-a3580dccaadb"),
+                            Description = "Швидкісний платформер у відкритих зонах",
+                            GameId = new Guid("b2220019-0019-4019-8019-000000000019"),
+                            LanguageCode = "uk",
+                            Name = "Сонік Фронтірс"
+                        },
+                        new
+                        {
+                            Id = new Guid("c9bcb497-50c6-5c70-1796-943499061eb4"),
+                            Description = "縦横無尽に駆け巡るオープンゾーン・ハイスピードアクション",
+                            GameId = new Guid("b2220019-0019-4019-8019-000000000019"),
+                            LanguageCode = "ja",
+                            Name = "ソニックフロンティア"
+                        },
+                        new
+                        {
+                            Id = new Guid("64caa37e-9e8a-4dcf-a879-dc012a81742d"),
+                            Description = "Basketball simulation",
+                            GameId = new Guid("b2220020-0020-4020-8020-000000000020"),
+                            LanguageCode = "en",
+                            Name = "NBA 2K25"
+                        },
+                        new
+                        {
+                            Id = new Guid("d45273e4-f617-3ef7-0a43-51de112347e9"),
+                            Description = "Реалістичний симулятор баскетболу",
+                            GameId = new Guid("b2220020-0020-4020-8020-000000000020"),
+                            LanguageCode = "uk",
+                            Name = "NBA 2K25"
+                        },
+                        new
+                        {
+                            Id = new Guid("00b185c5-4d21-ce67-6629-76d183a3485d"),
+                            Description = "最高峰の臨場感を誇るバスケットボールシミュレーション",
+                            GameId = new Guid("b2220020-0020-4020-8020-000000000020"),
+                            LanguageCode = "ja",
+                            Name = "NBA 2K25"
+                        });
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.GamePlatform", b =>
                 {
                     b.Property<Guid>("GameId")
@@ -1170,6 +1800,435 @@ namespace Gamestore.DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.GenreLocalization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GenreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GenreId", "LanguageCode")
+                        .IsUnique();
+
+                    b.ToTable("GenreLocalizations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("77e454e6-ebd6-adaf-7299-27ec6c0b9bae"),
+                            GenreId = new Guid("a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5"),
+                            LanguageCode = "en",
+                            Name = "Strategy"
+                        },
+                        new
+                        {
+                            Id = new Guid("0303655c-6c6e-ae86-9344-e907241f1346"),
+                            GenreId = new Guid("a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5"),
+                            LanguageCode = "uk",
+                            Name = "Стратегії"
+                        },
+                        new
+                        {
+                            Id = new Guid("b25b6ff7-77dc-0aa1-c483-afd3c7cb6e1a"),
+                            GenreId = new Guid("a1b2c3d4-e5f6-4a7b-8c9d-e0f1a2b3c4d5"),
+                            LanguageCode = "ja",
+                            Name = "ストラテジー"
+                        },
+                        new
+                        {
+                            Id = new Guid("e4b64564-a5b1-d6bd-563c-4d5063628c9f"),
+                            GenreId = new Guid("b2c3d4e5-f6a7-4b8c-9d0e-f1a2b3c4d5e6"),
+                            LanguageCode = "en",
+                            Name = "RTS"
+                        },
+                        new
+                        {
+                            Id = new Guid("1d7773f8-1a7e-12d7-d9b1-ffebd43cbceb"),
+                            GenreId = new Guid("b2c3d4e5-f6a7-4b8c-9d0e-f1a2b3c4d5e6"),
+                            LanguageCode = "uk",
+                            Name = "RTS (Стратегії в реальному часі)"
+                        },
+                        new
+                        {
+                            Id = new Guid("71dfa129-31bb-69a1-1541-660dabee11d4"),
+                            GenreId = new Guid("b2c3d4e5-f6a7-4b8c-9d0e-f1a2b3c4d5e6"),
+                            LanguageCode = "ja",
+                            Name = "リアルタイムストラテジー"
+                        },
+                        new
+                        {
+                            Id = new Guid("4614c384-a3d5-fff5-66bc-f07e66548d20"),
+                            GenreId = new Guid("c3d4e5f6-a7b8-4c9d-0e1f-a2b3c4d5e6f7"),
+                            LanguageCode = "en",
+                            Name = "TBS"
+                        },
+                        new
+                        {
+                            Id = new Guid("6f91d5a7-2f19-887b-17e2-6b1a3a494f3c"),
+                            GenreId = new Guid("c3d4e5f6-a7b8-4c9d-0e1f-a2b3c4d5e6f7"),
+                            LanguageCode = "uk",
+                            Name = "TBS (Покрокові стратегії)"
+                        },
+                        new
+                        {
+                            Id = new Guid("2b0dbf02-6021-b4b8-03e4-98e89763504f"),
+                            GenreId = new Guid("c3d4e5f6-a7b8-4c9d-0e1f-a2b3c4d5e6f7"),
+                            LanguageCode = "ja",
+                            Name = "ターン制ストラテジー"
+                        },
+                        new
+                        {
+                            Id = new Guid("d759d067-548a-f085-d846-0af11f07d5f8"),
+                            GenreId = new Guid("d4e5f6a7-b8c9-4d0e-1f2a-b3c4d5e6f7a8"),
+                            LanguageCode = "en",
+                            Name = "RPG"
+                        },
+                        new
+                        {
+                            Id = new Guid("aaf2de50-9e57-fe8f-2204-6bd0067d3367"),
+                            GenreId = new Guid("d4e5f6a7-b8c9-4d0e-1f2a-b3c4d5e6f7a8"),
+                            LanguageCode = "uk",
+                            Name = "Рольові ігри (RPG)"
+                        },
+                        new
+                        {
+                            Id = new Guid("3c437320-67ff-c098-280e-943bee099f5e"),
+                            GenreId = new Guid("d4e5f6a7-b8c9-4d0e-1f2a-b3c4d5e6f7a8"),
+                            LanguageCode = "ja",
+                            Name = "RPG"
+                        },
+                        new
+                        {
+                            Id = new Guid("a78d76dd-5a21-a15a-715c-9616f6da87e5"),
+                            GenreId = new Guid("e5f6a7b8-c9d0-4e1f-2a3b-c4d5e6f7a8b9"),
+                            LanguageCode = "en",
+                            Name = "Simulator"
+                        },
+                        new
+                        {
+                            Id = new Guid("feeb24ab-9346-fb25-47fc-4a1639bc73a4"),
+                            GenreId = new Guid("e5f6a7b8-c9d0-4e1f-2a3b-c4d5e6f7a8b9"),
+                            LanguageCode = "uk",
+                            Name = "Симулятори"
+                        },
+                        new
+                        {
+                            Id = new Guid("81742b06-22b7-bad2-459f-34ce29a38254"),
+                            GenreId = new Guid("e5f6a7b8-c9d0-4e1f-2a3b-c4d5e6f7a8b9"),
+                            LanguageCode = "ja",
+                            Name = "シミュレーター"
+                        },
+                        new
+                        {
+                            Id = new Guid("d5cc4b11-ba22-e485-c425-bae3a6eb3310"),
+                            GenreId = new Guid("f6a7b8c9-d0e1-4f2a-3b4c-d5e6f7a8b9c0"),
+                            LanguageCode = "en",
+                            Name = "Sports"
+                        },
+                        new
+                        {
+                            Id = new Guid("726b98c6-04bd-c47a-bc99-eb63f2b2dfed"),
+                            GenreId = new Guid("f6a7b8c9-d0e1-4f2a-3b4c-d5e6f7a8b9c0"),
+                            LanguageCode = "uk",
+                            Name = "Спортивні ігри"
+                        },
+                        new
+                        {
+                            Id = new Guid("27f4f7d2-4079-c1e9-dda2-a07d6ec03f03"),
+                            GenreId = new Guid("f6a7b8c9-d0e1-4f2a-3b4c-d5e6f7a8b9c0"),
+                            LanguageCode = "ja",
+                            Name = "スポーツ"
+                        },
+                        new
+                        {
+                            Id = new Guid("8a8d14c5-bd6b-8f2a-25c0-092c4dbf792f"),
+                            GenreId = new Guid("a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1"),
+                            LanguageCode = "en",
+                            Name = "Races"
+                        },
+                        new
+                        {
+                            Id = new Guid("64cfeb65-00f0-761d-f292-761144ba4c45"),
+                            GenreId = new Guid("a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1"),
+                            LanguageCode = "uk",
+                            Name = "Гонки"
+                        },
+                        new
+                        {
+                            Id = new Guid("69e46bb7-e6b2-bb24-47b3-fcf4fa0c80c9"),
+                            GenreId = new Guid("a7b8c9d0-e1f2-4a3b-4c5d-e6f7a8b9c0d1"),
+                            LanguageCode = "ja",
+                            Name = "レース"
+                        },
+                        new
+                        {
+                            Id = new Guid("c329be82-e77d-2e42-42d1-9a78b70e19c0"),
+                            GenreId = new Guid("b8c9d0e1-f2a3-4b4c-5d6e-f7a8b9c0d1e2"),
+                            LanguageCode = "en",
+                            Name = "Rally"
+                        },
+                        new
+                        {
+                            Id = new Guid("34e840f2-3cca-5bb8-b5a0-f86d051a2af5"),
+                            GenreId = new Guid("b8c9d0e1-f2a3-4b4c-5d6e-f7a8b9c0d1e2"),
+                            LanguageCode = "uk",
+                            Name = "Ралі"
+                        },
+                        new
+                        {
+                            Id = new Guid("d83981f1-d59c-fbf8-d55a-b6810cd0280d"),
+                            GenreId = new Guid("b8c9d0e1-f2a3-4b4c-5d6e-f7a8b9c0d1e2"),
+                            LanguageCode = "ja",
+                            Name = "ラリー"
+                        },
+                        new
+                        {
+                            Id = new Guid("e64aa9e7-93dc-e121-e7e3-da21399eb88a"),
+                            GenreId = new Guid("c9d0e1f2-a3b4-4c5d-6e7f-a8b9c0d1e2f3"),
+                            LanguageCode = "en",
+                            Name = "Arcade"
+                        },
+                        new
+                        {
+                            Id = new Guid("7f30d326-1da7-10d2-8bfa-c271f8faa4e3"),
+                            GenreId = new Guid("c9d0e1f2-a3b4-4c5d-6e7f-a8b9c0d1e2f3"),
+                            LanguageCode = "uk",
+                            Name = "Аркади"
+                        },
+                        new
+                        {
+                            Id = new Guid("2546cab2-d18c-db85-1c04-e88338fdbb78"),
+                            GenreId = new Guid("c9d0e1f2-a3b4-4c5d-6e7f-a8b9c0d1e2f3"),
+                            LanguageCode = "ja",
+                            Name = "アーケード"
+                        },
+                        new
+                        {
+                            Id = new Guid("8f7eaa7d-cd0b-fef0-1195-f4ee0d15d459"),
+                            GenreId = new Guid("d0e1f2a3-b4c5-4d6e-7f8a-b9c0d1e2f3a4"),
+                            LanguageCode = "en",
+                            Name = "Formula"
+                        },
+                        new
+                        {
+                            Id = new Guid("b4f2664c-328a-6021-b5d7-872b87b44ed7"),
+                            GenreId = new Guid("d0e1f2a3-b4c5-4d6e-7f8a-b9c0d1e2f3a4"),
+                            LanguageCode = "uk",
+                            Name = "Формула"
+                        },
+                        new
+                        {
+                            Id = new Guid("bb7ef030-3a35-c76b-5f5e-5b35b7d5de41"),
+                            GenreId = new Guid("d0e1f2a3-b4c5-4d6e-7f8a-b9c0d1e2f3a4"),
+                            LanguageCode = "ja",
+                            Name = "フォーミュラ"
+                        },
+                        new
+                        {
+                            Id = new Guid("a09ab897-c231-3713-c906-406ca1e1af71"),
+                            GenreId = new Guid("e1f2a3b4-c5d6-4e7f-8a9b-c0d1e2f3a4b5"),
+                            LanguageCode = "en",
+                            Name = "Off-road"
+                        },
+                        new
+                        {
+                            Id = new Guid("09256944-321a-c9a9-1b06-900241a948f0"),
+                            GenreId = new Guid("e1f2a3b4-c5d6-4e7f-8a9b-c0d1e2f3a4b5"),
+                            LanguageCode = "uk",
+                            Name = "Бездоріжжя"
+                        },
+                        new
+                        {
+                            Id = new Guid("3c4952ea-bbc7-bef1-e936-b211de9e8e48"),
+                            GenreId = new Guid("e1f2a3b4-c5d6-4e7f-8a9b-c0d1e2f3a4b5"),
+                            LanguageCode = "ja",
+                            Name = "オフロード"
+                        },
+                        new
+                        {
+                            Id = new Guid("a94db43e-b448-1b1d-0f9b-4a6a2828518b"),
+                            GenreId = new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6"),
+                            LanguageCode = "en",
+                            Name = "Action"
+                        },
+                        new
+                        {
+                            Id = new Guid("3b26fa89-d75e-4cb5-fce3-8ae22c3f8cfd"),
+                            GenreId = new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6"),
+                            LanguageCode = "uk",
+                            Name = "Екшн"
+                        },
+                        new
+                        {
+                            Id = new Guid("d3866834-3257-e6e4-40b7-982910d97f7e"),
+                            GenreId = new Guid("f2a3b4c5-d6e7-4f8a-9b0c-d1e2f3a4b5c6"),
+                            LanguageCode = "ja",
+                            Name = "アクション"
+                        },
+                        new
+                        {
+                            Id = new Guid("fbac6f52-9ece-2428-9206-9769a522e8a8"),
+                            GenreId = new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7"),
+                            LanguageCode = "en",
+                            Name = "FPS"
+                        },
+                        new
+                        {
+                            Id = new Guid("13771956-5972-8f6b-974a-d0a0e0e4889b"),
+                            GenreId = new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7"),
+                            LanguageCode = "uk",
+                            Name = "Шутери від першої особи (FPS)"
+                        },
+                        new
+                        {
+                            Id = new Guid("2cc746c8-9d3a-7205-dfd7-a41a3a0d8e4a"),
+                            GenreId = new Guid("a3b4c5d6-e7f8-4a9b-0c1d-e2f3a4b5c6d7"),
+                            LanguageCode = "ja",
+                            Name = "ファーストパーソン・シューティング"
+                        },
+                        new
+                        {
+                            Id = new Guid("65bfe349-759a-103a-f4c9-94382b0ffa30"),
+                            GenreId = new Guid("b4c5d6e7-f8a9-4b0c-1d2e-f3a4b5c6d7e8"),
+                            LanguageCode = "en",
+                            Name = "TPS"
+                        },
+                        new
+                        {
+                            Id = new Guid("1c0fa120-5b75-1bff-1788-591fbecedc5d"),
+                            GenreId = new Guid("b4c5d6e7-f8a9-4b0c-1d2e-f3a4b5c6d7e8"),
+                            LanguageCode = "uk",
+                            Name = "Шутери від третьої особи (TPS)"
+                        },
+                        new
+                        {
+                            Id = new Guid("e87b46cc-861a-9b3f-b6f6-3ac75a765a5e"),
+                            GenreId = new Guid("b4c5d6e7-f8a9-4b0c-1d2e-f3a4b5c6d7e8"),
+                            LanguageCode = "ja",
+                            Name = "サードパーソン・シューティング"
+                        },
+                        new
+                        {
+                            Id = new Guid("54840b04-8fea-716d-9e72-81791b1b25a0"),
+                            GenreId = new Guid("c5d6e7f8-a9b0-4c1d-2e3f-a4b5c6d7e8f9"),
+                            LanguageCode = "en",
+                            Name = "Fighting"
+                        },
+                        new
+                        {
+                            Id = new Guid("32cc6621-5e00-824c-7891-9b613fb66dc5"),
+                            GenreId = new Guid("c5d6e7f8-a9b0-4c1d-2e3f-a4b5c6d7e8f9"),
+                            LanguageCode = "uk",
+                            Name = "Файтинги"
+                        },
+                        new
+                        {
+                            Id = new Guid("187aeb52-babf-88d9-b1b3-757c62950f7d"),
+                            GenreId = new Guid("c5d6e7f8-a9b0-4c1d-2e3f-a4b5c6d7e8f9"),
+                            LanguageCode = "ja",
+                            Name = "対戦型格闘ゲーム"
+                        },
+                        new
+                        {
+                            Id = new Guid("83c609d1-9265-255a-34df-5fe7503896fe"),
+                            GenreId = new Guid("d6e7f8a9-b0c1-4d2e-3f4a-b5c6d7e8f9a0"),
+                            LanguageCode = "en",
+                            Name = "Battle Royale"
+                        },
+                        new
+                        {
+                            Id = new Guid("8af3af67-7a4c-e9fd-b04f-dc94789312e8"),
+                            GenreId = new Guid("d6e7f8a9-b0c1-4d2e-3f4a-b5c6d7e8f9a0"),
+                            LanguageCode = "uk",
+                            Name = "Королівська битва"
+                        },
+                        new
+                        {
+                            Id = new Guid("acfae231-d31b-8331-4e29-7f5bea0b8789"),
+                            GenreId = new Guid("d6e7f8a9-b0c1-4d2e-3f4a-b5c6d7e8f9a0"),
+                            LanguageCode = "ja",
+                            Name = "バトルロイヤル"
+                        },
+                        new
+                        {
+                            Id = new Guid("33f0923f-34aa-e342-4375-3b117d6a3b58"),
+                            GenreId = new Guid("e7f8a9b0-c1d2-4e3f-4a5b-c6d7e8f9a0b1"),
+                            LanguageCode = "en",
+                            Name = "Hero Shooter"
+                        },
+                        new
+                        {
+                            Id = new Guid("9e075250-935a-fc0e-c6c0-24eb3cec3e62"),
+                            GenreId = new Guid("e7f8a9b0-c1d2-4e3f-4a5b-c6d7e8f9a0b1"),
+                            LanguageCode = "uk",
+                            Name = "Геройський шутер"
+                        },
+                        new
+                        {
+                            Id = new Guid("9c64b607-9691-7c23-51bc-2162e2fd29e0"),
+                            GenreId = new Guid("e7f8a9b0-c1d2-4e3f-4a5b-c6d7e8f9a0b1"),
+                            LanguageCode = "ja",
+                            Name = "ヒーローシューター"
+                        },
+                        new
+                        {
+                            Id = new Guid("39c13a3f-fb35-dae4-7176-623c28639fa8"),
+                            GenreId = new Guid("f8a9b0c1-d2e3-4f4a-5b6c-d7e8f9a0b1c2"),
+                            LanguageCode = "en",
+                            Name = "Adventure"
+                        },
+                        new
+                        {
+                            Id = new Guid("1debf665-338a-bcbe-3613-ce524e91619d"),
+                            GenreId = new Guid("f8a9b0c1-d2e3-4f4a-5b6c-d7e8f9a0b1c2"),
+                            LanguageCode = "uk",
+                            Name = "Пригоди"
+                        },
+                        new
+                        {
+                            Id = new Guid("10c37073-9108-b772-1482-e97300501fb8"),
+                            GenreId = new Guid("f8a9b0c1-d2e3-4f4a-5b6c-d7e8f9a0b1c2"),
+                            LanguageCode = "ja",
+                            Name = "アドベンチャー"
+                        },
+                        new
+                        {
+                            Id = new Guid("f5c224ec-c902-f5e5-739a-a54016461255"),
+                            GenreId = new Guid("a9b0c1d2-e3f4-4a5b-6c7d-e8f9a0b1c2d3"),
+                            LanguageCode = "en",
+                            Name = "Puzzle & Skill"
+                        },
+                        new
+                        {
+                            Id = new Guid("7fd65f10-f210-193d-7b03-26ca52880722"),
+                            GenreId = new Guid("a9b0c1d2-e3f4-4a5b-6c7d-e8f9a0b1c2d3"),
+                            LanguageCode = "uk",
+                            Name = "Головоломки та майстерність"
+                        },
+                        new
+                        {
+                            Id = new Guid("f58568cf-4d07-986d-ff36-33a06ea6b8ac"),
+                            GenreId = new Guid("a9b0c1d2-e3f4-4a5b-6c7d-e8f9a0b1c2d3"),
+                            LanguageCode = "ja",
+                            Name = "パズル＆スキル"
+                        });
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1282,6 +2341,138 @@ namespace Gamestore.DAL.Migrations
                         new
                         {
                             Id = new Guid("f0a0b234-d4f2-4f3d-c089-f88a06b15b8e"),
+                            Type = "VR"
+                        });
+                });
+
+            modelBuilder.Entity("Gamestore.DAL.Entities.PlatformLocalization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("PlatformId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlatformId", "LanguageCode")
+                        .IsUnique();
+
+                    b.ToTable("PlatformLocalizations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("5c8b7eba-e676-4373-023e-c3f038210534"),
+                            LanguageCode = "en",
+                            PlatformId = new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"),
+                            Type = "Mobile"
+                        },
+                        new
+                        {
+                            Id = new Guid("0f665a83-5c3c-2b5d-b55f-f08e121d8185"),
+                            LanguageCode = "uk",
+                            PlatformId = new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"),
+                            Type = "Мобільні"
+                        },
+                        new
+                        {
+                            Id = new Guid("33a331d4-21f4-8fd5-2266-b6ddde2d99f6"),
+                            LanguageCode = "ja",
+                            PlatformId = new Guid("e1d6d065-e3df-4c0a-8d46-b44d62d71d4a"),
+                            Type = "モバイル"
+                        },
+                        new
+                        {
+                            Id = new Guid("e75d128a-a406-6c88-399a-f2fbfc5653d9"),
+                            LanguageCode = "en",
+                            PlatformId = new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b"),
+                            Type = "Desktop"
+                        },
+                        new
+                        {
+                            Id = new Guid("d5ff1cdf-7f17-b40d-0d7f-1e8ea3fe4eda"),
+                            LanguageCode = "uk",
+                            PlatformId = new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b"),
+                            Type = "ПК (Десктоп)"
+                        },
+                        new
+                        {
+                            Id = new Guid("43f4c82c-463d-51d5-442b-c14a61e02cfb"),
+                            LanguageCode = "ja",
+                            PlatformId = new Guid("b5d6d065-a1cf-4c0a-9d56-c55d73e82e5b"),
+                            Type = "デスクトップ"
+                        },
+                        new
+                        {
+                            Id = new Guid("300b194d-f0dc-c96b-56e7-a31c80377d21"),
+                            LanguageCode = "en",
+                            PlatformId = new Guid("c7e8f012-b2d0-4d1b-ae67-d66e84f93f6c"),
+                            Type = "Browser"
+                        },
+                        new
+                        {
+                            Id = new Guid("fa31a395-5c3e-68c0-0c44-c42e3b785999"),
+                            LanguageCode = "uk",
+                            PlatformId = new Guid("c7e8f012-b2d0-4d1b-ae67-d66e84f93f6c"),
+                            Type = "Браузерні"
+                        },
+                        new
+                        {
+                            Id = new Guid("8c909b63-63c6-4f8b-952f-43119aa125e4"),
+                            LanguageCode = "ja",
+                            PlatformId = new Guid("c7e8f012-b2d0-4d1b-ae67-d66e84f93f6c"),
+                            Type = "ブラウザ"
+                        },
+                        new
+                        {
+                            Id = new Guid("26f9dfdb-be56-e048-c3a7-b1fc9f8be536"),
+                            LanguageCode = "en",
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d"),
+                            Type = "Console"
+                        },
+                        new
+                        {
+                            Id = new Guid("5bd45621-fdf5-fd15-ffb8-a038fa005d22"),
+                            LanguageCode = "uk",
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d"),
+                            Type = "Консолі"
+                        },
+                        new
+                        {
+                            Id = new Guid("a5cad0b0-a738-ea1e-541c-333bb788bae3"),
+                            LanguageCode = "ja",
+                            PlatformId = new Guid("d9f9a123-c3e1-4e2c-bf78-e77f95a04a7d"),
+                            Type = "コンソール"
+                        },
+                        new
+                        {
+                            Id = new Guid("4762cc5c-0de2-b0d1-3b25-f6e54f14ac46"),
+                            LanguageCode = "en",
+                            PlatformId = new Guid("f0a0b234-d4f2-4f3d-c089-f88a06b15b8e"),
+                            Type = "VR"
+                        },
+                        new
+                        {
+                            Id = new Guid("57b411e3-9b36-23c7-d9ee-33fbc936fb9e"),
+                            LanguageCode = "uk",
+                            PlatformId = new Guid("f0a0b234-d4f2-4f3d-c089-f88a06b15b8e"),
+                            Type = "Віртуальна реальність (VR)"
+                        },
+                        new
+                        {
+                            Id = new Guid("da102254-e75e-128a-5aaf-48c5920b44d5"),
+                            LanguageCode = "ja",
+                            PlatformId = new Guid("f0a0b234-d4f2-4f3d-c089-f88a06b15b8e"),
                             Type = "VR"
                         });
                 });
@@ -1514,6 +2705,636 @@ namespace Gamestore.DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.PublisherLocalization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("PublisherId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublisherId", "LanguageCode")
+                        .IsUnique();
+
+                    b.ToTable("PublisherLocalizations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("827e2496-d46d-095b-dbd1-8be98a1069bf"),
+                            CompanyName = "Electronic Arts",
+                            Description = "American video game company",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c")
+                        },
+                        new
+                        {
+                            Id = new Guid("98d1aea9-80fc-3382-b1f7-2a09c4a7eb82"),
+                            CompanyName = "Electronic Arts",
+                            Description = "Американська компанія з розробки відеоігор",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c")
+                        },
+                        new
+                        {
+                            Id = new Guid("faeb77be-0d7a-d667-2031-3a6475d15390"),
+                            CompanyName = "エレクトロニック・アーツ",
+                            Description = "アメリカの世界的ゲーム会社",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("77c06fc6-f8a1-46f9-af03-2793e500112c")
+                        },
+                        new
+                        {
+                            Id = new Guid("80c3b482-27d8-ab7a-631c-2d6845cd16b2"),
+                            CompanyName = "Test Name",
+                            Description = "Some text",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd")
+                        },
+                        new
+                        {
+                            Id = new Guid("1101cd2a-4122-b562-225f-a93df7f02ed4"),
+                            CompanyName = "Тестова назва",
+                            Description = "Якийсь текст",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd")
+                        },
+                        new
+                        {
+                            Id = new Guid("6ad3035a-c16d-7d0d-9be3-972acfb4ef9e"),
+                            CompanyName = "テスト名",
+                            Description = "説明テキスト",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("0f7f61ac-babe-423d-a6fe-a5a6c842eacd")
+                        },
+                        new
+                        {
+                            Id = new Guid("9e4dfeed-cd3e-34e8-7b1c-1d17e535def5"),
+                            CompanyName = "Valve",
+                            Description = "Creators of Steam and Half-Life",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac")
+                        },
+                        new
+                        {
+                            Id = new Guid("743e8433-0788-77d3-e4b2-d1d4e1136323"),
+                            CompanyName = "Valve",
+                            Description = "Творці платформи Steam та Half-Life",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac")
+                        },
+                        new
+                        {
+                            Id = new Guid("137d0720-8a1f-4be3-9df3-7d2d8d387f5b"),
+                            CompanyName = "Valve",
+                            Description = "SteamおよびHalf-Lifeの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("4ca4f3b7-7e23-45f6-8c43-bcde64a51fac")
+                        },
+                        new
+                        {
+                            Id = new Guid("98d0c51a-b045-e4af-97dd-0ebbab0ea9d7"),
+                            CompanyName = "Bethesda",
+                            Description = "Makers of Skyrim and Fallout",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("5bc5d6a2-6f91-4d3f-91ab-64213d8e578c")
+                        },
+                        new
+                        {
+                            Id = new Guid("a06a9099-cac3-798a-ccc5-986a1367552e"),
+                            CompanyName = "Bethesda",
+                            Description = "Творці Skyrim та серії Fallout",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("5bc5d6a2-6f91-4d3f-91ab-64213d8e578c")
+                        },
+                        new
+                        {
+                            Id = new Guid("add0285c-4bc4-691e-1d63-eec6ae2e540a"),
+                            CompanyName = "ベセスダ",
+                            Description = "スカイリムやフォールアウトの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("5bc5d6a2-6f91-4d3f-91ab-64213d8e578c")
+                        },
+                        new
+                        {
+                            Id = new Guid("30e2b992-0248-3a45-4683-50ada5341078"),
+                            CompanyName = "CD Projekt Red",
+                            Description = "Witcher and Cyberpunk developers",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("75369ded-6d00-a2ad-f564-f99d4ecf061b"),
+                            CompanyName = "CD Projekt Red",
+                            Description = "Розробники серій Відьмак та Cyberpunk 2077",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("a23cc90a-214a-6230-7e75-8cbcef0d25bf"),
+                            CompanyName = "CD Projekt Red",
+                            Description = "ウィッチャーやサイバーパンク2077の開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("1c3a64b9-9142-4f3b-823c-7c4a1653d8a1")
+                        },
+                        new
+                        {
+                            Id = new Guid("46561d85-f179-9d18-33a5-a503beb7e4e9"),
+                            CompanyName = "Nintendo",
+                            Description = "Japanese gaming giant",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110001-0001-4001-8001-000000000001")
+                        },
+                        new
+                        {
+                            Id = new Guid("46d33e08-e62f-e553-cb7e-0d85481c4c5d"),
+                            CompanyName = "Nintendo",
+                            Description = "Японський ігровий гігант",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110001-0001-4001-8001-000000000001")
+                        },
+                        new
+                        {
+                            Id = new Guid("8a9ccfc8-feff-25b3-69ca-3a3c12a56efc"),
+                            CompanyName = "任天堂",
+                            Description = "日本の世界的ゲーム開発・販売会社",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110001-0001-4001-8001-000000000001")
+                        },
+                        new
+                        {
+                            Id = new Guid("f7532900-478e-bd94-afe4-e2af6cfe8fae"),
+                            CompanyName = "Sony Interactive",
+                            Description = "PlayStation maker",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110002-0002-4002-8002-000000000002")
+                        },
+                        new
+                        {
+                            Id = new Guid("ed79c288-43a5-4b46-2b6f-990b02772830"),
+                            CompanyName = "Sony Interactive",
+                            Description = "Творець консолей PlayStation",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110002-0002-4002-8002-000000000002")
+                        },
+                        new
+                        {
+                            Id = new Guid("baa0ef1b-8809-fdd0-6c0c-e15c8dd8dd2c"),
+                            CompanyName = "ソニー・インタラクティブエンタテインメント",
+                            Description = "PlayStationのメーカー",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110002-0002-4002-8002-000000000002")
+                        },
+                        new
+                        {
+                            Id = new Guid("42ffa412-2929-3af5-7e00-841cde4fbc63"),
+                            CompanyName = "Ubisoft",
+                            Description = "French publisher of Assassin's Creed",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110003-0003-4003-8003-000000000003")
+                        },
+                        new
+                        {
+                            Id = new Guid("e0018f0c-eccb-88c1-5cab-c4bb2df52c59"),
+                            CompanyName = "Ubisoft",
+                            Description = "Французький видавець Assassin's Creed",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110003-0003-4003-8003-000000000003")
+                        },
+                        new
+                        {
+                            Id = new Guid("0175ff55-4ff9-ee12-1b9a-5dbb3eadca3b"),
+                            CompanyName = "ユービーアイソフト",
+                            Description = "アサシンクリードなどのパブリッシャー",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110003-0003-4003-8003-000000000003")
+                        },
+                        new
+                        {
+                            Id = new Guid("c81aa85f-47fa-198c-1cdf-c6e11787b30c"),
+                            CompanyName = "Activision",
+                            Description = "Call of Duty publisher",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110004-0004-4004-8004-000000000004")
+                        },
+                        new
+                        {
+                            Id = new Guid("2d0d8b3a-403a-d201-430b-fbdf72e6491e"),
+                            CompanyName = "Activision",
+                            Description = "Видавець Call of Duty",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110004-0004-4004-8004-000000000004")
+                        },
+                        new
+                        {
+                            Id = new Guid("77284210-6547-ce70-4898-43c2430374db"),
+                            CompanyName = "アクティビジョン",
+                            Description = "コールオブデューティのパブリッシャー",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110004-0004-4004-8004-000000000004")
+                        },
+                        new
+                        {
+                            Id = new Guid("fc23b413-bea3-9ab5-6c37-d086de2a5b82"),
+                            CompanyName = "Square Enix",
+                            Description = "Final Fantasy developers",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110005-0005-4005-8005-000000000005")
+                        },
+                        new
+                        {
+                            Id = new Guid("835db1e4-684f-6150-0b16-f30f25921b0f"),
+                            CompanyName = "Square Enix",
+                            Description = "Розробники культової Final Fantasy",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110005-0005-4005-8005-000000000005")
+                        },
+                        new
+                        {
+                            Id = new Guid("b7b70b66-2951-ff0a-b55d-97c343feb5a9"),
+                            CompanyName = "スクウェア・エニックス",
+                            Description = "ファイナルファンタジーの開発・発売元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110005-0005-4005-8005-000000000005")
+                        },
+                        new
+                        {
+                            Id = new Guid("410f8555-21be-cb26-6a54-bbbe5898fd51"),
+                            CompanyName = "Capcom",
+                            Description = "Resident Evil and Monster Hunter",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110006-0006-4006-8006-000000000006")
+                        },
+                        new
+                        {
+                            Id = new Guid("0f800435-5841-19fb-e654-b760360c7e60"),
+                            CompanyName = "Capcom",
+                            Description = "Творці Resident Evil та Monster Hunter",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110006-0006-4006-8006-000000000006")
+                        },
+                        new
+                        {
+                            Id = new Guid("fe6af623-7091-6e48-3eae-6e108c2935cd"),
+                            CompanyName = "カプコン",
+                            Description = "バイオハザードやモンスターハンターの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110006-0006-4006-8006-000000000006")
+                        },
+                        new
+                        {
+                            Id = new Guid("45520a8a-0f70-ddd6-7b2f-99a8e579aab4"),
+                            CompanyName = "Rockstar Games",
+                            Description = "GTA and Red Dead developers",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110007-0007-4007-8007-000000000007")
+                        },
+                        new
+                        {
+                            Id = new Guid("6dee3617-d1f7-f250-7491-a0244d288b99"),
+                            CompanyName = "Rockstar Games",
+                            Description = "Розробники GTA та Red Dead Redemption",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110007-0007-4007-8007-000000000007")
+                        },
+                        new
+                        {
+                            Id = new Guid("fc1970b5-5196-9b4c-a219-716592e65454"),
+                            CompanyName = "ロックスター・ゲームス",
+                            Description = "GTAやレッドデッドの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110007-0007-4007-8007-000000000007")
+                        },
+                        new
+                        {
+                            Id = new Guid("e7f4d721-2ef0-dd8c-c1b0-3173f4c07ba1"),
+                            CompanyName = "FromSoftware",
+                            Description = "Dark Souls and Elden Ring creators",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110008-0008-4008-8008-000000000008")
+                        },
+                        new
+                        {
+                            Id = new Guid("d6f989a7-9775-4864-19c3-da1e6455042f"),
+                            CompanyName = "FromSoftware",
+                            Description = "Творці Dark Souls та Elden Ring",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110008-0008-4008-8008-000000000008")
+                        },
+                        new
+                        {
+                            Id = new Guid("3a829a09-5abb-4d32-e4be-4e39e4a03ee3"),
+                            CompanyName = "フロム・ソフトウェア",
+                            Description = "ダークソウルやエルデンリングの開発会社",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110008-0008-4008-8008-000000000008")
+                        },
+                        new
+                        {
+                            Id = new Guid("882eade9-3959-b289-a28c-fdd5ada8e3ea"),
+                            CompanyName = "Bungie",
+                            Description = "Destiny developers",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110009-0009-4009-8009-000000000009")
+                        },
+                        new
+                        {
+                            Id = new Guid("b31b6140-00a1-08d7-1862-2e20b8e49682"),
+                            CompanyName = "Bungie",
+                            Description = "Розробники Destiny",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110009-0009-4009-8009-000000000009")
+                        },
+                        new
+                        {
+                            Id = new Guid("d7fcbe08-a6f7-48e2-594a-82d9e02249ce"),
+                            CompanyName = "バンジー",
+                            Description = "Destinyシリーズの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110009-0009-4009-8009-000000000009")
+                        },
+                        new
+                        {
+                            Id = new Guid("3668bbd1-a4fa-e83c-1cb8-59364053f55d"),
+                            CompanyName = "Epic Games",
+                            Description = "Fortnite and Unreal Engine",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110010-0010-4010-8010-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("6ebf29c5-dc4b-0028-de3a-36d2f2e948a0"),
+                            CompanyName = "Epic Games",
+                            Description = "Творці Fortnite та рушія Unreal Engine",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110010-0010-4010-8010-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("91e8bf66-d67c-afa1-1215-ae8285c29571"),
+                            CompanyName = "Epic Games",
+                            Description = "フォートナイトやUnreal Engineの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110010-0010-4010-8010-000000000010")
+                        },
+                        new
+                        {
+                            Id = new Guid("e136faec-8f69-5c83-af0e-7dd63ab46501"),
+                            CompanyName = "Sega",
+                            Description = "Sonic and Yakuza publisher",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110011-0011-4011-8011-000000000011")
+                        },
+                        new
+                        {
+                            Id = new Guid("11d769c7-50c4-8634-bf02-e20c8dd83c4e"),
+                            CompanyName = "Sega",
+                            Description = "Видавець Sonic та серії Yakuza",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110011-0011-4011-8011-000000000011")
+                        },
+                        new
+                        {
+                            Id = new Guid("9e3aa68d-76e4-69e9-1bf2-996ca01746a8"),
+                            CompanyName = "セガ",
+                            Description = "ソニックや龍が如くシリーズのパブリッシャー",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110011-0011-4011-8011-000000000011")
+                        },
+                        new
+                        {
+                            Id = new Guid("a79476f9-e0f6-38f0-24fc-5bcbea5739b4"),
+                            CompanyName = "Bandai Namco",
+                            Description = "Tekken and Elden Ring publisher",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110012-0012-4012-8012-000000000012")
+                        },
+                        new
+                        {
+                            Id = new Guid("6b789e52-8444-39bf-f55c-d6f7e602ba0e"),
+                            CompanyName = "Bandai Namco",
+                            Description = "Видавець Tekken та Elden Ring",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110012-0012-4012-8012-000000000012")
+                        },
+                        new
+                        {
+                            Id = new Guid("fd894913-1f71-75d6-4d09-f1281638b2f6"),
+                            CompanyName = "バンダイナムコエンターテインメント",
+                            Description = "鉄拳やエルデンリングのパブリッシャー",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110012-0012-4012-8012-000000000012")
+                        },
+                        new
+                        {
+                            Id = new Guid("fd854260-cecc-587e-eb1e-71a1fb3e9e6f"),
+                            CompanyName = "Konami",
+                            Description = "Metal Gear Solid publisher",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110013-0013-4013-8013-000000000013")
+                        },
+                        new
+                        {
+                            Id = new Guid("2c576648-c7d9-62e7-6d9b-1245bd27f35a"),
+                            CompanyName = "Konami",
+                            Description = "Видавець Metal Gear Solid",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110013-0013-4013-8013-000000000013")
+                        },
+                        new
+                        {
+                            Id = new Guid("24aab293-afe5-8cbf-00f1-9a1832bc1ff5"),
+                            CompanyName = "コナミ",
+                            Description = "メタルギアソリッドのパブリッシャー",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110013-0013-4013-8013-000000000013")
+                        },
+                        new
+                        {
+                            Id = new Guid("443a248d-ea50-0b2a-ffb6-0afbbed9f800"),
+                            CompanyName = "Take-Two",
+                            Description = "Parent of Rockstar and 2K",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110014-0014-4014-8014-000000000014")
+                        },
+                        new
+                        {
+                            Id = new Guid("516b0102-9a37-d34b-6f24-1c04922a29e9"),
+                            CompanyName = "Take-Two",
+                            Description = "Материнська компанія Rockstar та 2K",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110014-0014-4014-8014-000000000014")
+                        },
+                        new
+                        {
+                            Id = new Guid("0cfeb8a9-9fcc-db74-7fb9-034ac6af03f8"),
+                            CompanyName = "Take-Two",
+                            Description = "Rockstarや2Kの親会社",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110014-0014-4014-8014-000000000014")
+                        },
+                        new
+                        {
+                            Id = new Guid("26e29d3b-c3c4-9315-b5e5-e5544cee31ee"),
+                            CompanyName = "Xbox Game Studios",
+                            Description = "Microsoft gaming division",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110015-0015-4015-8015-000000000015")
+                        },
+                        new
+                        {
+                            Id = new Guid("6de21553-432c-1abc-bdf9-fe10bf2d802f"),
+                            CompanyName = "Xbox Game Studios",
+                            Description = "Ігровий підрозділ корпорації Microsoft",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110015-0015-4015-8015-000000000015")
+                        },
+                        new
+                        {
+                            Id = new Guid("f316293f-2094-6417-9894-05d191034e55"),
+                            CompanyName = "Xbox Game Studios",
+                            Description = "マイクロソフトのゲーム開発部門",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110015-0015-4015-8015-000000000015")
+                        },
+                        new
+                        {
+                            Id = new Guid("42733202-a4b6-2a76-1c0f-dd935c289229"),
+                            CompanyName = "Naughty Dog",
+                            Description = "The Last of Us and Uncharted",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110016-0016-4016-8016-000000000016")
+                        },
+                        new
+                        {
+                            Id = new Guid("d4915e75-6882-2189-48cb-368c0f46a360"),
+                            CompanyName = "Naughty Dog",
+                            Description = "Творці The Last of Us та Uncharted",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110016-0016-4016-8016-000000000016")
+                        },
+                        new
+                        {
+                            Id = new Guid("a8378967-a2a7-7da3-b459-cf890bb00f44"),
+                            CompanyName = "ノーティードッグ",
+                            Description = "The Last of Usやアンチャーテッドの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110016-0016-4016-8016-000000000016")
+                        },
+                        new
+                        {
+                            Id = new Guid("d766908d-2ac1-5a5f-5265-e23307e9a93e"),
+                            CompanyName = "Insomniac Games",
+                            Description = "Spider-Man PS developers",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110017-0017-4017-8017-000000000017")
+                        },
+                        new
+                        {
+                            Id = new Guid("364788b2-9bb3-58a8-eafd-3aa95796ac19"),
+                            CompanyName = "Insomniac Games",
+                            Description = "Розробники хітів Marvel's Spider-Man",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110017-0017-4017-8017-000000000017")
+                        },
+                        new
+                        {
+                            Id = new Guid("cb1b68e6-1fd5-fb8a-ae32-c3de22fe06a9"),
+                            CompanyName = "インソムニアック・ゲームズ",
+                            Description = "Marvel's Spider-Manの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110017-0017-4017-8017-000000000017")
+                        },
+                        new
+                        {
+                            Id = new Guid("401f689f-65c9-e73d-5903-751bee7f165b"),
+                            CompanyName = "Devolver Digital",
+                            Description = "Indie game publisher",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110018-0018-4018-8018-000000000018")
+                        },
+                        new
+                        {
+                            Id = new Guid("70891327-e827-267f-1285-01a932619467"),
+                            CompanyName = "Devolver Digital",
+                            Description = "Провідний видавець інді-ігор",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110018-0018-4018-8018-000000000018")
+                        },
+                        new
+                        {
+                            Id = new Guid("81ce11d9-90b5-eb7d-97d8-104e4573e548"),
+                            CompanyName = "Devolver Digital",
+                            Description = "個性派インディーゲームのパブリッシャー",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110018-0018-4018-8018-000000000018")
+                        },
+                        new
+                        {
+                            Id = new Guid("df4a74a1-f80a-8a6d-77a1-b424fa6bf36f"),
+                            CompanyName = "Supergiant Games",
+                            Description = "Hades and Bastion creators",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110019-0019-4019-8019-000000000019")
+                        },
+                        new
+                        {
+                            Id = new Guid("02b4ef13-3abf-6a39-471f-8e790a7a61a4"),
+                            CompanyName = "Supergiant Games",
+                            Description = "Творці шедеврів Hades та Bastion",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110019-0019-4019-8019-000000000019")
+                        },
+                        new
+                        {
+                            Id = new Guid("0a453073-8c19-014c-ec77-92c43e4536ba"),
+                            CompanyName = "Supergiant Games",
+                            Description = "HadesやBastionのクリエイター",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110019-0019-4019-8019-000000000019")
+                        },
+                        new
+                        {
+                            Id = new Guid("515f6ba0-6e3d-5425-4727-dff141c6f2ef"),
+                            CompanyName = "Riot Games",
+                            Description = "League of Legends developer",
+                            LanguageCode = "en",
+                            PublisherId = new Guid("a1110020-0020-4020-8020-000000000020")
+                        },
+                        new
+                        {
+                            Id = new Guid("489fa90f-0d2c-c7b9-144d-20c59207d04f"),
+                            CompanyName = "Riot Games",
+                            Description = "Розробники League of Legends та Valorant",
+                            LanguageCode = "uk",
+                            PublisherId = new Guid("a1110020-0020-4020-8020-000000000020")
+                        },
+                        new
+                        {
+                            Id = new Guid("9d731070-f003-efc7-e488-0af158f1ca25"),
+                            CompanyName = "ライアットゲームズ",
+                            Description = "League of LegendsやVALORANTの開発元",
+                            LanguageCode = "ja",
+                            PublisherId = new Guid("a1110020-0020-4020-8020-000000000020")
+                        });
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.Comment", b =>
                 {
                     b.HasOne("Gamestore.DAL.Entities.Game", "Game")
@@ -1562,6 +3383,17 @@ namespace Gamestore.DAL.Migrations
                     b.Navigation("Genre");
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.GameLocalization", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Game", "Game")
+                        .WithMany("Localizations")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.GamePlatform", b =>
                 {
                     b.HasOne("Gamestore.DAL.Entities.Game", "Game")
@@ -1591,6 +3423,17 @@ namespace Gamestore.DAL.Migrations
                     b.Navigation("ParentGenre");
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.GenreLocalization", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Genre", "Genre")
+                        .WithMany("Localizations")
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.OrderGame", b =>
                 {
                     b.HasOne("Gamestore.DAL.Entities.Order", "Order")
@@ -1610,6 +3453,28 @@ namespace Gamestore.DAL.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("Gamestore.DAL.Entities.PlatformLocalization", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Platform", "Platform")
+                        .WithMany("Localizations")
+                        .HasForeignKey("PlatformId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Platform");
+                });
+
+            modelBuilder.Entity("Gamestore.DAL.Entities.PublisherLocalization", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Publisher", "Publisher")
+                        .WithMany("Localizations")
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Publisher");
+                });
+
             modelBuilder.Entity("Gamestore.DAL.Entities.Comment", b =>
                 {
                     b.Navigation("ChildComments");
@@ -1623,12 +3488,16 @@ namespace Gamestore.DAL.Migrations
 
                     b.Navigation("GamePlatforms");
 
+                    b.Navigation("Localizations");
+
                     b.Navigation("OrderGames");
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.Genre", b =>
                 {
                     b.Navigation("GameGenres");
+
+                    b.Navigation("Localizations");
 
                     b.Navigation("SubGenres");
                 });
@@ -1641,11 +3510,15 @@ namespace Gamestore.DAL.Migrations
             modelBuilder.Entity("Gamestore.DAL.Entities.Platform", b =>
                 {
                     b.Navigation("GamePlatforms");
+
+                    b.Navigation("Localizations");
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.Publisher", b =>
                 {
                     b.Navigation("Games");
+
+                    b.Navigation("Localizations");
                 });
 #pragma warning restore 612, 618
         }

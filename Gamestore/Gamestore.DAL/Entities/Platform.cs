@@ -1,4 +1,4 @@
-﻿namespace Gamestore.DAL.Entities;
+namespace Gamestore.DAL.Entities;
 
 public class Platform
 {
@@ -7,4 +7,6 @@ public class Platform
     public string Type { get; set; } = string.Empty;
 
     public ICollection<GamePlatform> GamePlatforms { get; set; } = [];
+
+    public ICollection<PlatformLocalization> Localizations { get; set; } = [];
 }

@@ -37,4 +37,6 @@ public class Game
     public ICollection<Comment> GameComments { get; set; } = [];
 
     public ICollection<OrderGame> OrderGames { get; set; } = [];
+
+    public ICollection<GameLocalization> Localizations { get; set; } = [];
 }

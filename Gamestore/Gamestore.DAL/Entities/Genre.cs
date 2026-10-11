@@ -17,4 +17,6 @@ public class Genre
     public ICollection<Genre> SubGenres { get; set; } = [];
 
     public ICollection<GameGenre> GameGenres { get; set; } = [];
+
+    public ICollection<GenreLocalization> Localizations { get; set; } = [];
 }
