@@ -18,8 +18,8 @@ import { CommonModule } from '@angular/common';
     .hero-banner {
       position: relative;
       width: 100%;
-      height: 280px;
-      min-height: 240px;
+      height: 140px;
+      min-height: 120px;
       background: #111 url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80') center center / cover no-repeat;
       display: flex;
       align-items: flex-end;
@@ -44,18 +44,18 @@ import { CommonModule } from '@angular/common';
       max-width: 1200px;
       width: 100%;
       margin: 0 auto;
-      padding: 0 24px 36px 24px;
+      padding: 0 24px 16px 24px;
     }
     .hero-title {
-      font-size: 38px;
+      font-size: 24px;
       font-weight: 800;
       color: #ffffff;
-      margin: 0 0 10px 0;
+      margin: 0 0 4px 0;
       line-height: 1.15;
       font-family: 'Roboto', sans-serif;
     }
     .hero-subtitle {
-      font-size: 16px;
+      font-size: 13px;
       font-weight: 400;
       color: #e0e0e0;
       margin: 0;
@@ -64,13 +64,14 @@ import { CommonModule } from '@angular/common';
 
     @media (max-width: 768px) {
       .hero-banner {
-        height: 200px;
+        height: 100px;
+        min-height: 90px;
       }
       .hero-title {
-        font-size: 26px;
+        font-size: 18px;
       }
       .hero-subtitle {
-        font-size: 14px;
+        font-size: 12px;
       }
     }
   `]
