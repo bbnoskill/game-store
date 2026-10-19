@@ -345,3 +345,6 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# Generated native browser binary exceeds GitHub's file-size limit
+/Gamestore/microservice/publish/libcef.dll
