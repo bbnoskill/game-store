@@ -10,7 +10,7 @@ public class PublisherRepository(GamestoreContext context) : Repository<Publishe
     public Task<Publisher?> GetByCompanyNameAsync(string companyName)
     {
         return Context.Publishers
-            .FirstOrDefaultAsync(publisher => publisher.CompanyName == companyName);
+            .FirstOrDefaultAsync(publisher => publisher.CompanyName == companyName || publisher.Localizations.Any(l => l.CompanyName == companyName));
     }
 
     public Task<Publisher?> GetByGameKeyAsync(string gameKey)

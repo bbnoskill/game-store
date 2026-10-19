@@ -1,18 +1,18 @@
-﻿using Gamestore.BLL.DTOs.Publisher;
+using Gamestore.BLL.DTOs.Publisher;
 
 namespace Gamestore.BLL.Interfaces;
 
 public interface IPublisherService
 {
-    Task<PublisherDto?> GetByNameAsync(string companyName);
+    Task<PublisherDto?> GetByNameAsync(string companyName, string languageCode = "en");
 
-    Task<PublisherDto?> GetByGameKeyAsync(string gameKey);
+    Task<PublisherDto?> GetByGameKeyAsync(string gameKey, string languageCode = "en");
 
-    Task<IEnumerable<PublisherDto>> GetAllAsync();
+    Task<IEnumerable<PublisherDto>> GetAllAsync(string languageCode = "en");
 
-    Task CreateAsync(CreatePublisherRequestDto request);
+    Task CreateAsync(CreatePublisherRequestDto request, string languageCode = "en");
 
-    Task UpdateAsync(UpdatePublisherRequestDto request);
+    Task UpdateAsync(UpdatePublisherRequestDto request, string languageCode = "en");
 
     Task DeleteAsync(Guid id);
 }

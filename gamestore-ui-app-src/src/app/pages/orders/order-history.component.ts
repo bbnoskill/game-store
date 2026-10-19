@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -8,28 +9,28 @@ import { OrderHistoryItem } from '../../models/order.model';
 @Component({
   selector: 'app-order-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule],
   template: `
     <div class="page-container">
       <div class="history-header">
-        <h1 class="page-title">Order History</h1>
-        <a routerLink="/orders" class="btn-back">&lt; Active Orders</a>
+        <h1 class="page-title">{{ 'Order History' | translate }}</h1>
+        <a routerLink="/orders" class="btn-back">{{ '< Active Orders' | translate }}</a>
       </div>
 
       <!-- Date Range Filter Form -->
       <div class="filter-card">
-        <h3 class="filter-title">Filter by Date Range</h3>
+        <h3 class="filter-title">{{ 'Filter by Date Range' | translate }}</h3>
         <div class="filter-form">
           <div class="form-group">
-            <label>Start Date</label>
+            <label>{{ 'Start Date' | translate }}</label>
             <input type="date" [(ngModel)]="startDate" class="form-input" />
           </div>
           <div class="form-group">
-            <label>End Date</label>
+            <label>{{ 'End Date' | translate }}</label>
             <input type="date" [(ngModel)]="endDate" class="form-input" />
           </div>
-          <button class="btn-filter" (click)="applyFilter()">Apply Filter</button>
-          <button class="btn-reset" (click)="resetFilter()">Reset</button>
+          <button class="btn-filter" (click)="applyFilter()">{{ 'Apply Filter' | translate }}</button>
+          <button class="btn-reset" (click)="resetFilter()">{{ 'Reset' | translate }}</button>
         </div>
       </div>
 
@@ -38,10 +39,10 @@ import { OrderHistoryItem } from '../../models/order.model';
         <table class="history-table">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Date</th>
-              <th>Total Price</th>
-              <th>Actions</th>
+              <th>{{ 'Order ID' | translate }}</th>
+              <th>{{ 'Date' | translate }}</th>
+              <th>{{ 'Total Price' | translate }}</th>
+              <th>{{ 'Actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -52,7 +53,7 @@ import { OrderHistoryItem } from '../../models/order.model';
               <td>{{ item.date | date:'medium' }}</td>
               <td class="total-cell">\${{ getItemTotal(item) | number:'1.2-2' }}</td>
               <td>
-                <a [routerLink]="['/order', item.id]" class="btn-details">View Details</a>
+                <a [routerLink]="['/order', item.id]" class="btn-details">{{ 'View Details' | translate }}</a>
               </td>
             </tr>
           </tbody>
@@ -61,12 +62,12 @@ import { OrderHistoryItem } from '../../models/order.model';
 
       <!-- Empty State -->
       <div class="empty-state" *ngIf="!loading && history.length === 0">
-        <p>No order history found for the selected date range.</p>
+        <p>{{ 'No order history found for the selected date range.' | translate }}</p>
       </div>
 
       <!-- Loading State -->
       <div class="loading-state" *ngIf="loading">
-        <p>Loading order history...</p>
+        <p>{{ 'Loading order history...' | translate }}</p>
       </div>
     </div>
   `,

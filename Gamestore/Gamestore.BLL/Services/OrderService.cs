@@ -222,20 +222,24 @@ public class OrderService(
         };
     }
 
-    public async Task<IEnumerable<OrderDetailsDto>> GetOrderDetailsAsync(Guid orderId)
+    public async Task<IEnumerable<OrderDetailsDto>> GetOrderDetailsAsync(Guid orderId, string languageCode = "en")
     {
         var order = await unitOfWork.Orders.GetByIdWithDetailsAsync(orderId)
             ?? throw new KeyNotFoundException($"Order with id '{orderId}' was not found.");
         return order.OrderGames.Select(og => new OrderDetailsDto
         {
             ProductId = og.ProductId,
+            GameKey = og.Game?.Key,
+            ProductName = og.Game?.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Name
+                ?? og.Game?.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Name
+                ?? og.Game?.Name,
             Price = og.Price,
             Discount = og.Discount,
             Quantity = og.Quantity,
         });
     }
 
-    public async Task<IEnumerable<OrderDetailsDto>> GetCartAsync()
+    public async Task<IEnumerable<OrderDetailsDto>> GetCartAsync(string languageCode = "en")
     {
         var order = await unitOfWork.Orders.GetOpenOrderByCustomerIdAsync(StubCustomerId)
             ?? throw new KeyNotFoundException($"No orders for id {StubCustomerId} were found.");
@@ -243,6 +247,10 @@ public class OrderService(
         return orderGames.Select(og => new OrderDetailsDto
         {
             ProductId = og.ProductId,
+            GameKey = og.Game?.Key,
+            ProductName = og.Game?.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Name
+                ?? og.Game?.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Name
+                ?? og.Game?.Name,
             Price = og.Price,
             Discount = og.Discount,
             Quantity = og.Quantity,

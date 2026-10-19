@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { LanguageService } from '../../services/language.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -21,11 +23,11 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-game-details',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, StarRatingComponent, LikeButtonComponent, DiscountPricePipe],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule, StarRatingComponent, LikeButtonComponent, DiscountPricePipe],
   template: `
     <div class="page-container" *ngIf="game">
       <!-- Back Link -->
-      <a routerLink="/games" class="back-link">&lt; Go back to the list of games</a>
+      <a routerLink="/games" class="back-link">{{ '< Go back to the list of games' | translate }}</a>
 
       <!-- Game Detail Section -->
       <div class="game-detail-grid">
@@ -33,9 +35,9 @@ import { environment } from '../../../environments/environment';
         <div class="game-image-section">
           <div class="image-wrapper">
             <img [src]="gameImage" [alt]="game.name" class="game-main-image" />
-            <button class="img-nav img-nav-left" title="Previous">&lt;</button>
-            <button class="img-nav img-nav-right" title="Next">&gt;</button>
-            <button class="play-btn" title="Play trailer">
+            <button class="img-nav img-nav-left" [title]="'Previous' | translate">&lt;</button>
+            <button class="img-nav img-nav-right" [title]="'Next' | translate">&gt;</button>
+            <button class="play-btn" [title]="'Play trailer' | translate">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </button>
           </div>
@@ -62,27 +64,27 @@ import { environment } from '../../../environments/environment';
               (ratingChange)="onGameRatingChange($event)"
               size="medium"
             ></app-star-rating>
-            <a class="comment-count-link" (click)="scrollToComments()">{{ comments.length }} Comments</a>
+            <a class="comment-count-link" (click)="scrollToComments()">{{ comments.length }} {{ 'Comments' | translate }}</a>
           </div>
 
           <!-- Publisher & Meta -->
           <div class="meta-info">
             <p class="publisher-name" *ngIf="publisher">{{ publisher.companyName }}</p>
             <p class="meta-detail" *ngIf="game.releaseDate">
-              <span class="meta-label">Released</span> {{ game.releaseDate | date:'mediumDate' }}
+              <span class="meta-label">{{ 'Released' | translate }}</span> {{ game.releaseDate | date:'mediumDate' }}
             </p>
           </div>
 
           <div class="tech-info-row" *ngIf="platforms.length > 0">
             <div class="tech-item">
-              <span class="tech-label">Playable on</span>
+              <span class="tech-label">{{ 'Playable on' | translate }}</span>
               <span class="tech-value">{{ platformNames }}</span>
             </div>
           </div>
 
           <!-- Genres as chips -->
           <div class="genres-section" *ngIf="genres.length > 0">
-            <span class="genres-label">Genres</span>
+            <span class="genres-label">{{ 'Genres' | translate }}</span>
             <div class="genre-chips">
               <span class="genre-chip" *ngFor="let genre of genres">{{ genre.name }}</span>
             </div>
@@ -90,21 +92,21 @@ import { environment } from '../../../environments/environment';
 
           <!-- Add To Cart Button -->
           <button class="btn-add-to-cart" (click)="addToCart()" [disabled]="addingToCart">
-            {{ addingToCart ? 'Adding...' : 'Add To Cart' }}
+            {{ (addingToCart ? 'Adding...' : 'Add To Cart') | translate }}
           </button>
 
           <!-- Tax Information (US7) -->
           <div class="tax-info-section">
             <div class="tax-row">
-              <span class="tax-label">Price:</span>
+              <span class="tax-label">{{ 'Price:' | translate }}</span>
               <span class="tax-value">\${{ effectivePrice | number:'1.2-2' }}</span>
             </div>
             <div class="tax-row">
-              <span class="tax-label">Tax ({{ taxPercent }}%):</span>
+              <span class="tax-label">{{ 'Tax (' | translate }}{{ taxPercent }}%):</span>
               <span class="tax-value">\${{ taxAmount | number:'1.2-2' }}</span>
             </div>
             <div class="tax-row tax-total">
-              <span class="tax-label">Total:</span>
+              <span class="tax-label">{{ 'Total:' | translate }}</span>
               <span class="tax-value">\${{ totalWithTax | number:'1.2-2' }}</span>
             </div>
           </div>
@@ -113,17 +115,17 @@ import { environment } from '../../../environments/environment';
 
       <!-- What You Get Section -->
       <section class="content-section" *ngIf="game.description">
-        <h2 class="section-heading">What You Get</h2>
+        <h2 class="section-heading">{{ 'What You Get' | translate }}</h2>
         <ul class="feature-list">
-          <li>Full digital copy of {{ game.name }}</li>
-          <li *ngIf="game.unitInStock > 0">{{ game.unitInStock }} units currently in stock</li>
-          <li>Access to all game content and future updates</li>
+          <li>{{ 'Full digital copy of' | translate }} {{ game.name }}</li>
+          <li *ngIf="game.unitInStock > 0">{{ game.unitInStock }} {{ 'units currently in stock' | translate }}</li>
+          <li>{{ 'Access to all game content and future updates' | translate }}</li>
         </ul>
       </section>
 
       <!-- Game Description -->
       <section class="content-section" *ngIf="game.description">
-        <h2 class="section-heading">Game Description</h2>
+        <h2 class="section-heading">{{ 'Game Description' | translate }}</h2>
         <div class="description-text">{{ game.description }}</div>
       </section>
 
@@ -131,7 +133,7 @@ import { environment } from '../../../environments/environment';
       <section class="comments-section" id="commentsSection">
         <div class="comments-header">
           <div class="comments-header-left">
-            <h2 class="section-heading">{{ comments.length }} Comments</h2>
+            <h2 class="section-heading">{{ comments.length }} {{ 'Comments' | translate }}</h2>
             <app-star-rating
               [rating]="averageCommentRating"
               [readonly]="true"
@@ -139,22 +141,22 @@ import { environment } from '../../../environments/environment';
               size="medium"
             ></app-star-rating>
           </div>
-          <button class="btn-write-comment" (click)="showCommentForm = !showCommentForm">Write A Comment</button>
+          <button class="btn-write-comment" (click)="showCommentForm = !showCommentForm">{{ 'Write A Comment' | translate }}</button>
         </div>
 
         <!-- Comment Form -->
         <div class="comment-form" *ngIf="showCommentForm">
           <div class="form-group">
-            <label>Name</label>
-            <input type="text" [(ngModel)]="newComment.name" placeholder="Your name" />
+            <label>{{ 'Name' | translate }}</label>
+            <input type="text" [(ngModel)]="newComment.name" [placeholder]="'Your name' | translate" />
           </div>
           <div class="form-group">
-            <label>Comment</label>
-            <textarea [(ngModel)]="newComment.body" placeholder="Write your comment..." rows="4"></textarea>
+            <label>{{ 'Comment' | translate }}</label>
+            <textarea [(ngModel)]="newComment.body" [placeholder]="'Write your comment...' | translate" rows="4"></textarea>
           </div>
           <div class="form-actions">
-            <button class="btn-submit" (click)="submitComment()" [disabled]="!newComment.name || !newComment.body">Submit</button>
-            <button class="btn-cancel" (click)="showCommentForm = false">Cancel</button>
+            <button class="btn-submit" (click)="submitComment()" [disabled]="!newComment.name || !newComment.body">{{ 'Submit' | translate }}</button>
+            <button class="btn-cancel" (click)="showCommentForm = false">{{ 'Cancel' | translate }}</button>
           </div>
         </div>
 
@@ -184,23 +186,23 @@ import { environment } from '../../../environments/environment';
               <div class="comment-actions">
                 <!-- Comment Like (US5) -->
                 <app-like-button [commentId]="comment.id"></app-like-button>
-                <button class="action-link" (click)="startReply(comment)">Reply</button>
-                <button class="action-link" (click)="startQuote(comment)">Quote</button>
+                <button class="action-link" (click)="startReply(comment)">{{ 'Reply' | translate }}</button>
+                <button class="action-link" (click)="startQuote(comment)">{{ 'Quote' | translate }}</button>
               </div>
 
               <!-- Reply Form -->
               <div class="reply-form" *ngIf="replyingTo?.id === comment.id">
                 <div class="form-group">
-                  <label>Name</label>
-                  <input type="text" [(ngModel)]="replyData.name" placeholder="Your name" />
+                  <label>{{ 'Name' | translate }}</label>
+                  <input type="text" [(ngModel)]="replyData.name" [placeholder]="'Your name' | translate" />
                 </div>
                 <div class="form-group">
-                  <label>Reply</label>
-                  <textarea [(ngModel)]="replyData.body" rows="3" placeholder="Write your reply..."></textarea>
+                  <label>{{ 'Reply' | translate }}</label>
+                  <textarea [(ngModel)]="replyData.body" rows="3" [placeholder]="'Write your reply...' | translate"></textarea>
                 </div>
                 <div class="form-actions">
-                  <button class="btn-submit btn-sm" (click)="submitReply(comment)" [disabled]="!replyData.name || !replyData.body">Reply</button>
-                  <button class="btn-cancel btn-sm" (click)="replyingTo = null">Cancel</button>
+                  <button class="btn-submit btn-sm" (click)="submitReply(comment)" [disabled]="!replyData.name || !replyData.body">{{ 'Reply' | translate }}</button>
+                  <button class="btn-cancel btn-sm" (click)="replyingTo = null">{{ 'Cancel' | translate }}</button>
                 </div>
               </div>
 
@@ -230,11 +232,11 @@ import { environment } from '../../../environments/environment';
 
     <!-- Loading State -->
     <div class="loading-container" *ngIf="!game && !error">
-      <p>Loading game details...</p>
+      <p>{{ 'Loading game details...' | translate }}</p>
     </div>
     <div class="error-container" *ngIf="error">
-      <p>{{ error }}</p>
-      <a routerLink="/games">Back to Games</a>
+      <p>{{ error | translate }}</p>
+      <a routerLink="/games">{{ 'Back to Games' | translate }}</a>
     </div>
   `,
   styles: [`
@@ -689,6 +691,7 @@ import { environment } from '../../../environments/environment';
   `]
 })
 export class GameDetailsComponent implements OnInit {
+  private readonly language = inject(LanguageService);
   game: Game | null = null;
   gameImage: string = '';
   genres: Genre[] = [];
@@ -831,7 +834,7 @@ export class GameDetailsComponent implements OnInit {
       },
       error: () => {
         this.addingToCart = false;
-        alert('Failed to add to cart. Please try again.');
+        alert(this.language.translate('Failed to add to cart. Please try again.'));
       }
     });
   }
@@ -855,7 +858,7 @@ export class GameDetailsComponent implements OnInit {
         this.showCommentForm = false;
         this.loadComments();
       },
-      error: () => alert('Failed to submit comment.')
+      error: () => alert(this.language.translate('Failed to submit comment.'))
     });
   }
 
@@ -888,7 +891,7 @@ export class GameDetailsComponent implements OnInit {
         this.replyData = { name: '', body: '' };
         this.loadComments();
       },
-      error: () => alert('Failed to submit reply.')
+      error: () => alert(this.language.translate('Failed to submit reply.'))
     });
   }
 

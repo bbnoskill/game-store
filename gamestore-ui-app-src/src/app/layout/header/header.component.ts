@@ -1,13 +1,15 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { LanguageService } from '../../services/language.service';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [TranslatePipe, CommonModule, RouterModule],
   template: `
     <header class="app-header">
       <div class="header-container">
@@ -17,18 +19,26 @@ import { Observable } from 'rxjs';
         </a>
         
         <nav class="nav-links">
-          <a routerLink="/games" routerLinkActive="active" class="nav-item">GAMES</a>
-          <a routerLink="/genres" routerLinkActive="active" class="nav-item">GENRES</a>
-          <a routerLink="/publishers" routerLinkActive="active" class="nav-item">PUBLISHERS</a>
-          <a routerLink="/orders" routerLinkActive="active" class="nav-item">ORDERS</a>
+          <a routerLink="/games" routerLinkActive="active" class="nav-item">{{ 'GAMES' | translate }}</a>
+          <a routerLink="/genres" routerLinkActive="active" class="nav-item">{{ 'GENRES' | translate }}</a>
+          <a routerLink="/publishers" routerLinkActive="active" class="nav-item">{{ 'PUBLISHERS' | translate }}</a>
+          <a routerLink="/orders" routerLinkActive="active" class="nav-item">{{ 'ORDERS' | translate }}</a>
           <a routerLink="/basket" routerLinkActive="active" class="nav-item cart-item">
-            CART<span *ngIf="(cartCount$ | async) as count" class="cart-count"> ({{ count }})</span>
+            {{ 'CART' | translate }}<span *ngIf="(cartCount$ | async) as count" class="cart-count"> ({{ count }})</span>
           </a>
         </nav>
+        <label class="language-picker">
+          <span>{{ 'Language' | translate }}</span>
+          <select [value]="language.language()" (change)="language.select($any($event.target).value)" [attr.aria-label]="'Language' | translate">
+            <option *ngFor="let option of language.languages" [value]="option.code">{{ option.name }}</option>
+          </select>
+        </label>
       </div>
     </header>
   `,
   styles: [`
+    .language-picker { display: flex; gap: 8px; align-items: center; color: white; margin-left: 16px; }
+    .language-picker select { padding: 6px; color: white; background: #242529; border: 1px solid #777; border-radius: 4px; }
     .app-header {
       background-color: #121315;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -119,7 +129,7 @@ export class HeaderComponent implements OnInit {
   cartCount$!: Observable<number>;
   useTextLogo: boolean = false;
 
-  constructor(private cartService: CartService) {}
+  constructor(private cartService: CartService, public language: LanguageService) {}
 
   ngOnInit(): void {
     this.cartCount$ = this.cartService.cartCount$;

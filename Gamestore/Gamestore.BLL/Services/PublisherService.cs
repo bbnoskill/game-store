@@ -22,13 +22,13 @@ public class PublisherService(
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public async Task<PublisherDto?> GetByNameAsync(string companyName)
+    public async Task<PublisherDto?> GetByNameAsync(string companyName, string languageCode = "en")
     {
         logger.LogInformation("Fetching publisher by name: {CompanyName}", companyName);
         var publisher = await unitOfWork.Publishers.GetByCompanyNameAsync(companyName);
         if (publisher != null)
         {
-            return MapSqlToDto(publisher);
+            return MapSqlToDto(publisher, languageCode);
         }
 
         try
@@ -47,18 +47,18 @@ public class PublisherService(
         throw new KeyNotFoundException($"Publisher with company name '{companyName}' was not found.");
     }
 
-    public async Task<PublisherDto?> GetByGameKeyAsync(string gameKey)
+    public async Task<PublisherDto?> GetByGameKeyAsync(string gameKey, string languageCode = "en")
     {
         logger.LogInformation("Fetching publisher by game key: {GameKey}", gameKey);
         var publisher = await unitOfWork.Publishers.GetByGameKeyAsync(gameKey);
-        return publisher != null ? MapSqlToDto(publisher) : null;
+        return publisher != null ? MapSqlToDto(publisher, languageCode) : null;
     }
 
-    public async Task<IEnumerable<PublisherDto>> GetAllAsync()
+    public async Task<IEnumerable<PublisherDto>> GetAllAsync(string languageCode = "en")
     {
         logger.LogInformation("Fetching all publishers from SQL and MongoDB.");
         var sqlPublishers = (await unitOfWork.Publishers.GetAllAsync()).ToList();
-        var sqlDtos = sqlPublishers.Select(MapSqlToDto).ToList();
+        var sqlDtos = sqlPublishers.Select(entity => MapSqlToDto(entity, languageCode)).ToList();
 
         var sqlCompanyNames = new HashSet<string>(sqlPublishers.Select(p => p.CompanyName), StringComparer.OrdinalIgnoreCase);
 
@@ -83,7 +83,7 @@ public class PublisherService(
         return result;
     }
 
-    public async Task CreateAsync(CreatePublisherRequestDto request)
+    public async Task CreateAsync(CreatePublisherRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Creating publisher: {CompanyName}", request.Publisher.CompanyName);
         var publisher = new Publisher
@@ -94,6 +94,8 @@ public class PublisherService(
             HomePage = request.Publisher.HomePage,
         };
 
+        EntityLocalization.Update(publisher, languageCode, request.Publisher.CompanyName, request.Publisher.Description);
+
         await unitOfWork.Publishers.AddAsync(publisher);
         await unitOfWork.SaveChangesAsync();
 
@@ -101,7 +103,7 @@ public class PublisherService(
         logger.LogInformation("Created publisher in SQL DB: {CompanyName}", publisher.CompanyName);
     }
 
-    public async Task UpdateAsync(UpdatePublisherRequestDto request)
+    public async Task UpdateAsync(UpdatePublisherRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Updating publisher: {Id}", request.Publisher.Id);
         var publisher = await unitOfWork.Publishers.GetByIdAsync(request.Publisher.Id);
@@ -110,8 +112,7 @@ public class PublisherService(
         {
             var oldVersion = MapSqlToDto(publisher);
 
-            publisher.CompanyName = request.Publisher.CompanyName;
-            publisher.Description = request.Publisher.Description;
+            EntityLocalization.Update(publisher, languageCode, request.Publisher.CompanyName, request.Publisher.Description);
             publisher.HomePage = request.Publisher.HomePage;
 
             unitOfWork.Publishers.Update(publisher);
@@ -129,6 +130,8 @@ public class PublisherService(
                 Description = request.Publisher.Description,
                 HomePage = request.Publisher.HomePage,
             };
+
+            EntityLocalization.Update(newPublisher, languageCode, request.Publisher.CompanyName, request.Publisher.Description);
 
             await unitOfWork.Publishers.AddAsync(newPublisher);
             await unitOfWork.SaveChangesAsync();
@@ -198,13 +201,17 @@ public class PublisherService(
         return BsonDocument.Parse(json);
     }
 
-    private static PublisherDto MapSqlToDto(Publisher publisher)
+    private static PublisherDto MapSqlToDto(Publisher publisher, string languageCode = "en")
     {
         return new PublisherDto
         {
             Id = publisher.Id,
-            CompanyName = publisher.CompanyName,
-            Description = publisher.Description,
+            CompanyName = publisher.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.CompanyName
+                ?? publisher.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.CompanyName
+                ?? publisher.CompanyName,
+            Description = publisher.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Description
+                ?? publisher.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Description
+                ?? publisher.Description,
             HomePage = publisher.HomePage,
         };
     }

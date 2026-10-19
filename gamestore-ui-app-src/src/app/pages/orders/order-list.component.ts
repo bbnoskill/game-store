@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -7,13 +8,13 @@ import { Order } from '../../models/order.model';
 @Component({
   selector: 'app-order-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [TranslatePipe, CommonModule, RouterModule],
   template: `
     <div class="page-container">
       <div class="orders-header">
-        <h1 class="page-title">Orders</h1>
+        <h1 class="page-title">{{ 'Orders' | translate }}</h1>
         <div class="header-actions">
-          <a routerLink="/history" class="btn-history">View Order History</a>
+          <a routerLink="/history" class="btn-history">{{ 'View Order History' | translate }}</a>
         </div>
       </div>
 
@@ -21,12 +22,12 @@ import { Order } from '../../models/order.model';
         <table class="orders-table">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Items</th>
-              <th>Total Amount</th>
-              <th>Actions</th>
+              <th>{{ 'Order ID' | translate }}</th>
+              <th>{{ 'Date' | translate }}</th>
+              <th>{{ 'Status' | translate }}</th>
+              <th>{{ 'Items' | translate }}</th>
+              <th>{{ 'Total Amount' | translate }}</th>
+              <th>{{ 'Actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -37,18 +38,18 @@ import { Order } from '../../models/order.model';
               <td>{{ order.date ? (order.date | date:'mediumDate') : 'N/A' }}</td>
               <td>
                 <span class="status-badge" [ngClass]="getStatusClass(order.status)">
-                  {{ order.status || 'Paid' }}
+                  {{ (order.status || 'Paid') | translate }}
                 </span>
               </td>
-              <td>{{ getItemCount(order) }} items</td>
+              <td>{{ getItemCount(order) }} {{ 'items' | translate }}</td>
               <td class="total-cell">\${{ getOrderTotal(order) | number:'1.2-2' }}</td>
               <td class="actions-cell">
-                <a [routerLink]="['/order', order.id]" class="btn-view">Details</a>
+                <a [routerLink]="['/order', order.id]" class="btn-view">{{ 'Details' | translate }}</a>
                 <button
                   class="btn-ship"
                   *ngIf="order.status !== 'Shipped'"
                   (click)="shipOrder(order)"
-                >Ship</button>
+                >{{ 'Ship' | translate }}</button>
               </td>
             </tr>
           </tbody>
@@ -58,14 +59,14 @@ import { Order } from '../../models/order.model';
       <!-- Empty State -->
       <div class="empty-orders-state" *ngIf="!loading && orders.length === 0">
         <div class="empty-icon">📦</div>
-        <h3>No Orders Found</h3>
-        <p>You haven't placed any orders yet.</p>
-        <a routerLink="/games" class="btn-browse">Browse Games</a>
+        <h3>{{ 'No Orders Found' | translate }}</h3>
+        <p>{{ 'You haven\\'t placed any orders yet.' | translate }}</p>
+        <a routerLink="/games" class="btn-browse">{{ 'Browse Games' | translate }}</a>
       </div>
 
       <!-- Loading State -->
       <div class="loading-state" *ngIf="loading">
-        <p>Loading orders...</p>
+        <p>{{ 'Loading orders...' | translate }}</p>
       </div>
     </div>
   `,

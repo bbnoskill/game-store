@@ -23,6 +23,7 @@ builder.Services.AddSingleton<NorthwindMongoContext>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddSingleton<ILanguageService, LanguageService>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<IPlatformService, PlatformService>();
@@ -75,6 +76,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 app.UseMiddleware<ExceptionHandling>();
+app.UseMiddleware<LocalizationHeaders>();
 app.UseMiddleware<RequestLogging>();
 app.UseMiddleware<TotalGamesCount>();
 

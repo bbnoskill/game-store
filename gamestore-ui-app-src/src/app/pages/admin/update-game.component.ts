@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -14,19 +15,20 @@ import { Publisher } from '../../models/publisher.model';
 @Component({
   selector: 'app-update-game',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule],
   template: `
     <div class="page-container">
-      <h1 class="page-title">Update Game</h1>
+      <p *ngIf="errorMessage" role="alert">{{ errorMessage | translate }}</p>
+      <h1 class="page-title">{{ 'Update Game' | translate }}</h1>
 
       <div class="loading-state" *ngIf="loading">
-        <p>Loading game details...</p>
+        <p>{{ 'Loading game details...' | translate }}</p>
       </div>
 
       <form (ngSubmit)="onSubmit()" #gameForm="ngForm" class="game-form-card" *ngIf="!loading && game">
         <div class="form-grid">
           <div class="form-group">
-            <label for="name">Game Name *</label>
+            <label for="name">{{ 'Game Name *' | translate }}</label>
             <input
               type="text"
               id="name"
@@ -38,7 +40,7 @@ import { Publisher } from '../../models/publisher.model';
           </div>
 
           <div class="form-group">
-            <label for="key">Unique Key *</label>
+            <label for="key">{{ 'Unique Key *' | translate }}</label>
             <input
               type="text"
               id="key"
@@ -50,7 +52,7 @@ import { Publisher } from '../../models/publisher.model';
           </div>
 
           <div class="form-group">
-            <label for="price">Price ($) *</label>
+            <label for="price">{{ 'Price ($) *' | translate }}</label>
             <input
               type="number"
               id="price"
@@ -64,7 +66,7 @@ import { Publisher } from '../../models/publisher.model';
           </div>
 
           <div class="form-group">
-            <label for="discount">Discount (%)</label>
+            <label for="discount">{{ 'Discount (%)' | translate }}</label>
             <input
               type="number"
               id="discount"
@@ -77,7 +79,7 @@ import { Publisher } from '../../models/publisher.model';
           </div>
 
           <div class="form-group">
-            <label for="unitInStock">Unit In Stock</label>
+            <label for="unitInStock">{{ 'Unit In Stock' | translate }}</label>
             <input
               type="number"
               id="unitInStock"
@@ -89,16 +91,16 @@ import { Publisher } from '../../models/publisher.model';
           </div>
 
           <div class="form-group">
-            <label for="publisher">Publisher</label>
+            <label for="publisher">{{ 'Publisher' | translate }}</label>
             <select id="publisher" name="publisher" [(ngModel)]="publisherId" class="form-select">
-              <option value="">Select Publisher</option>
+              <option value="">{{ 'Select Publisher' | translate }}</option>
               <option *ngFor="let pub of publishers" [value]="pub.id">{{ pub.companyName }}</option>
             </select>
           </div>
         </div>
 
         <div class="form-group full-width">
-          <label for="description">Description</label>
+          <label for="description">{{ 'Description' | translate }}</label>
           <textarea
             id="description"
             name="description"
@@ -110,7 +112,7 @@ import { Publisher } from '../../models/publisher.model';
 
         <!-- Genres Selection -->
         <div class="form-group full-width" *ngIf="genres.length > 0">
-          <label>Genres</label>
+          <label>{{ 'Genres' | translate }}</label>
           <div class="checkbox-grid">
             <label *ngFor="let g of genres" class="checkbox-label">
               <input
@@ -125,7 +127,7 @@ import { Publisher } from '../../models/publisher.model';
 
         <!-- Platforms Selection -->
         <div class="form-group full-width" *ngIf="platforms.length > 0">
-          <label>Platforms</label>
+          <label>{{ 'Platforms' | translate }}</label>
           <div class="checkbox-grid">
             <label *ngFor="let p of platforms" class="checkbox-label">
               <input
@@ -140,9 +142,9 @@ import { Publisher } from '../../models/publisher.model';
 
         <div class="form-actions">
           <button type="submit" class="btn-submit" [disabled]="!gameForm.form.valid || submitting">
-            {{ submitting ? 'Updating Game...' : 'Save Changes' }}
+            {{ (submitting ? 'Updating Game...' : 'Save Changes') | translate }}
           </button>
-          <a [routerLink]="['/game', originalKey]" class="btn-cancel">Cancel</a>
+          <a [routerLink]="['/game', originalKey]" class="btn-cancel">{{ 'Cancel' | translate }}</a>
         </div>
       </form>
     </div>
@@ -255,6 +257,7 @@ import { Publisher } from '../../models/publisher.model';
   `]
 })
 export class UpdateGameComponent implements OnInit {
+  errorMessage = '';
   originalKey: string = '';
   game: Game | null = null;
   loading: boolean = true;
@@ -342,6 +345,7 @@ export class UpdateGameComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.game || !this.name || !this.key) return;
+    this.errorMessage = '';
     this.submitting = true;
 
     const request = {
@@ -355,6 +359,7 @@ export class UpdateGameComponent implements OnInit {
         description: this.description,
         publisherId: this.publisherId || undefined
       },
+      publisher: this.publisherId || undefined,
       genres: this.selectedGenres,
       platforms: this.selectedPlatforms
     };
@@ -366,7 +371,7 @@ export class UpdateGameComponent implements OnInit {
       },
       error: () => {
         this.submitting = false;
-        this.router.navigate(['/games']);
+        this.errorMessage = 'Could not save changes. Please try again.';
       }
     });
   }

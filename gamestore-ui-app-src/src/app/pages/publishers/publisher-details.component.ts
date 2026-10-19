@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
@@ -10,28 +11,28 @@ import { GameImageService } from '../../services/game-image.service';
 @Component({
   selector: 'app-publisher-details',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [TranslatePipe, CommonModule, RouterModule],
   template: `
     <div class="page-container" *ngIf="!loading && publisher">
-      <a routerLink="/publishers" class="back-link">&lt; Back to Publishers</a>
+      <a routerLink="/publishers" class="back-link">{{ '< Back to Publishers' | translate }}</a>
 
       <div class="publisher-card">
         <h1 class="publisher-title">{{ publisher.companyName }}</h1>
 
         <div class="publisher-info-row" *ngIf="publisher.homePage">
-          <strong>Website:</strong>
+          <strong>{{ 'Website:' | translate }}</strong>
           <a [href]="publisher.homePage" target="_blank" class="external-link">{{ publisher.homePage }}</a>
         </div>
 
         <div class="publisher-description" *ngIf="publisher.description">
-          <h3>About Publisher</h3>
+          <h3>{{ 'About Publisher' | translate }}</h3>
           <p>{{ publisher.description }}</p>
         </div>
       </div>
 
       <!-- Games by Publisher Section -->
       <div class="published-games-section">
-        <h2>Games by {{ publisher.companyName }}</h2>
+        <h2>{{ 'Games by' | translate }} {{ publisher.companyName }}</h2>
 
         <div class="games-grid" *ngIf="games.length > 0">
           <div class="game-card" *ngFor="let game of games">
@@ -46,18 +47,18 @@ import { GameImageService } from '../../services/game-image.service';
         </div>
 
         <div class="no-games" *ngIf="games.length === 0">
-          <p>No games published by {{ publisher.companyName }} yet.</p>
+          <p>{{ 'No games published by' | translate }} {{ publisher.companyName }} {{ 'yet.' | translate }}</p>
         </div>
       </div>
     </div>
 
     <div class="loading-state" *ngIf="loading">
-      <p>Loading publisher details...</p>
+      <p>{{ 'Loading publisher details...' | translate }}</p>
     </div>
 
     <div class="error-state" *ngIf="!loading && !publisher">
-      <p>Publisher not found.</p>
-      <a routerLink="/publishers" class="btn-browse">Back to Publishers</a>
+      <p>{{ 'Publisher not found.' | translate }}</p>
+      <a routerLink="/publishers" class="btn-browse">{{ 'Back to Publishers' | translate }}</a>
     </div>
   `,
   styles: [`

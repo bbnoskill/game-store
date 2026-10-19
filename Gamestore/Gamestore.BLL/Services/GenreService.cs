@@ -22,13 +22,13 @@ public class GenreService(
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public async Task<GenreDto?> GetByIdAsync(Guid id)
+    public async Task<GenreDto?> GetByIdAsync(Guid id, string languageCode = "en")
     {
         logger.LogInformation("Fetching genre by id: {Id}", id);
         var genre = await unitOfWork.Genres.GetByIdAsync(id);
         if (genre != null)
         {
-            return MapSqlToDto(genre);
+            return MapSqlToDto(genre, languageCode);
         }
 
         try
@@ -47,11 +47,11 @@ public class GenreService(
         throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
     }
 
-    public async Task<IEnumerable<GenreDto>> GetAllAsync()
+    public async Task<IEnumerable<GenreDto>> GetAllAsync(string languageCode = "en")
     {
         logger.LogInformation("Fetching all genres from SQL and MongoDB.");
         var sqlGenres = (await unitOfWork.Genres.GetAllAsync()).ToList();
-        var sqlDtos = sqlGenres.Select(MapSqlToDto).ToList();
+        var sqlDtos = sqlGenres.Select(entity => MapSqlToDto(entity, languageCode)).ToList();
 
         var sqlNames = new HashSet<string>(sqlGenres.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
 
@@ -76,23 +76,23 @@ public class GenreService(
         return result;
     }
 
-    public async Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string gameKey)
+    public async Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string gameKey, string languageCode = "en")
     {
         logger.LogInformation("Fetching genres by game key: {GameKey}.", gameKey);
         var genres = (await unitOfWork.Genres.GetByGameKeyAsync(gameKey)).ToList();
         logger.LogInformation("Fetched {Count} genres.", genres.Count);
-        return genres.Select(MapSqlToDto);
+        return genres.Select(entity => MapSqlToDto(entity, languageCode));
     }
 
-    public async Task<IEnumerable<GenreDto>> GetByParentIdAsync(Guid parentId)
+    public async Task<IEnumerable<GenreDto>> GetByParentIdAsync(Guid parentId, string languageCode = "en")
     {
         logger.LogInformation("Fetching genres by parent genre id: {ParentId}.", parentId);
         var genres = (await unitOfWork.Genres.GetByParentIdAsync(parentId)).ToList();
         logger.LogInformation("Fetched {Count} genres.", genres.Count);
-        return genres.Select(MapSqlToDto);
+        return genres.Select(entity => MapSqlToDto(entity, languageCode));
     }
 
-    public async Task CreateAsync(CreateGenreRequestDto request)
+    public async Task CreateAsync(CreateGenreRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Creating genre named: {Name}", request.Genre.Name);
 
@@ -106,6 +106,8 @@ public class GenreService(
             ParentGenreId = request.Genre.ParentGenreId,
         };
 
+        EntityLocalization.Update(genre, languageCode, request.Genre.Name);
+
         await unitOfWork.Genres.AddAsync(genre);
         await unitOfWork.SaveChangesAsync();
 
@@ -113,7 +115,7 @@ public class GenreService(
         logger.LogInformation("Genre '{Name}' created successfully in SQL DB.", request.Genre.Name);
     }
 
-    public async Task UpdateAsync(UpdateGenreRequestDto request)
+    public async Task UpdateAsync(UpdateGenreRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Updating genre with id: {Id}", request.Genre.Id);
         var sqlGenre = await unitOfWork.Genres.GetByIdAsync(request.Genre.Id);
@@ -123,7 +125,7 @@ public class GenreService(
             var oldVersion = MapSqlToDto(sqlGenre);
 
             await VerifyNoCycleAsync(request.Genre.Id, request.Genre.ParentGenreId);
-            sqlGenre.Name = request.Genre.Name;
+            EntityLocalization.Update(sqlGenre, languageCode, request.Genre.Name);
             sqlGenre.ParentGenreId = request.Genre.ParentGenreId;
 
             unitOfWork.Genres.Update(sqlGenre);
@@ -142,6 +144,8 @@ public class GenreService(
             };
 
             await VerifyNoCycleAsync(newGenre.Id, newGenre.ParentGenreId);
+            EntityLocalization.Update(newGenre, languageCode, request.Genre.Name);
+
             await unitOfWork.Genres.AddAsync(newGenre);
             await unitOfWork.SaveChangesAsync();
 
@@ -245,12 +249,14 @@ public class GenreService(
         return BsonDocument.Parse(json);
     }
 
-    private static GenreDto MapSqlToDto(Genre genre)
+    private static GenreDto MapSqlToDto(Genre genre, string languageCode = "en")
     {
         return new GenreDto
         {
             Id = genre.Id,
-            Name = genre.Name,
+            Name = genre.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Name
+                ?? genre.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Name
+                ?? genre.Name,
             ParentGenreId = genre.ParentGenreId,
         };
     }

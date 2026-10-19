@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -6,13 +7,13 @@ import { GameImageService } from '../../services/game-image.service';
 @Component({
   selector: 'app-main-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [TranslatePipe, CommonModule, RouterModule],
   template: `
     <div class="main-page-container">
       <div class="intro-grid">
         <!-- Left Column: Article -->
         <div class="article-column">
-          <h2 class="section-title">Do You Know Who is John Rembo?</h2>
+          <h2 class="section-title">{{ 'Do You Know Who is John Rembo?' | translate }}</h2>
           <p class="article-lead">
             Donec urna sapien, porta nec condimentum id, elementum in quam. Curabitur a aliquet turpis, sagittis eleifend sem. Nam quis est eget neque euismod fringilla et sit amet mauris. Proin commodo sodales arcu, a volutpat augue facilisis et. Nam pellentesque finibus felis eget feugiat. Nulla convallis a nisl non vehicula. Aliquam erat volutpat. Vivamus id massa a lacus tincidunt tempor at eu ex.
           </p>
@@ -21,12 +22,12 @@ import { GameImageService } from '../../services/game-image.service';
             <li>Nam pellentesque finibus felis eget feugiat. Nulla convallis a nisl non vehicula. Aliquam erat volutpat.</li>
             <li>Proin commodo sodales arcu, a volutpat. Nulla convallis a nisl non vehicula. Aliquam erat volutpat. Praesent nec tincidunt purus. Donec vel erat porta.</li>
           </ul>
-          <a routerLink="/games" class="btn-orange">Learn More</a>
+          <a routerLink="/games" class="btn-orange">{{ 'Learn More' | translate }}</a>
         </div>
 
         <!-- Right Column: Featured Banner -->
         <div class="featured-column">
-          <h2 class="section-title">We Knocked Em'll</h2>
+          <h2 class="section-title">{{ 'We Knocked Em\\'ll' | translate }}</h2>
           <div class="featured-card" routerLink="/games">
             <img [src]="vrImage" (error)="onImgError($event)" alt="Sony Playstation VR" class="featured-img" />
             <div class="featured-overlay">

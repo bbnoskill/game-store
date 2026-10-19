@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.DTOs.Order;
 using Gamestore.BLL.Interfaces;
+using Gamestore.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.API.Controllers;
@@ -8,6 +9,8 @@ namespace Gamestore.API.Controllers;
 [Route("orders")]
 public class OrderController(IOrderService orderService) : ControllerBase
 {
+    private string LanguageCode => new LanguageService().NormalizeLanguageCode(HttpContext?.Request.Headers.AcceptLanguage.ToString());
+
     [HttpPost("payment")]
     public async Task<IActionResult> CreatePayment([FromBody] PaymentRequestDto request)
     {
@@ -38,14 +41,14 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [HttpGet("{id}/details")]
     public async Task<IActionResult> GetOrderDetails(Guid id)
     {
-        var details = await orderService.GetOrderDetailsAsync(id);
+        var details = await orderService.GetOrderDetailsAsync(id, LanguageCode);
         return Ok(details);
     }
 
     [HttpGet("cart")]
     public async Task<IActionResult> GetCart()
     {
-        var cart = await orderService.GetCartAsync();
+        var cart = await orderService.GetCartAsync(LanguageCode);
         return Ok(cart);
     }
 

@@ -28,7 +28,7 @@ public class GameService(
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public async Task<GameDto?> GetByKeyAsync(string key)
+    public async Task<GameDto?> GetByKeyAsync(string key, string languageCode = "en")
     {
         logger.LogInformation("Fetching game by key: {Key}", key);
         var decodedKey = Uri.UnescapeDataString(key);
@@ -41,7 +41,17 @@ public class GameService(
             sqlGame.ViewCount++;
             unitOfWork.Games.Update(sqlGame);
             await unitOfWork.SaveChangesAsync();
-            return MapSqlToDto(sqlGame);
+            var localized = await unitOfWork.Games.GetLocalizedInfoAsync(sqlGame.Key, languageCode);
+            return localized == null ? MapSqlToDto(sqlGame, languageCode) : new GameDto
+            {
+                Id = localized.Id,
+                Key = localized.Key,
+                Name = localized.Name,
+                Description = localized.Description,
+                Price = localized.Price,
+                Discount = localized.Discount,
+                UnitInStock = localized.UnitInStock,
+            };
         }
 
         MongoProduct? mongoProduct = null;
@@ -73,7 +83,7 @@ public class GameService(
         throw new KeyNotFoundException($"Game with key '{key}' was not found.");
     }
 
-    public async Task<GameDto?> GetByIdAsync(Guid id)
+    public async Task<GameDto?> GetByIdAsync(Guid id, string languageCode = "en")
     {
         logger.LogInformation("Fetching game by id: {Id}", id);
         var game = await unitOfWork.Games.GetByIdAsync(id);
@@ -82,17 +92,17 @@ public class GameService(
             game.ViewCount++;
             unitOfWork.Games.Update(game);
             await unitOfWork.SaveChangesAsync();
-            return MapSqlToDto(game);
+            return MapSqlToDto(game, languageCode);
         }
 
         throw new KeyNotFoundException($"Game with id '{id}' was not found.");
     }
 
-    public async Task<IEnumerable<GameDto>> GetAllAsync()
+    public async Task<IEnumerable<GameDto>> GetAllAsync(string languageCode = "en")
     {
         logger.LogInformation("Fetching all games from SQL and MongoDB.");
         var sqlGames = (await unitOfWork.Games.GetAllAsync()).ToList();
-        var sqlDtos = sqlGames.Select(MapSqlToDto).ToList();
+        var sqlDtos = sqlGames.Select(entity => MapSqlToDto(entity, languageCode)).ToList();
 
         var sqlKeys = new HashSet<string>(sqlGames.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
         var sqlNames = new HashSet<string>(sqlGames.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
@@ -111,31 +121,31 @@ public class GameService(
         return result;
     }
 
-    public async Task<IEnumerable<GameDto>> GetByGenreAsync(Guid genreId)
+    public async Task<IEnumerable<GameDto>> GetByGenreAsync(Guid genreId, string languageCode = "en")
     {
         logger.LogInformation("Fetching games by genre: {GenreId}.", genreId);
         var games = (await unitOfWork.Games.GetByGenreAsync(genreId)).ToList();
         logger.LogInformation("Fetched {Count} games.", games.Count);
-        return games.Select(MapSqlToDto);
+        return games.Select(entity => MapSqlToDto(entity, languageCode));
     }
 
-    public async Task<IEnumerable<GameDto>> GetByPlatformAsync(Guid platformId)
+    public async Task<IEnumerable<GameDto>> GetByPlatformAsync(Guid platformId, string languageCode = "en")
     {
         logger.LogInformation("Fetching games by platform: {PlatformId}.", platformId);
         var games = (await unitOfWork.Games.GetByPlatformAsync(platformId)).ToList();
         logger.LogInformation("Fetched {Count} games.", games.Count);
-        return games.Select(MapSqlToDto);
+        return games.Select(entity => MapSqlToDto(entity, languageCode));
     }
 
-    public async Task<IEnumerable<GameDto>> GetByPublisherAsync(string companyName)
+    public async Task<IEnumerable<GameDto>> GetByPublisherAsync(string companyName, string languageCode = "en")
     {
         logger.LogInformation("Fetching games by publisher: {PublisherName}.", companyName);
         var games = (await unitOfWork.Games.GetByPublisherAsync(companyName)).ToList();
         logger.LogInformation("Fetched {Count} games.", games.Count);
-        return games.Select(MapSqlToDto);
+        return games.Select(entity => MapSqlToDto(entity, languageCode));
     }
 
-    public async Task CreateAsync(CreateGameRequestDto request)
+    public async Task CreateAsync(CreateGameRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Creating game with key: {Key}", request.Game.Key);
         var game = new Game
@@ -166,6 +176,8 @@ public class GameService(
         ];
 
         await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
+        EntityLocalization.Update(game, languageCode, request.Game.Name, request.Game.Description);
+
         await unitOfWork.Games.AddAsync(game);
         await unitOfWork.SaveChangesAsync();
 
@@ -173,7 +185,7 @@ public class GameService(
         logger.LogInformation("Game '{Key}' created successfully.", request.Game.Key);
     }
 
-    public async Task UpdateAsync(UpdateGameRequestDto request)
+    public async Task UpdateAsync(UpdateGameRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Updating game with key: {Key}", request.Game.Key);
         var sqlGame = await unitOfWork.Games.GetByIdAsync(request.Game.Id);
@@ -182,11 +194,10 @@ public class GameService(
         {
             var oldVersion = MapSqlToDto(sqlGame);
 
-            sqlGame.Name = request.Game.Name;
+            EntityLocalization.Update(sqlGame, languageCode, request.Game.Name, request.Game.Description);
             sqlGame.Key = string.IsNullOrWhiteSpace(request.Game.Key)
-                ? GenerateKey(request.Game.Name)
+                ? (languageCode == "en" ? GenerateKey(request.Game.Name) : sqlGame.Key)
                 : request.Game.Key;
-            sqlGame.Description = request.Game.Description;
             sqlGame.Price = request.Game.Price;
             sqlGame.Discount = request.Game.Discount;
             sqlGame.UnitInStock = request.Game.UnitInStock;
@@ -254,6 +265,8 @@ public class GameService(
             ];
 
             await ValidateRequest(request.Genres, request.Platforms, request.Publisher);
+            EntityLocalization.Update(newGame, languageCode, request.Game.Name, request.Game.Description);
+
             await unitOfWork.Games.AddAsync(newGame);
             await unitOfWork.SaveChangesAsync();
 
@@ -290,10 +303,10 @@ public class GameService(
         return await unitOfWork.Games.GetCountAsync();
     }
 
-    public async Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter)
+    public async Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter, string languageCode = "en")
     {
         logger.LogInformation("Fetching filtered games.");
-        var (sqlDtos, sqlKeys, sqlNames) = await FetchSqlGamesAsync(filter);
+        var (sqlDtos, sqlKeys, sqlNames) = await FetchSqlGamesAsync(filter, languageCode);
         var mongoProducts = FetchMongoProducts();
 
         var mongoDtos = mongoProducts
@@ -310,12 +323,13 @@ public class GameService(
         return PaginateGames(combined, filter.PageSize, filter.Page);
     }
 
-    private async Task<(List<GameDto> SqlDtos, HashSet<string> SqlKeys, HashSet<string> SqlNames)> FetchSqlGamesAsync(GameFilterDto filter)
+    private async Task<(List<GameDto> SqlDtos, HashSet<string> SqlKeys, HashSet<string> SqlNames)> FetchSqlGamesAsync(GameFilterDto filter, string languageCode)
     {
         var sqlQuery = unitOfWork.Games.GetQueryable();
+        filter.LanguageCode = languageCode;
         sqlQuery = pipeline.Execute(sqlQuery, filter);
         var sqlGames = sqlQuery is IAsyncEnumerable<Game> ? await sqlQuery.ToListAsync() : [.. sqlQuery];
-        List<GameDto> sqlDtos = [.. sqlGames.Select(MapSqlToDto)];
+        List<GameDto> sqlDtos = [.. sqlGames.Select(game => MapSqlToDto(game, languageCode))];
 
         var sqlKeys = new HashSet<string>(sqlGames.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
         var sqlNames = new HashSet<string>(sqlGames.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
@@ -490,14 +504,18 @@ public class GameService(
         return BsonDocument.Parse(json);
     }
 
-    private static GameDto MapSqlToDto(Game game)
+    private static GameDto MapSqlToDto(Game game, string languageCode = "en")
     {
         return new GameDto
         {
             Id = game.Id,
-            Name = game.Name,
+            Name = game.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Name
+                ?? game.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Name
+                ?? game.Name,
             Key = game.Key,
-            Description = game.Description,
+            Description = game.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Description
+                ?? game.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Description
+                ?? game.Description,
             Price = game.Price,
             Discount = game.Discount,
             UnitInStock = game.UnitInStock,

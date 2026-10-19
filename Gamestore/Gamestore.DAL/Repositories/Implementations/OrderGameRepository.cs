@@ -16,6 +16,7 @@ public class OrderGameRepository(GamestoreContext context) : Repository<OrderGam
     public async Task<IEnumerable<OrderGame>> GetByOrderIdAsync(Guid orderId)
     {
         return await Context.OrderGames
+            .Include(detail => detail.Game)
             .Where(order => order.OrderId == orderId)
             .ToListAsync();
     }

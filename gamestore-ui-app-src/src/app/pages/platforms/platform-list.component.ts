@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { LanguageService } from '../../services/language.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -8,12 +10,12 @@ import { Platform } from '../../models/platform.model';
 @Component({
   selector: 'app-platform-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule],
   template: `
     <div class="page-container">
       <div class="header-section">
-        <h1 class="page-title">Platforms</h1>
-        <button class="btn-add" (click)="openAddModal()">+ Add New Platform</button>
+        <h1 class="page-title">{{ 'Platforms' | translate }}</h1>
+        <button class="btn-add" (click)="openAddModal()">{{ '+ Add New Platform' | translate }}</button>
       </div>
 
       <!-- Platforms Table -->
@@ -22,8 +24,8 @@ import { Platform } from '../../models/platform.model';
           <thead>
             <tr>
               <th>ID</th>
-              <th>Platform Type</th>
-              <th>Actions</th>
+              <th>{{ 'Platform Type' | translate }}</th>
+              <th>{{ 'Actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -31,8 +33,8 @@ import { Platform } from '../../models/platform.model';
               <td class="id-cell">{{ platform.id }}</td>
               <td class="name-cell">{{ platform.type }}</td>
               <td class="actions-cell">
-                <button class="btn-edit" (click)="openEditModal(platform)">Edit</button>
-                <button class="btn-delete" (click)="deletePlatform(platform)">Delete</button>
+                <button class="btn-edit" (click)="openEditModal(platform)">{{ 'Edit' | translate }}</button>
+                <button class="btn-delete" (click)="deletePlatform(platform)">{{ 'Delete' | translate }}</button>
               </td>
             </tr>
           </tbody>
@@ -40,32 +42,32 @@ import { Platform } from '../../models/platform.model';
       </div>
 
       <div class="empty-state" *ngIf="!loading && platforms.length === 0">
-        <p>No platforms found.</p>
+        <p>{{ 'No platforms found.' | translate }}</p>
       </div>
 
       <div class="loading-state" *ngIf="loading">
-        <p>Loading platforms...</p>
+        <p>{{ 'Loading platforms...' | translate }}</p>
       </div>
 
       <!-- Add/Edit Modal -->
       <div class="modal-overlay" *ngIf="showModal">
         <div class="modal-content">
           <div class="modal-header">
-            <h3>{{ editingPlatform ? 'Edit Platform' : 'Add New Platform' }}</h3>
+            <h3>{{ (editingPlatform ? 'Edit Platform' : 'Add New Platform') | translate }}</h3>
             <button class="modal-close" (click)="showModal = false">&times;</button>
           </div>
 
           <div class="modal-body">
             <div class="form-group">
-              <label>Platform Type</label>
-              <input type="text" [(ngModel)]="formType" placeholder="e.g. PS5, Xbox Series X, PC" class="form-input" />
+              <label>{{ 'Platform Type' | translate }}</label>
+              <input type="text" [(ngModel)]="formType" [placeholder]="'e.g. PS5, Xbox Series X, PC' | translate" class="form-input" />
             </div>
 
             <div class="modal-actions">
               <button class="btn-save" (click)="savePlatform()" [disabled]="!formType || saving">
-                {{ saving ? 'Saving...' : 'Save' }}
+                {{ (saving ? 'Saving...' : 'Save') | translate }}
               </button>
-              <button class="btn-cancel" (click)="showModal = false">Cancel</button>
+              <button class="btn-cancel" (click)="showModal = false">{{ 'Cancel' | translate }}</button>
             </div>
           </div>
         </div>
@@ -230,6 +232,7 @@ import { Platform } from '../../models/platform.model';
   `]
 })
 export class PlatformListComponent implements OnInit {
+  private readonly language = inject(LanguageService);
   platforms: Platform[] = [];
   loading: boolean = true;
   showModal: boolean = false;
@@ -287,8 +290,7 @@ export class PlatformListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          this.showModal = false;
-          this.loadPlatforms();
+          alert(this.language.translate('Could not save changes. Please try again.'));
         }
       });
     } else {
@@ -304,18 +306,17 @@ export class PlatformListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          this.showModal = false;
-          this.loadPlatforms();
+          alert(this.language.translate('Could not save changes. Please try again.'));
         }
       });
     }
   }
 
   deletePlatform(platform: Platform): void {
-    if (confirm(`Are you sure you want to delete platform "${platform.type}"?`)) {
+    if (confirm(this.language.translate('Delete this item?'))) {
       this.platformService.deletePlatform(platform.id).subscribe({
         next: () => this.loadPlatforms(),
-        error: () => this.loadPlatforms()
+        error: () => alert(this.language.translate('Could not delete this item.'))
       });
     }
   }

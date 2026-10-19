@@ -1,4 +1,4 @@
-﻿using Gamestore.BLL.DTOs.Platform;
+using Gamestore.BLL.DTOs.Platform;
 using Gamestore.BLL.Interfaces;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.UnitOfWork;
@@ -8,7 +8,7 @@ namespace Gamestore.BLL.Services;
 
 public class PlatformService(IUnitOfWork unitOfWork, ILogger<GameService> logger) : IPlatformService
 {
-    public async Task<PlatformDto?> GetByIdAsync(Guid id)
+    public async Task<PlatformDto?> GetByIdAsync(Guid id, string languageCode = "en")
     {
         logger.LogInformation("Fetching platform by id: {Id}", id);
         var platform = await unitOfWork.Platforms.GetByIdAsync(id)
@@ -16,11 +16,13 @@ public class PlatformService(IUnitOfWork unitOfWork, ILogger<GameService> logger
         return new PlatformDto
         {
             Id = platform.Id,
-            Type = platform.Type,
+            Type = platform.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Type
+                ?? platform.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Type
+                ?? platform.Type,
         };
     }
 
-    public async Task<IEnumerable<PlatformDto>> GetAllAsync()
+    public async Task<IEnumerable<PlatformDto>> GetAllAsync(string languageCode = "en")
     {
         logger.LogInformation("Fetching all platforms.");
         var platforms = (await unitOfWork.Platforms.GetAllAsync()).ToList();
@@ -28,11 +30,13 @@ public class PlatformService(IUnitOfWork unitOfWork, ILogger<GameService> logger
         return platforms.Select(platform => new PlatformDto
         {
             Id = platform.Id,
-            Type = platform.Type,
+            Type = platform.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Type
+                ?? platform.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Type
+                ?? platform.Type,
         });
     }
 
-    public async Task<IEnumerable<PlatformDto>> GetByGameKeyAsync(string gameKey)
+    public async Task<IEnumerable<PlatformDto>> GetByGameKeyAsync(string gameKey, string languageCode = "en")
     {
         logger.LogInformation("Fetching all platforms by game key: {GameKey}.", gameKey);
         var platforms = (await unitOfWork.Platforms.GetByGameKeyAsync(gameKey)).ToList();
@@ -40,11 +44,13 @@ public class PlatformService(IUnitOfWork unitOfWork, ILogger<GameService> logger
         return platforms.Select(platform => new PlatformDto
         {
             Id = platform.Id,
-            Type = platform.Type,
+            Type = platform.Localizations.FirstOrDefault(l => l.LanguageCode == languageCode)?.Type
+                ?? platform.Localizations.FirstOrDefault(l => l.LanguageCode == "en")?.Type
+                ?? platform.Type,
         });
     }
 
-    public async Task CreateAsync(CreatePlatformRequestDto request)
+    public async Task CreateAsync(CreatePlatformRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Creating platform: {Type}", request.Platform.Type);
         var platform = new Platform
@@ -53,17 +59,19 @@ public class PlatformService(IUnitOfWork unitOfWork, ILogger<GameService> logger
             Type = request.Platform.Type,
         };
 
+        EntityLocalization.Update(platform, languageCode, request.Platform.Type);
+
         await unitOfWork.Platforms.AddAsync(platform);
         await unitOfWork.SaveChangesAsync();
         logger.LogInformation("Created platform: {Type}", platform.Type);
     }
 
-    public async Task UpdateAsync(UpdatePlatformRequestDto request)
+    public async Task UpdateAsync(UpdatePlatformRequestDto request, string languageCode = "en")
     {
         logger.LogInformation("Updating platform: {Id}", request.Platform.Id);
         var platform = await unitOfWork.Platforms.GetByIdAsync(request.Platform.Id)
             ?? throw new KeyNotFoundException($"Platform with id {request.Platform.Id} not found");
-        platform.Type = request.Platform.Type;
+        EntityLocalization.Update(platform, languageCode, request.Platform.Type);
 
         unitOfWork.Platforms.Update(platform);
         await unitOfWork.SaveChangesAsync();

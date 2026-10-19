@@ -2,6 +2,8 @@ namespace Gamestore.BLL.DTOs.Game.Filtering;
 
 public class GameFilterDto
 {
+    public string LanguageCode { get; set; } = "en";
+
     public string? Name { get; set; }
 
     public string? SortBy { get; set; }

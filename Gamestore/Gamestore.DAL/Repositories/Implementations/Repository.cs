@@ -11,7 +11,7 @@ public class Repository<T>(GamestoreContext context) : IRepository<T>
 
     public async Task<T?> GetByIdAsync(Guid id)
     {
-        return await Context.Set<T>().FindAsync(id);
+        return await Context.Set<T>().FirstOrDefaultAsync(entity => EF.Property<Guid>(entity, "Id") == id);
     }
 
     public async Task<IEnumerable<T>> GetAllAsync()
@@ -26,7 +26,14 @@ public class Repository<T>(GamestoreContext context) : IRepository<T>
 
     public void Update(T entity)
     {
-        Context.Set<T>().Update(entity);
+        if (Context.Entry(entity).State == EntityState.Detached)
+        {
+            Context.Set<T>().Update(entity);
+        }
+        else
+        {
+            Context.ChangeTracker.DetectChanges();
+        }
     }
 
     public void Delete(T entity)

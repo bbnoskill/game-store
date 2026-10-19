@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -6,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule],
   template: `
     <footer class="app-footer">
       <!-- 3-Column Info Section -->
@@ -15,65 +16,65 @@ import { FormsModule } from '@angular/forms';
           <div class="info-grid">
             <!-- Get In Touch -->
             <div class="info-card">
-              <h3 class="info-title">Get In Touch</h3>
+              <h3 class="info-title">{{ 'Get In Touch' | translate }}</h3>
               <form class="contact-form" (ngSubmit)="onSubmitContact()">
                 <div class="form-group">
-                  <label for="contactName">Name</label>
+                  <label for="contactName">{{ 'Name' | translate }}</label>
                   <input type="text" id="contactName" name="name" [(ngModel)]="contactForm.name" />
                 </div>
                 <div class="form-group">
-                  <label for="contactEmail">Email</label>
+                  <label for="contactEmail">{{ 'Email' | translate }}</label>
                   <input type="email" id="contactEmail" name="email" [(ngModel)]="contactForm.email" />
                 </div>
                 <div class="form-group">
-                  <label for="contactMessage">Message</label>
+                  <label for="contactMessage">{{ 'Message' | translate }}</label>
                   <textarea id="contactMessage" name="message" rows="4" [(ngModel)]="contactForm.message"></textarea>
                 </div>
-                <button type="submit" class="btn-orange">Submit</button>
+                <button type="submit" class="btn-orange">{{ 'Submit' | translate }}</button>
               </form>
             </div>
 
             <!-- Twitter Updates -->
             <div class="info-card">
-              <h3 class="info-title">Twitter Updates</h3>
+              <h3 class="info-title">{{ 'Twitter Updates' | translate }}</h3>
               <div class="twitter-updates">
                 <div class="tweet-item">
                   <p class="tweet-game">Devil May Cry 5</p>
                   <a href="javascript:void(0)" class="tweet-link">http://goo.gl/ejVm</a>
-                  <span class="tweet-time">about 1 hour ago reply</span>
+                  <span class="tweet-time">{{ 'about 1 hour ago reply' | translate }}</span>
                 </div>
                 <div class="tweet-item">
                   <p class="tweet-game">Dead or Alive 6 Special Edition</p>
                   <a href="javascript:void(0)" class="tweet-link">http://goo.gl/ejVm</a>
-                  <span class="tweet-time">about 1 hour ago reply</span>
+                  <span class="tweet-time">{{ 'about 1 hour ago reply' | translate }}</span>
                 </div>
                 <div class="tweet-item">
                   <p class="tweet-game">Resident Evil 2 Deluxe Edition</p>
                   <a href="javascript:void(0)" class="tweet-link">http://goo.gl/ejVm</a>
-                  <span class="tweet-time">about 1 hour ago reply</span>
+                  <span class="tweet-time">{{ 'about 1 hour ago reply' | translate }}</span>
                 </div>
               </div>
-              <button type="button" class="btn-orange">Follow Us</button>
+              <button type="button" class="btn-orange">{{ 'Follow Us' | translate }}</button>
             </div>
 
             <!-- From the Blog -->
             <div class="info-card">
-              <h3 class="info-title">From the Blog</h3>
+              <h3 class="info-title">{{ 'From the Blog' | translate }}</h3>
               <div class="blog-posts">
                 <div class="blog-item">
-                  <p>Proin commodo sodales arcu, a volutpat. Nulla convallis. <a href="javascript:void(0)" class="blog-link">Learn more</a></p>
+                  <p>Proin commodo sodales arcu, a volutpat. Nulla convallis. <a href="javascript:void(0)" class="blog-link">{{ 'Learn more' | translate }}</a></p>
                 </div>
                 <div class="blog-item">
-                  <p>Proin commodo sodales arcu, volutpat. Nulla convallis a non. <a href="javascript:void(0)" class="blog-link">Learn more</a></p>
+                  <p>Proin commodo sodales arcu, volutpat. Nulla convallis a non. <a href="javascript:void(0)" class="blog-link">{{ 'Learn more' | translate }}</a></p>
                 </div>
                 <div class="blog-item">
-                  <p>Curabitur a aliquet turpis, sagittis eleifend sem. <a href="javascript:void(0)" class="blog-link">Learn more</a></p>
+                  <p>Curabitur a aliquet turpis, sagittis eleifend sem. <a href="javascript:void(0)" class="blog-link">{{ 'Learn more' | translate }}</a></p>
                 </div>
                 <div class="blog-item">
-                  <p>Nam pellentesque finibus felis eget feugiat. Nulla a nisl non veh. <a href="javascript:void(0)" class="blog-link">Learn more</a></p>
+                  <p>Nam pellentesque finibus felis eget feugiat. Nulla a nisl non veh. <a href="javascript:void(0)" class="blog-link">{{ 'Learn more' | translate }}</a></p>
                 </div>
               </div>
-              <button type="button" class="btn-orange">Visit Blog</button>
+              <button type="button" class="btn-orange">{{ 'Visit Blog' | translate }}</button>
             </div>
           </div>
         </div>
@@ -85,31 +86,31 @@ import { FormsModule } from '@angular/forms';
           <div class="nav-grid">
             <!-- Site Links (Active Navigation Links) -->
             <div class="nav-column">
-              <h4 class="nav-heading">Site Links</h4>
+              <h4 class="nav-heading">{{ 'Site Links' | translate }}</h4>
               <ul class="nav-list">
-                <li><a routerLink="/games" class="footer-nav-link">Games</a></li>
-                <li><a routerLink="/genres" class="footer-nav-link">Genres</a></li>
-                <li><a routerLink="/publishers" class="footer-nav-link">Publishers</a></li>
-                <li><a routerLink="/orders" class="footer-nav-link">Orders</a></li>
-                <li><a routerLink="/basket" class="footer-nav-link">My Bucket</a></li>
+                <li><a routerLink="/games" class="footer-nav-link">{{ 'Games' | translate }}</a></li>
+                <li><a routerLink="/genres" class="footer-nav-link">{{ 'Genres' | translate }}</a></li>
+                <li><a routerLink="/publishers" class="footer-nav-link">{{ 'Publishers' | translate }}</a></li>
+                <li><a routerLink="/orders" class="footer-nav-link">{{ 'Orders' | translate }}</a></li>
+                <li><a routerLink="/basket" class="footer-nav-link">{{ 'My Bucket' | translate }}</a></li>
               </ul>
             </div>
 
             <!-- Company Information -->
             <div class="nav-column">
-              <h4 class="nav-heading">Company Information</h4>
+              <h4 class="nav-heading">{{ 'Company Information' | translate }}</h4>
               <ul class="nav-list">
-                <li><span class="footer-text-item">About</span></li>
-                <li><span class="footer-text-item">Awards</span></li>
-                <li><span class="footer-text-item">Reviews</span></li>
-                <li><span class="footer-text-item">Testimonials</span></li>
-                <li><span class="footer-text-item">Contact</span></li>
+                <li><span class="footer-text-item">{{ 'About' | translate }}</span></li>
+                <li><span class="footer-text-item">{{ 'Awards' | translate }}</span></li>
+                <li><span class="footer-text-item">{{ 'Reviews' | translate }}</span></li>
+                <li><span class="footer-text-item">{{ 'Testimonials' | translate }}</span></li>
+                <li><span class="footer-text-item">{{ 'Contact' | translate }}</span></li>
               </ul>
             </div>
 
             <!-- Social Media -->
             <div class="nav-column">
-              <h4 class="nav-heading">Social Media</h4>
+              <h4 class="nav-heading">{{ 'Social Media' | translate }}</h4>
               <div class="social-icons">
                 <a href="javascript:void(0)" class="social-icon" title="Twitter">
                   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -121,7 +122,7 @@ import { FormsModule } from '@angular/forms';
                     <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95C18.05 21.45 22 17.19 22 12z"/>
                   </svg>
                 </a>
-                <a href="javascript:void(0)" class="social-icon" title="Email">
+                <a href="javascript:void(0)" class="social-icon" [title]="'Email' | translate">
                   <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                   </svg>
@@ -136,7 +137,7 @@ import { FormsModule } from '@angular/forms';
           </div>
 
           <div class="footer-copyright">
-            <p>&#64;2007 - 2019 All Rights Reserved</p>
+            <p>{{ '@2007 - 2019 All Rights Reserved' | translate }}</p>
           </div>
         </div>
       </section>

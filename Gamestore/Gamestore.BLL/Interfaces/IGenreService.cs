@@ -1,20 +1,20 @@
-﻿using Gamestore.BLL.DTOs.Genre;
+using Gamestore.BLL.DTOs.Genre;
 
 namespace Gamestore.BLL.Interfaces;
 
 public interface IGenreService
 {
-    Task<GenreDto?> GetByIdAsync(Guid id);
+    Task<GenreDto?> GetByIdAsync(Guid id, string languageCode = "en");
 
-    Task<IEnumerable<GenreDto>> GetAllAsync();
+    Task<IEnumerable<GenreDto>> GetAllAsync(string languageCode = "en");
 
-    Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string gameKey);
+    Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string gameKey, string languageCode = "en");
 
-    Task<IEnumerable<GenreDto>> GetByParentIdAsync(Guid parentId);
+    Task<IEnumerable<GenreDto>> GetByParentIdAsync(Guid parentId, string languageCode = "en");
 
-    Task CreateAsync(CreateGenreRequestDto request);
+    Task CreateAsync(CreateGenreRequestDto request, string languageCode = "en");
 
-    Task UpdateAsync(UpdateGenreRequestDto request);
+    Task UpdateAsync(UpdateGenreRequestDto request, string languageCode = "en");
 
     Task DeleteAsync(Guid id);
 }

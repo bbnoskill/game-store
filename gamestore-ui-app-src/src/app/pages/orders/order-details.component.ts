@@ -1,3 +1,5 @@
+import { forkJoin } from 'rxjs';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
@@ -8,19 +10,19 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-order-details',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [TranslatePipe, CommonModule, RouterModule],
   template: `
     <div class="page-container" *ngIf="!loading && order">
-      <a routerLink="/orders" class="back-link">&lt; Back to Orders</a>
+      <a routerLink="/orders" class="back-link">{{ '< Back to Orders' | translate }}</a>
 
       <div class="order-header-card">
         <div class="order-info-col">
-          <h1 class="order-id-heading">Order #{{ order.id }}</h1>
-          <span class="order-date" *ngIf="order.date">Date: {{ order.date | date:'medium' }}</span>
+          <h1 class="order-id-heading">{{ 'Order #' | translate }}{{ order.id }}</h1>
+          <span class="order-date" *ngIf="order.date">{{ 'Date:' | translate }} {{ order.date | date:'medium' }}</span>
         </div>
         <div class="order-status-col">
           <span class="status-badge" [ngClass]="getStatusClass(order.status)">
-            {{ order.status || 'Paid' }}
+            {{ (order.status || 'Paid') | translate }}
           </span>
         </div>
       </div>
@@ -28,15 +30,15 @@ import { environment } from '../../../environments/environment';
       <div class="details-layout">
         <!-- Items Table -->
         <div class="items-card">
-          <h2 class="card-title">Ordered Items</h2>
+          <h2 class="card-title">{{ 'Ordered Items' | translate }}</h2>
           <table class="items-table">
             <thead>
               <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Discount</th>
-                <th>Quantity</th>
-                <th class="text-right">Total</th>
+                <th>{{ 'Item' | translate }}</th>
+                <th>{{ 'Price' | translate }}</th>
+                <th>{{ 'Discount' | translate }}</th>
+                <th>{{ 'Quantity' | translate }}</th>
+                <th class="text-right">{{ 'Total' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -56,22 +58,22 @@ import { environment } from '../../../environments/environment';
 
         <!-- Order Summary Sidebar -->
         <div class="summary-card">
-          <h2 class="card-title">Order Summary</h2>
+          <h2 class="card-title">{{ 'Order Summary' | translate }}</h2>
 
           <div class="summary-row">
-            <span>Subtotal</span>
+            <span>{{ 'Subtotal' | translate }}</span>
             <span>\${{ subtotal | number:'1.2-2' }}</span>
           </div>
 
           <div class="summary-row">
-            <span>Tax (20%)</span>
+            <span>{{ 'Tax (20%)' | translate }}</span>
             <span>\${{ taxes | number:'1.2-2' }}</span>
           </div>
 
           <div class="summary-divider"></div>
 
           <div class="summary-row total-row">
-            <span>Grand Total</span>
+            <span>{{ 'Grand Total' | translate }}</span>
             <span class="total-amount">\${{ total | number:'1.2-2' }}</span>
           </div>
         </div>
@@ -80,13 +82,13 @@ import { environment } from '../../../environments/environment';
 
     <!-- Loading State -->
     <div class="loading-state" *ngIf="loading">
-      <p>Loading order details...</p>
+      <p>{{ 'Loading order details...' | translate }}</p>
     </div>
 
     <!-- Error State -->
     <div class="error-state" *ngIf="!loading && !order">
-      <p>Order not found.</p>
-      <a routerLink="/orders" class="btn-browse">Back to Orders</a>
+      <p>{{ 'Order not found.' | translate }}</p>
+      <a routerLink="/orders" class="btn-browse">{{ 'Back to Orders' | translate }}</a>
     </div>
   `,
   styles: [`
@@ -290,27 +292,14 @@ export class OrderDetailsComponent implements OnInit {
 
   loadOrderDetails(id: string): void {
     this.loading = true;
-    this.orderService.getOrderById(id).subscribe({
-      next: (order) => {
+    forkJoin({ order: this.orderService.getOrderById(id), details: this.orderService.getOrderDetails(id) }).subscribe({
+      next: ({ order, details }) => {
         this.order = order;
-        this.items = order.details || order.orderGames || [];
+        this.items = details;
         this.calculateTotals();
         this.loading = false;
       },
-      error: () => {
-        // Fallback to fetch order details
-        this.orderService.getOrderDetails(id).subscribe({
-          next: (details) => {
-            this.order = { id, status: 'Paid', details };
-            this.items = details;
-            this.calculateTotals();
-            this.loading = false;
-          },
-          error: () => {
-            this.loading = false;
-          }
-        });
-      }
+      error: () => { this.loading = false; }
     });
   }
 

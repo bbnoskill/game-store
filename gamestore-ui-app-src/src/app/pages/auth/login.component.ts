@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -7,19 +8,19 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule],
   template: `
     <div class="page-container">
       <div class="login-card">
-        <h2 class="login-title">Sign In to GameStore</h2>
+        <h2 class="login-title">{{ 'Sign In to GameStore' | translate }}</h2>
 
         <div class="alert alert-error" *ngIf="error">
-          {{ error }}
+          {{ error | translate }}
         </div>
 
         <form (ngSubmit)="onLogin()" #loginForm="ngForm">
           <div class="form-group">
-            <label for="username">Username or Email</label>
+            <label for="username">{{ 'Username or Email' | translate }}</label>
             <input
               type="text"
               id="username"
@@ -27,12 +28,12 @@ import { AuthService } from '../../services/auth.service';
               [(ngModel)]="username"
               required
               class="form-input"
-              placeholder="Enter your username"
+              [placeholder]="'Enter your username' | translate"
             />
           </div>
 
           <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">{{ 'Password' | translate }}</label>
             <input
               type="password"
               id="password"
@@ -40,12 +41,12 @@ import { AuthService } from '../../services/auth.service';
               [(ngModel)]="password"
               required
               class="form-input"
-              placeholder="Enter your password"
+              [placeholder]="'Enter your password' | translate"
             />
           </div>
 
           <button type="submit" class="btn-submit" [disabled]="!loginForm.form.valid || loading">
-            {{ loading ? 'Signing In...' : 'Sign In' }}
+            {{ (loading ? 'Signing In...' : 'Sign In') | translate }}
           </button>
         </form>
       </div>

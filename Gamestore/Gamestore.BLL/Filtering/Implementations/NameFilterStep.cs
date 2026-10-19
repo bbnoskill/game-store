@@ -10,6 +10,8 @@ public class NameFilterStep : IGameFilterStep
     {
         return string.IsNullOrEmpty(filter.Name) || filter.Name.Length < 3
             ? query
-            : query.Where(g => g.Name.Contains(filter.Name));
+            : query.Where(g => (g.Localizations.Where(l => l.LanguageCode == filter.LanguageCode).Select(l => l.Name).FirstOrDefault()
+                ?? g.Localizations.Where(l => l.LanguageCode == "en").Select(l => l.Name).FirstOrDefault()
+                ?? g.Name).Contains(filter.Name));
     }
 }

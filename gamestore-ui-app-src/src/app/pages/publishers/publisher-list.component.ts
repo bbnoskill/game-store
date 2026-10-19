@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { LanguageService } from '../../services/language.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -8,12 +10,12 @@ import { Publisher } from '../../models/publisher.model';
 @Component({
   selector: 'app-publisher-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule],
   template: `
     <div class="page-container">
       <div class="header-section">
-        <h1 class="page-title">Publishers</h1>
-        <button class="btn-add" (click)="openAddModal()">+ Add Publisher</button>
+        <h1 class="page-title">{{ 'Publishers' | translate }}</h1>
+        <button class="btn-add" (click)="openAddModal()">{{ '+ Add Publisher' | translate }}</button>
       </div>
 
       <!-- Publishers Table -->
@@ -21,10 +23,10 @@ import { Publisher } from '../../models/publisher.model';
         <table class="data-table">
           <thead>
             <tr>
-              <th>Company Name</th>
-              <th>Home Page</th>
-              <th>Description</th>
-              <th>Actions</th>
+              <th>{{ 'Company Name' | translate }}</th>
+              <th>{{ 'Home Page' | translate }}</th>
+              <th>{{ 'Description' | translate }}</th>
+              <th>{{ 'Actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -40,8 +42,8 @@ import { Publisher } from '../../models/publisher.model';
               </td>
               <td class="desc-cell">{{ pub.description || '—' }}</td>
               <td class="actions-cell">
-                <button class="btn-edit" (click)="openEditModal(pub)">Edit</button>
-                <button class="btn-delete" (click)="deletePublisher(pub)">Delete</button>
+                <button class="btn-edit" (click)="openEditModal(pub)">{{ 'Edit' | translate }}</button>
+                <button class="btn-delete" (click)="deletePublisher(pub)">{{ 'Delete' | translate }}</button>
               </td>
             </tr>
           </tbody>
@@ -49,42 +51,42 @@ import { Publisher } from '../../models/publisher.model';
       </div>
 
       <div class="empty-state" *ngIf="!loading && publishers.length === 0">
-        <p>No publishers found.</p>
+        <p>{{ 'No publishers found.' | translate }}</p>
       </div>
 
       <div class="loading-state" *ngIf="loading">
-        <p>Loading publishers...</p>
+        <p>{{ 'Loading publishers...' | translate }}</p>
       </div>
 
       <!-- Add/Edit Modal -->
       <div class="modal-overlay" *ngIf="showModal">
         <div class="modal-content">
           <div class="modal-header">
-            <h3>{{ editingPublisher ? 'Edit Publisher' : 'Add New Publisher' }}</h3>
+            <h3>{{ (editingPublisher ? 'Edit Publisher' : 'Add New Publisher') | translate }}</h3>
             <button class="modal-close" (click)="showModal = false">&times;</button>
           </div>
 
           <div class="modal-body">
             <div class="form-group">
-              <label>Company Name</label>
-              <input type="text" [(ngModel)]="formCompanyName" placeholder="e.g. Electronic Arts" class="form-input" />
+              <label>{{ 'Company Name' | translate }}</label>
+              <input type="text" [(ngModel)]="formCompanyName" [placeholder]="'e.g. Electronic Arts' | translate" class="form-input" />
             </div>
 
             <div class="form-group">
-              <label>Home Page URL</label>
+              <label>{{ 'Home Page URL' | translate }}</label>
               <input type="text" [(ngModel)]="formHomePage" placeholder="https://..." class="form-input" />
             </div>
 
             <div class="form-group">
-              <label>Description</label>
-              <textarea [(ngModel)]="formDescription" rows="3" placeholder="Company description..." class="form-input"></textarea>
+              <label>{{ 'Description' | translate }}</label>
+              <textarea [(ngModel)]="formDescription" rows="3" [placeholder]="'Company description...' | translate" class="form-input"></textarea>
             </div>
 
             <div class="modal-actions">
               <button class="btn-save" (click)="savePublisher()" [disabled]="!formCompanyName || saving">
-                {{ saving ? 'Saving...' : 'Save' }}
+                {{ (saving ? 'Saving...' : 'Save') | translate }}
               </button>
-              <button class="btn-cancel" (click)="showModal = false">Cancel</button>
+              <button class="btn-cancel" (click)="showModal = false">{{ 'Cancel' | translate }}</button>
             </div>
           </div>
         </div>
@@ -265,6 +267,7 @@ import { Publisher } from '../../models/publisher.model';
   `]
 })
 export class PublisherListComponent implements OnInit {
+  private readonly language = inject(LanguageService);
   publishers: Publisher[] = [];
   loading: boolean = true;
   showModal: boolean = false;
@@ -330,8 +333,7 @@ export class PublisherListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          this.showModal = false;
-          this.loadPublishers();
+          alert(this.language.translate('Could not save changes. Please try again.'));
         }
       });
     } else {
@@ -349,18 +351,17 @@ export class PublisherListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          this.showModal = false;
-          this.loadPublishers();
+          alert(this.language.translate('Could not save changes. Please try again.'));
         }
       });
     }
   }
 
   deletePublisher(pub: Publisher): void {
-    if (confirm(`Are you sure you want to delete publisher "${pub.companyName}"?`)) {
+    if (confirm(this.language.translate('Delete this item?'))) {
       this.publisherService.deletePublisher(pub.id).subscribe({
         next: () => this.loadPublishers(),
-        error: () => this.loadPublishers()
+        error: () => alert(this.language.translate('Could not delete this item.'))
       });
     }
   }

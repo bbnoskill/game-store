@@ -1,16 +1,17 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-hero-banner',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslatePipe, CommonModule],
   template: `
     <section class="hero-banner">
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <h1 class="hero-title">What Can Make Your Life Easier?</h1>
-        <p class="hero-subtitle">Empowered Solutions with Simple Process</p>
+        <h1 class="hero-title">{{ 'What Can Make Your Life Easier?' | translate }}</h1>
+        <p class="hero-subtitle">{{ 'Empowered Solutions with Simple Process' | translate }}</p>
       </div>
     </section>
   `,

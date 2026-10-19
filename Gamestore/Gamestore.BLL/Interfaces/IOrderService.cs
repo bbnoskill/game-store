@@ -14,9 +14,9 @@ public interface IOrderService
 
     Task<OrderDto?> GetOrderByIdAsync(Guid id);
 
-    Task<IEnumerable<OrderDetailsDto>> GetOrderDetailsAsync(Guid orderId);
+    Task<IEnumerable<OrderDetailsDto>> GetOrderDetailsAsync(Guid orderId, string languageCode = "en");
 
-    Task<IEnumerable<OrderDetailsDto>> GetCartAsync();
+    Task<IEnumerable<OrderDetailsDto>> GetCartAsync(string languageCode = "en");
 
     IEnumerable<PaymentMethodDto> GetPaymentMethods();
 

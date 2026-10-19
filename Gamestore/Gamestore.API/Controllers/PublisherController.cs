@@ -1,5 +1,6 @@
-﻿using Gamestore.BLL.DTOs.Publisher;
+using Gamestore.BLL.DTOs.Publisher;
 using Gamestore.BLL.Interfaces;
+using Gamestore.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.API.Controllers;
@@ -8,38 +9,40 @@ namespace Gamestore.API.Controllers;
 [Route("publishers")]
 public class PublisherController(IPublisherService publisherService, IGameService gameService) : ControllerBase
 {
+    private string LanguageCode => new LanguageService().NormalizeLanguageCode(HttpContext?.Request.Headers.AcceptLanguage.ToString());
+
     [HttpPost]
     public async Task<IActionResult> CreatePublisher([FromBody] CreatePublisherRequestDto publisher)
     {
-        await publisherService.CreateAsync(publisher);
+        await publisherService.CreateAsync(publisher, LanguageCode);
         return Ok();
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllPublishers()
     {
-        var publishers = await publisherService.GetAllAsync();
+        var publishers = await publisherService.GetAllAsync(LanguageCode);
         return Ok(publishers);
     }
 
     [HttpGet("{companyName}")]
     public async Task<IActionResult> GetPublisherByCompanyName(string companyName)
     {
-        var publisher = await publisherService.GetByNameAsync(companyName);
+        var publisher = await publisherService.GetByNameAsync(companyName, LanguageCode);
         return Ok(publisher);
     }
 
     [HttpGet("{companyName}/games")]
     public async Task<IActionResult> GetGamesByCompanyName(string companyName)
     {
-        var games = await gameService.GetByPublisherAsync(companyName);
+        var games = await gameService.GetByPublisherAsync(companyName, LanguageCode);
         return Ok(games);
     }
 
     [HttpPut]
     public async Task<IActionResult> UpdatePublisher([FromBody] UpdatePublisherRequestDto publisher)
     {
-        await publisherService.UpdateAsync(publisher);
+        await publisherService.UpdateAsync(publisher, LanguageCode);
         return Ok();
     }
 

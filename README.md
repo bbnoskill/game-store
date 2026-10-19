@@ -57,3 +57,29 @@ The task consists of multiple epics. The description of each epic is in the corr
 
 
 Each feature is developed in its corresponding branch. Once all features are completed and merged, you will get the final version of the application in the `main` branch.
+
+## Epic 14: localization
+
+The Angular source is in `gamestore-ui-app-src`. The header switches between English (`en`, default), Ukrainian (`uk`) and Japanese (`ja`). The selection is saved in local storage. Every Angular HTTP request sends `Accept-Language`; switching recreates the current page and refetches its entity data without reloading the entire application. UI translations are authored locally in `src/app/shared/translations.ts`; no translation service is used.
+
+The API resolves regional tags and quality weights (for example `uk-UA,en;q=0.8`), and returns `Content-Language` and `Vary: Accept-Language`. Games, genres, platforms and publishers use the selected database translation, then the English translation, then the original entity fields. MongoDB's read-only records keep their original data when no localized SQL version exists. Game names in cart/order details are localized too. Sorting/filter option values remain stable protocol tokens; Angular translates their visible labels.
+
+`POST` stores the submitted text as the initial entity data and selected language version. Create the English version first when authoring multilingual content. `PUT` upserts the selected language's text; English updates also synchronize the base fields. IDs, associations, prices and stock are shared between languages. Deleting the parent removes all translations through database cascading foreign keys. The UI no longer substitutes mock entities or successful writes when these API operations fail.
+
+Game details use the parameterized SQL table-valued function `dbo.GetGameInfoByLocalization`. Migration `20261017110000_ExtendLocalizedGameKey` extends its key argument to match the indexed game key length. Apply migrations before running the API:
+
+```powershell
+dotnet ef database update --project Gamestore/Gamestore.DAL --startup-project Gamestore/Gamestore.API
+```
+
+Run the application from the Angular source with `npm start`, or produce the repository's distributable with `npm run build` in `gamestore-ui-app-src`.
+
+Verification:
+
+```powershell
+dotnet test Gamestore/Gamestore.BLL.Tests/Gamestore.BLL.Tests.csproj
+# From gamestore-ui-app-src:
+npm test -- --watch=false --browsers=ChromeHeadless
+```
+
+The SQL integration test is opt-in: set `GAMESTORE_TEST_SQL_CONNECTION` to a development SQL Server connection with database creation permission. It always replaces the database name with a unique `GameStore_LocalizationTest_*` name, applies all migrations, checks the SQL function, translation inserts/fallback and database cascades, then deletes only that temporary database. Without the variable this test is reported as skipped. The optional transaction-isolation requirement is not implemented.

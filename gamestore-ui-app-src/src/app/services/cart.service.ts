@@ -97,8 +97,8 @@ export class CartService {
     this.orderService.getCart().pipe(
       catchError(() => of(null))
     ).subscribe((cart) => {
-      if (cart && (Array.isArray(cart.details) || Array.isArray(cart.orderGames))) {
-        const rawDetails = cart.details || cart.orderGames || [];
+      if (cart && (Array.isArray(cart) || Array.isArray(cart.details) || Array.isArray(cart.orderGames))) {
+        const rawDetails = Array.isArray(cart) ? cart : (cart.details || cart.orderGames || []);
         if (rawDetails.length > 0) {
           this.localCartItems = rawDetails.map((detail: any) => ({
             id: detail.id || detail.productId || detail.gameKey,

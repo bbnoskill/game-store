@@ -23,6 +23,7 @@ public class OrderRepository(GamestoreContext context) : Repository<Order>(conte
     {
         return Context.Orders
             .Include(order => order.OrderGames)
+            .ThenInclude(detail => detail.Game)
             .FirstOrDefaultAsync(order => order.Id == id);
     }
 }

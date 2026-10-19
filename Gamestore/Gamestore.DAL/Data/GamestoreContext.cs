@@ -379,6 +379,14 @@ public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbCo
             .HasForeignKey(pl => pl.PublisherId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Game>().Navigation(e => e.Localizations).AutoInclude();
+
+        modelBuilder.Entity<Genre>().Navigation(e => e.Localizations).AutoInclude();
+
+        modelBuilder.Entity<Platform>().Navigation(e => e.Localizations).AutoInclude();
+
+        modelBuilder.Entity<Publisher>().Navigation(e => e.Localizations).AutoInclude();
+
         SeedData(modelBuilder);
     }
 }

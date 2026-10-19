@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -7,37 +8,38 @@ import { Game } from '../../models/game.model';
 @Component({
   selector: 'app-delete-game',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [TranslatePipe, CommonModule, RouterModule],
   template: `
     <div class="page-container">
+      <p *ngIf="errorMessage" role="alert">{{ errorMessage | translate }}</p>
       <div class="delete-card">
-        <h2 class="delete-title">Delete Game</h2>
+        <h2 class="delete-title">{{ 'Delete Game' | translate }}</h2>
 
         <div class="loading-state" *ngIf="loading">
-          <p>Loading game details...</p>
+          <p>{{ 'Loading game details...' | translate }}</p>
         </div>
 
         <div class="confirm-box" *ngIf="!loading && game">
           <p class="warning-text">
-            Are you sure you want to delete <strong>"{{ game.name }}"</strong>? This action cannot be undone.
+            {{ 'Are you sure you want to delete' | translate }} <strong>"{{ game.name }}"</strong>{{ '? This action cannot be undone.' | translate }}
           </p>
 
           <div class="game-info-box">
-            <div><strong>Key:</strong> {{ game.key }}</div>
-            <div><strong>Price:</strong> \${{ game.price | number:'1.2-2' }}</div>
+            <div><strong>{{ 'Key:' | translate }}</strong> {{ game.key }}</div>
+            <div><strong>{{ 'Price:' | translate }}</strong> \${{ game.price | number:'1.2-2' }}</div>
           </div>
 
           <div class="action-buttons">
             <button class="btn-confirm-delete" (click)="confirmDelete()" [disabled]="deleting">
-              {{ deleting ? 'Deleting...' : 'Yes, Delete Game' }}
+              {{ (deleting ? 'Deleting...' : 'Yes, Delete Game') | translate }}
             </button>
-            <a [routerLink]="['/game', game.key]" class="btn-cancel">Cancel</a>
+            <a [routerLink]="['/game', game.key]" class="btn-cancel">{{ 'Cancel' | translate }}</a>
           </div>
         </div>
 
         <div class="error-state" *ngIf="!loading && !game">
-          <p>Game not found.</p>
-          <a routerLink="/games" class="btn-cancel">Back to Games</a>
+          <p>{{ 'Game not found.' | translate }}</p>
+          <a routerLink="/games" class="btn-cancel">{{ 'Back to Games' | translate }}</a>
         </div>
       </div>
     </div>
@@ -123,6 +125,7 @@ import { Game } from '../../models/game.model';
   `]
 })
 export class DeleteGameComponent implements OnInit {
+  errorMessage = '';
   game: Game | null = null;
   loading: boolean = true;
   deleting: boolean = false;
@@ -152,6 +155,7 @@ export class DeleteGameComponent implements OnInit {
 
   confirmDelete(): void {
     if (!this.game) return;
+    this.errorMessage = '';
     this.deleting = true;
 
     this.gameService.deleteGame(this.game.key).subscribe({
@@ -161,7 +165,7 @@ export class DeleteGameComponent implements OnInit {
       },
       error: () => {
         this.deleting = false;
-        this.router.navigate(['/games']);
+        this.errorMessage = 'Could not delete this item.';
       }
     });
   }

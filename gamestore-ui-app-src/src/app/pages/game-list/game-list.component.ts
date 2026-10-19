@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -23,21 +24,21 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 @Component({
   selector: 'app-game-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, DiscountPricePipe],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule, DiscountPricePipe],
   template: `
     <div class="page-container">
       <!-- Header row: Games title + Search Bar -->
       <div class="header-row">
-        <h1 class="page-title">Games</h1>
+        <h1 class="page-title">{{ 'Games' | translate }}</h1>
         <div class="search-box">
           <input
             type="text"
             [(ngModel)]="filter.name"
-            placeholder="Search for Game"
+            [placeholder]="'Search for Game' | translate"
             (input)="applyFilter()"
             (keyup.enter)="applyFilter()"
           />
-          <button type="button" class="search-btn" (click)="applyFilter()" title="Search">
+          <button type="button" class="search-btn" (click)="applyFilter()" [title]="'Search' | translate">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
           </button>
         </div>
@@ -55,7 +56,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
               </div>
               <div class="game-card-body">
                 <h3 class="game-name" [title]="game.name">{{ game.name }}</h3>
-                <p class="game-platform">{{ getPlatformText(game) }}</p>
+                <p class="game-platform">{{ getPlatformText(game) | translate }}</p>
                 <div class="price-line">
                   <ng-container *ngIf="game.discount > 0; else regularPrice">
                     <span class="old-price">\${{ game.price | number:'1.2-2' }}</span>
@@ -71,7 +72,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 
           <ng-template #noGames>
             <div class="no-games-box">
-              <p>No games found matching the selected criteria.</p>
+              <p>{{ 'No games found matching the selected criteria.' | translate }}</p>
             </div>
           </ng-template>
 
@@ -98,27 +99,27 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 
         <!-- Right: Refine Results Sidebar -->
         <aside class="sidebar">
-          <h2 class="sidebar-title">Refine Results</h2>
+          <h2 class="sidebar-title">{{ 'Refine Results' | translate }}</h2>
 
           <!-- Sorting -->
           <div class="filter-group">
-            <label class="filter-label">Sorting</label>
+            <label class="filter-label">{{ 'Sorting' | translate }}</label>
             <select class="filter-select" [(ngModel)]="filter.sortBy" (change)="applyFilter()">
-              <option value="">Most Popular</option>
-              <option *ngFor="let opt of sortingOptions" [value]="opt">{{ opt }}</option>
+              <option value="">{{ 'Most Popular' | translate }}</option>
+              <option *ngFor="let opt of sortingOptions" [value]="opt">{{ opt | translate }}</option>
             </select>
           </div>
 
           <!-- Price Range -->
           <div class="filter-group">
-            <label class="filter-label">Price Range</label>
+            <label class="filter-label">{{ 'Price Range' | translate }}</label>
             <div class="price-row">
               <div class="price-col">
-                <span class="price-tag">From</span>
+                <span class="price-tag">{{ 'From' | translate }}</span>
                 <input type="number" class="price-input" [(ngModel)]="filter.minPrice" placeholder="0" (change)="applyFilter()" />
               </div>
               <div class="price-col">
-                <span class="price-tag">To</span>
+                <span class="price-tag">{{ 'To' | translate }}</span>
                 <input type="number" class="price-input" [(ngModel)]="filter.maxPrice" placeholder="100" (change)="applyFilter()" />
               </div>
             </div>
@@ -126,7 +127,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 
           <!-- Publisher -->
           <div class="filter-group" *ngIf="publishers.length > 0">
-            <label class="filter-label">Publisher</label>
+            <label class="filter-label">{{ 'Publisher' | translate }}</label>
             <div class="checkbox-list">
               <label *ngFor="let pub of publishers" class="checkbox-item">
                 <input
@@ -141,7 +142,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 
           <!-- Release Date -->
           <div class="filter-group" *ngIf="publishDateOptions.length > 0">
-            <label class="filter-label">Release Date</label>
+            <label class="filter-label">{{ 'Release Date' | translate }}</label>
             <div class="radio-list">
               <label class="radio-item">
                 <input
@@ -151,7 +152,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
                   [(ngModel)]="filter.publishDate"
                   (change)="applyFilter()"
                 />
-                <span>All</span>
+                <span>{{ 'All' | translate }}</span>
               </label>
               <label *ngFor="let opt of publishDateOptions" class="radio-item">
                 <input
@@ -161,14 +162,14 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
                   [(ngModel)]="filter.publishDate"
                   (change)="applyFilter()"
                 />
-                <span>{{ formatPublishDateLabel(opt) }}</span>
+                <span>{{ formatPublishDateLabel(opt) | translate }}</span>
               </label>
             </div>
           </div>
 
           <!-- Genre -->
           <div class="filter-group" *ngIf="genres.length > 0">
-            <label class="filter-label">Genre</label>
+            <label class="filter-label">{{ 'Genre' | translate }}</label>
             <div class="checkbox-list scrollable-list">
               <label *ngFor="let gen of genres" class="checkbox-item">
                 <input
@@ -183,7 +184,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 
           <!-- Platform -->
           <div class="filter-group" *ngIf="platforms.length > 0">
-            <label class="filter-label">Platform</label>
+            <label class="filter-label">{{ 'Platform' | translate }}</label>
             <div class="checkbox-list">
               <label *ngFor="let plat of platforms" class="checkbox-item">
                 <input

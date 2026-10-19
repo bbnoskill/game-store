@@ -4,6 +4,7 @@ using Gamestore.BLL.DTOs.Comment;
 using Gamestore.BLL.DTOs.Game;
 using Gamestore.BLL.DTOs.Game.Filtering;
 using Gamestore.BLL.Interfaces;
+using Gamestore.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.API.Controllers;
@@ -17,10 +18,12 @@ public class GameController(IGameService gameService, IGenreService genreService
     private static readonly string[] SortingOptions = ["Most popular", "Most commented", "Price ASC", "Price DESC", "New"];
     private static readonly string[] PublishDateOptions = ["last week", "last month", "last year", "2 years", "3 years"];
 
+    private string LanguageCode => new LanguageService().NormalizeLanguageCode(HttpContext?.Request.Headers.AcceptLanguage.ToString());
+
     [HttpPost]
     public async Task<IActionResult> CreateGame([FromBody] CreateGameRequestDto request)
     {
-        await gameService.CreateAsync(request);
+        await gameService.CreateAsync(request, LanguageCode);
         return Ok();
     }
 
@@ -41,49 +44,49 @@ public class GameController(IGameService gameService, IGenreService genreService
     [HttpGet]
     public async Task<IActionResult> GetAllGames([FromQuery] GameFilterDto filter)
     {
-        var games = await gameService.GetFilteredAsync(filter);
+        var games = await gameService.GetFilteredAsync(filter, LanguageCode);
         return Ok(games);
     }
 
     [HttpGet("find/{id}")]
     public async Task<IActionResult> GetGameById(Guid id)
     {
-        var game = await gameService.GetByIdAsync(id);
+        var game = await gameService.GetByIdAsync(id, LanguageCode);
         return Ok(game);
     }
 
     [HttpGet("{key}")]
     public async Task<IActionResult> GetGameByKey(string key)
     {
-        var game = await gameService.GetByKeyAsync(key);
+        var game = await gameService.GetByKeyAsync(key, LanguageCode);
         return Ok(game);
     }
 
     [HttpGet("{key}/genres")]
     public async Task<IActionResult> GetGenresByGameKey(string key)
     {
-        var genres = await genreService.GetByGameKeyAsync(key);
+        var genres = await genreService.GetByGameKeyAsync(key, LanguageCode);
         return Ok(genres);
     }
 
     [HttpGet("{key}/platforms")]
     public async Task<IActionResult> GetPlatformsByGameKey(string key)
     {
-        var platforms = await platformService.GetByGameKeyAsync(key);
+        var platforms = await platformService.GetByGameKeyAsync(key, LanguageCode);
         return Ok(platforms);
     }
 
     [HttpGet("{key}/publisher")]
     public async Task<IActionResult> GetPublisherByGameKey(string key)
     {
-        var publisher = await publisherService.GetByGameKeyAsync(key);
+        var publisher = await publisherService.GetByGameKeyAsync(key, LanguageCode);
         return Ok(publisher);
     }
 
     [HttpGet("{key}/file")]
     public async Task<IActionResult> DownloadGameFile(string key)
     {
-        var game = await gameService.GetByKeyAsync(key);
+        var game = await gameService.GetByKeyAsync(key, LanguageCode);
         if (game is null)
         {
             return NotFound();
@@ -118,7 +121,7 @@ public class GameController(IGameService gameService, IGenreService genreService
     [HttpPut]
     public async Task<IActionResult> UpdateGame([FromBody] UpdateGameRequestDto request)
     {
-        await gameService.UpdateAsync(request);
+        await gameService.UpdateAsync(request, LanguageCode);
         return Ok();
     }
 

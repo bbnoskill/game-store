@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { LanguageService } from '../../services/language.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -8,12 +10,12 @@ import { Genre } from '../../models/genre.model';
 @Component({
   selector: 'app-genre-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule],
   template: `
     <div class="page-container">
       <div class="header-section">
-        <h1 class="page-title">Genres</h1>
-        <button class="btn-add" (click)="openAddModal()">+ Add New Genre</button>
+        <h1 class="page-title">{{ 'Genres' | translate }}</h1>
+        <button class="btn-add" (click)="openAddModal()">{{ '+ Add New Genre' | translate }}</button>
       </div>
 
       <!-- Genres Table -->
@@ -22,9 +24,9 @@ import { Genre } from '../../models/genre.model';
           <thead>
             <tr>
               <th>ID</th>
-              <th>Genre Name</th>
-              <th>Parent Genre</th>
-              <th>Actions</th>
+              <th>{{ 'Genre Name' | translate }}</th>
+              <th>{{ 'Parent Genre' | translate }}</th>
+              <th>{{ 'Actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -33,8 +35,8 @@ import { Genre } from '../../models/genre.model';
               <td class="name-cell">{{ genre.name }}</td>
               <td>{{ getParentName(genre.parentGenreId) }}</td>
               <td class="actions-cell">
-                <button class="btn-edit" (click)="openEditModal(genre)">Edit</button>
-                <button class="btn-delete" (click)="deleteGenre(genre)">Delete</button>
+                <button class="btn-edit" (click)="openEditModal(genre)">{{ 'Edit' | translate }}</button>
+                <button class="btn-delete" (click)="deleteGenre(genre)">{{ 'Delete' | translate }}</button>
               </td>
             </tr>
           </tbody>
@@ -42,40 +44,40 @@ import { Genre } from '../../models/genre.model';
       </div>
 
       <div class="empty-state" *ngIf="!loading && genres.length === 0">
-        <p>No genres found.</p>
+        <p>{{ 'No genres found.' | translate }}</p>
       </div>
 
       <div class="loading-state" *ngIf="loading">
-        <p>Loading genres...</p>
+        <p>{{ 'Loading genres...' | translate }}</p>
       </div>
 
       <!-- Add/Edit Modal -->
       <div class="modal-overlay" *ngIf="showModal">
         <div class="modal-content">
           <div class="modal-header">
-            <h3>{{ editingGenre ? 'Edit Genre' : 'Add New Genre' }}</h3>
+            <h3>{{ (editingGenre ? 'Edit Genre' : 'Add New Genre') | translate }}</h3>
             <button class="modal-close" (click)="showModal = false">&times;</button>
           </div>
 
           <div class="modal-body">
             <div class="form-group">
-              <label>Genre Name</label>
-              <input type="text" [(ngModel)]="formName" placeholder="Enter genre name" class="form-input" />
+              <label>{{ 'Genre Name' | translate }}</label>
+              <input type="text" [(ngModel)]="formName" [placeholder]="'Enter genre name' | translate" class="form-input" />
             </div>
 
             <div class="form-group">
-              <label>Parent Genre (Optional)</label>
+              <label>{{ 'Parent Genre (Optional)' | translate }}</label>
               <select [(ngModel)]="formParentId" class="form-select">
-                <option value="">None (Top Level)</option>
+                <option value="">{{ 'None (Top Level)' | translate }}</option>
                 <option *ngFor="let g of parentCandidates" [value]="g.id">{{ g.name }}</option>
               </select>
             </div>
 
             <div class="modal-actions">
               <button class="btn-save" (click)="saveGenre()" [disabled]="!formName || saving">
-                {{ saving ? 'Saving...' : 'Save' }}
+                {{ (saving ? 'Saving...' : 'Save') | translate }}
               </button>
-              <button class="btn-cancel" (click)="showModal = false">Cancel</button>
+              <button class="btn-cancel" (click)="showModal = false">{{ 'Cancel' | translate }}</button>
             </div>
           </div>
         </div>
@@ -241,6 +243,7 @@ import { Genre } from '../../models/genre.model';
   `]
 })
 export class GenreListComponent implements OnInit {
+  private readonly language = inject(LanguageService);
   genres: Genre[] = [];
   loading: boolean = true;
   showModal: boolean = false;
@@ -313,8 +316,7 @@ export class GenreListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          this.showModal = false;
-          this.loadGenres();
+          alert(this.language.translate('Could not save changes. Please try again.'));
         }
       });
     } else {
@@ -331,18 +333,17 @@ export class GenreListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          this.showModal = false;
-          this.loadGenres();
+          alert(this.language.translate('Could not save changes. Please try again.'));
         }
       });
     }
   }
 
   deleteGenre(genre: Genre): void {
-    if (confirm(`Are you sure you want to delete genre "${genre.name}"?`)) {
+    if (confirm(this.language.translate('Delete this item?'))) {
       this.genreService.deleteGenre(genre.id).subscribe({
         next: () => this.loadGenres(),
-        error: () => this.loadGenres()
+        error: () => alert(this.language.translate('Could not delete this item.'))
       });
     }
   }

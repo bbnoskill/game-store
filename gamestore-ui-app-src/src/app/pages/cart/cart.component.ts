@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -12,12 +13,12 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, DiscountPricePipe],
+  imports: [TranslatePipe, CommonModule, RouterModule, FormsModule, DiscountPricePipe],
   template: `
     <div class="page-container">
       <div class="cart-header">
-        <h1 class="cart-title">Cart</h1>
-        <span class="cart-count-badge" *ngIf="summary">{{ summary.itemCount }} {{ summary.itemCount === 1 ? 'item' : 'items' }}</span>
+        <h1 class="cart-title">{{ 'Cart' | translate }}</h1>
+        <span class="cart-count-badge" *ngIf="summary">{{ summary.itemCount }} {{ (summary.itemCount === 1 ? 'item' : 'items') | translate }}</span>
       </div>
 
       <div class="cart-content" *ngIf="!loading && items.length > 0">
@@ -59,33 +60,33 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
             </div>
 
             <!-- Remove Button -->
-            <button class="remove-btn" (click)="removeItem(item)">Remove</button>
+            <button class="remove-btn" (click)="removeItem(item)">{{ 'Remove' | translate }}</button>
           </div>
         </div>
 
         <!-- Order Summary Sidebar -->
         <div class="order-summary-sidebar" *ngIf="summary">
           <div class="summary-card">
-            <h2 class="summary-title">Order Summary</h2>
+            <h2 class="summary-title">{{ 'Order Summary' | translate }}</h2>
 
             <div class="summary-row">
-              <span>Subtotal</span>
+              <span>{{ 'Subtotal' | translate }}</span>
               <span>\${{ summary.subtotal | number:'1.2-2' }}</span>
             </div>
 
             <div class="summary-row">
-              <span>Taxes (20%)</span>
+              <span>{{ 'Taxes (20%)' | translate }}</span>
               <span>\${{ summary.taxes | number:'1.2-2' }}</span>
             </div>
 
             <div class="summary-divider"></div>
 
             <div class="summary-row total-row">
-              <span>Total</span>
+              <span>{{ 'Total' | translate }}</span>
               <span class="total-price">\${{ summary.total | number:'1.2-2' }}</span>
             </div>
 
-            <button class="btn-checkout" (click)="openCheckoutModal()">Checkout</button>
+            <button class="btn-checkout" (click)="openCheckoutModal()">{{ 'Checkout' | translate }}</button>
           </div>
         </div>
       </div>
@@ -93,27 +94,27 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
       <!-- Empty Cart State -->
       <div class="empty-cart-state" *ngIf="!loading && items.length === 0">
         <div class="empty-icon">🛒</div>
-        <h3>Your Cart is Empty</h3>
-        <p>Looks like you haven't added any games to your cart yet.</p>
-        <a routerLink="/games" class="btn-browse">Browse Games</a>
+        <h3>{{ 'Your Cart is Empty' | translate }}</h3>
+        <p>{{ 'Looks like you haven\\'t added any games to your cart yet.' | translate }}</p>
+        <a routerLink="/games" class="btn-browse">{{ 'Browse Games' | translate }}</a>
       </div>
 
       <!-- Loading State -->
       <div class="loading-state" *ngIf="loading">
-        <p>Loading your cart...</p>
+        <p>{{ 'Loading your cart...' | translate }}</p>
       </div>
 
       <!-- Checkout Modal -->
       <div class="modal-overlay" *ngIf="showCheckoutModal">
         <div class="modal-content">
           <div class="modal-header">
-            <h3>Checkout</h3>
+            <h3>{{ 'Checkout' | translate }}</h3>
             <button class="modal-close" (click)="showCheckoutModal = false">&times;</button>
           </div>
 
           <div class="modal-body">
             <div class="payment-methods-section">
-              <h4>Select Payment Method</h4>
+              <h4>{{ 'Select Payment Method' | translate }}</h4>
               <div class="payment-options">
                 <label
                   *ngFor="let method of paymentMethods"
@@ -128,7 +129,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
                   />
                   <div class="payment-info">
                     <span class="payment-title">{{ method.title }}</span>
-                    <span class="payment-desc">{{ method.description }}</span>
+                    <span class="payment-desc">{{ method.description | translate }}</span>
                   </div>
                 </label>
               </div>
@@ -136,7 +137,7 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
 
             <!-- Total Amount Confirmation -->
             <div class="checkout-total-box" *ngIf="summary">
-              <span>Total Amount to Pay:</span>
+              <span>{{ 'Total Amount to Pay:' | translate }}</span>
               <strong class="total-amount">\${{ summary.total | number:'1.2-2' }}</strong>
             </div>
 
@@ -146,9 +147,9 @@ import { DiscountPricePipe } from '../../shared/pipes/discount-price.pipe';
                 (click)="processPayment()"
                 [disabled]="!selectedMethod || paying"
               >
-                {{ paying ? 'Processing...' : 'Confirm & Pay' }}
+                {{ (paying ? 'Processing...' : 'Confirm & Pay') | translate }}
               </button>
-              <button class="btn-cancel" (click)="showCheckoutModal = false">Cancel</button>
+              <button class="btn-cancel" (click)="showCheckoutModal = false">{{ 'Cancel' | translate }}</button>
             </div>
           </div>
         </div>
@@ -599,7 +600,7 @@ export class CartComponent implements OnInit {
     this.orderService.getCart().subscribe({
       next: (cart) => {
         this.loading = false;
-        const rawDetails = cart ? (cart.details || cart.orderGames || []) : [];
+        const rawDetails = cart ? (Array.isArray(cart) ? cart : (cart.details || cart.orderGames || [])) : [];
         if (rawDetails.length > 0) {
           this.items = rawDetails.map((detail: any) => ({
             id: detail.id || detail.productId || detail.gameKey,
