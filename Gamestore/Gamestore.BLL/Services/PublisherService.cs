@@ -22,13 +22,18 @@ public class PublisherService(
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public async Task<PublisherDto?> GetByNameAsync(string companyName, string languageCode = "en")
+    public async Task<PublisherDto?> GetByNameAsync(string companyName, string languageCode = "en", bool includeMongo = true)
     {
         logger.LogInformation("Fetching publisher by name: {CompanyName}", companyName);
         var publisher = await unitOfWork.Publishers.GetByCompanyNameAsync(companyName);
         if (publisher != null)
         {
             return MapSqlToDto(publisher, languageCode);
+        }
+
+        if (!includeMongo)
+        {
+            throw new KeyNotFoundException($"Publisher with company name '{companyName}' was not found.");
         }
 
         try
@@ -54,11 +59,15 @@ public class PublisherService(
         return publisher != null ? MapSqlToDto(publisher, languageCode) : null;
     }
 
-    public async Task<IEnumerable<PublisherDto>> GetAllAsync(string languageCode = "en")
+    public async Task<IEnumerable<PublisherDto>> GetAllAsync(string languageCode = "en", bool includeMongo = true)
     {
         logger.LogInformation("Fetching all publishers from SQL and MongoDB.");
         var sqlPublishers = (await unitOfWork.Publishers.GetAllAsync()).ToList();
         var sqlDtos = sqlPublishers.Select(entity => MapSqlToDto(entity, languageCode)).ToList();
+        if (!includeMongo)
+        {
+            return sqlDtos;
+        }
 
         var sqlCompanyNames = new HashSet<string>(sqlPublishers.Select(p => p.CompanyName), StringComparer.OrdinalIgnoreCase);
 

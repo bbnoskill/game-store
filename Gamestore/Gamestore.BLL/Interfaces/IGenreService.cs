@@ -4,9 +4,9 @@ namespace Gamestore.BLL.Interfaces;
 
 public interface IGenreService
 {
-    Task<GenreDto?> GetByIdAsync(Guid id, string languageCode = "en");
+    Task<GenreDto?> GetByIdAsync(Guid id, string languageCode = "en", bool includeMongo = true);
 
-    Task<IEnumerable<GenreDto>> GetAllAsync(string languageCode = "en");
+    Task<IEnumerable<GenreDto>> GetAllAsync(string languageCode = "en", bool includeMongo = true);
 
     Task<IEnumerable<GenreDto>> GetByGameKeyAsync(string gameKey, string languageCode = "en");
 

@@ -16,12 +16,12 @@ export class PublisherService {
 
   getPublishers(): Observable<Publisher[]> {
     const url = this.configService.getApiUrl('publishersApiUrl');
-    return this.http.get<Publisher[]>(url);
+    return this.http.get<Publisher[]>(url, { params: { includeMongo: false } });
   }
 
   getPublisherByCompanyName(companyname: string): Observable<Publisher> {
     const url = this.configService.getApiUrl('publisherApiUrl', { companyname });
-    return this.http.get<Publisher>(url);
+    return this.http.get<Publisher>(url, { params: { includeMongo: false } });
   }
 
   createPublisher(request: CreatePublisherRequest): Observable<any> {

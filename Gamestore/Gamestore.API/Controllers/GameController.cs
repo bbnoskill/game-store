@@ -42,9 +42,9 @@ public class GameController(IGameService gameService, IGenreService genreService
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllGames([FromQuery] GameFilterDto filter)
+    public async Task<IActionResult> GetAllGames([FromQuery] GameFilterDto filter, [FromQuery] bool includeMongo = true)
     {
-        var games = await gameService.GetFilteredAsync(filter, LanguageCode);
+        var games = await gameService.GetFilteredAsync(filter, LanguageCode, includeMongo);
         return Ok(games);
     }
 
@@ -56,9 +56,9 @@ public class GameController(IGameService gameService, IGenreService genreService
     }
 
     [HttpGet("{key}")]
-    public async Task<IActionResult> GetGameByKey(string key)
+    public async Task<IActionResult> GetGameByKey(string key, [FromQuery] bool includeMongo = true)
     {
-        var game = await gameService.GetByKeyAsync(key, LanguageCode);
+        var game = await gameService.GetByKeyAsync(key, LanguageCode, includeMongo);
         return Ok(game);
     }
 
@@ -84,9 +84,9 @@ public class GameController(IGameService gameService, IGenreService genreService
     }
 
     [HttpGet("{key}/file")]
-    public async Task<IActionResult> DownloadGameFile(string key)
+    public async Task<IActionResult> DownloadGameFile(string key, [FromQuery] bool includeMongo = true)
     {
-        var game = await gameService.GetByKeyAsync(key, LanguageCode);
+        var game = await gameService.GetByKeyAsync(key, LanguageCode, includeMongo);
         if (game is null)
         {
             return NotFound();

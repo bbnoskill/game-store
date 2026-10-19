@@ -19,16 +19,16 @@ public class PublisherController(IPublisherService publisherService, IGameServic
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllPublishers()
+    public async Task<IActionResult> GetAllPublishers([FromQuery] bool includeMongo = true)
     {
-        var publishers = await publisherService.GetAllAsync(LanguageCode);
+        var publishers = await publisherService.GetAllAsync(LanguageCode, includeMongo);
         return Ok(publishers);
     }
 
     [HttpGet("{companyName}")]
-    public async Task<IActionResult> GetPublisherByCompanyName(string companyName)
+    public async Task<IActionResult> GetPublisherByCompanyName(string companyName, [FromQuery] bool includeMongo = true)
     {
-        var publisher = await publisherService.GetByNameAsync(companyName, LanguageCode);
+        var publisher = await publisherService.GetByNameAsync(companyName, LanguageCode, includeMongo);
         return Ok(publisher);
     }
 

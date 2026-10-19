@@ -19,16 +19,16 @@ public class GenreController(IGameService gameService, IGenreService genreServic
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetGenreById(Guid id)
+    public async Task<IActionResult> GetGenreById(Guid id, [FromQuery] bool includeMongo = true)
     {
-        var genre = await genreService.GetByIdAsync(id, LanguageCode);
+        var genre = await genreService.GetByIdAsync(id, LanguageCode, includeMongo);
         return Ok(genre);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllGenres()
+    public async Task<IActionResult> GetAllGenres([FromQuery] bool includeMongo = true)
     {
-        var genres = await genreService.GetAllAsync(LanguageCode);
+        var genres = await genreService.GetAllAsync(LanguageCode, includeMongo);
         return Ok(genres);
     }
 

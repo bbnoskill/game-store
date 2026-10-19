@@ -22,13 +22,18 @@ public class GenreService(
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public async Task<GenreDto?> GetByIdAsync(Guid id, string languageCode = "en")
+    public async Task<GenreDto?> GetByIdAsync(Guid id, string languageCode = "en", bool includeMongo = true)
     {
         logger.LogInformation("Fetching genre by id: {Id}", id);
         var genre = await unitOfWork.Genres.GetByIdAsync(id);
         if (genre != null)
         {
             return MapSqlToDto(genre, languageCode);
+        }
+
+        if (!includeMongo)
+        {
+            throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
         }
 
         try
@@ -47,11 +52,15 @@ public class GenreService(
         throw new KeyNotFoundException($"Genre with id '{id}' was not found!");
     }
 
-    public async Task<IEnumerable<GenreDto>> GetAllAsync(string languageCode = "en")
+    public async Task<IEnumerable<GenreDto>> GetAllAsync(string languageCode = "en", bool includeMongo = true)
     {
         logger.LogInformation("Fetching all genres from SQL and MongoDB.");
         var sqlGenres = (await unitOfWork.Genres.GetAllAsync()).ToList();
         var sqlDtos = sqlGenres.Select(entity => MapSqlToDto(entity, languageCode)).ToList();
+        if (!includeMongo)
+        {
+            return sqlDtos;
+        }
 
         var sqlNames = new HashSet<string>(sqlGenres.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
 

@@ -17,7 +17,7 @@ export class GameService {
 
   getGames(filter?: GameFilter): Observable<GameFilterResult | Game[]> {
     const url = this.configService.getApiUrl('gamesApiUrl');
-    let params = new HttpParams();
+    let params = new HttpParams().set('includeMongo', false);
 
     if (filter) {
       if (filter.name) params = params.set('Name', filter.name);
@@ -44,17 +44,17 @@ export class GameService {
 
   getAllGamesWithoutFilter(): Observable<Game[]> {
     const url = this.configService.getApiUrl('gamesAllApiUrl');
-    return this.http.get<Game[]>(url);
+    return this.http.get<Game[]>(url, { params: { includeMongo: false } });
   }
 
   getGameByKey(key: string): Observable<Game> {
     const url = this.configService.getApiUrl('gameApiUrl', { key });
-    return this.http.get<Game>(url);
+    return this.http.get<Game>(url, { params: { includeMongo: false } });
   }
 
   getGameById(id: string): Observable<Game> {
     const url = this.configService.getApiUrl('gameByIdApiUrl', { id });
-    return this.http.get<Game>(url);
+    return this.http.get<Game>(url, { params: { includeMongo: false } });
   }
 
   createGame(request: CreateGameRequest): Observable<any> {
@@ -79,7 +79,7 @@ export class GameService {
 
   downloadGameFile(key: string): Observable<Blob> {
     const url = this.configService.getApiUrl('getGameFileApiUrl', { key });
-    return this.http.get(url, { responseType: 'blob' });
+    return this.http.get(url, { responseType: 'blob', params: { includeMongo: false } });
   }
 
   getGenresByGameKey(key: string): Observable<any[]> {

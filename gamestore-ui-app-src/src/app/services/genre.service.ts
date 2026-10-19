@@ -16,17 +16,17 @@ export class GenreService {
 
   getGenres(): Observable<Genre[]> {
     const url = this.configService.getApiUrl('genresApiUrl');
-    return this.http.get<Genre[]>(url);
+    return this.http.get<Genre[]>(url, { params: { includeMongo: false } });
   }
 
   getGenre(id: string): Observable<Genre> {
     const url = this.configService.getApiUrl('genreApiUrl', { id });
-    return this.http.get<Genre>(url);
+    return this.http.get<Genre>(url, { params: { includeMongo: false } });
   }
 
   getGenresByParent(id: string): Observable<Genre[]> {
     const url = this.configService.getApiUrl('genresByParentApiUrl', { id });
-    return this.http.get<Genre[]>(url);
+    return this.http.get<Genre[]>(url, { params: { includeMongo: false } });
   }
 
   createGenre(request: CreateGenreRequest): Observable<any> {

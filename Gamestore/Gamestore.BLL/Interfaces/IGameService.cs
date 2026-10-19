@@ -5,11 +5,11 @@ namespace Gamestore.BLL.Interfaces;
 
 public interface IGameService
 {
-    Task<GameDto?> GetByKeyAsync(string key, string languageCode = "en");
+    Task<GameDto?> GetByKeyAsync(string key, string languageCode = "en", bool includeMongo = true);
 
     Task<GameDto?> GetByIdAsync(Guid id, string languageCode = "en");
 
-    Task<IEnumerable<GameDto>> GetAllAsync(string languageCode = "en");
+    Task<IEnumerable<GameDto>> GetAllAsync(string languageCode = "en", bool includeMongo = true);
 
     Task<IEnumerable<GameDto>> GetByGenreAsync(Guid genreId, string languageCode = "en");
 
@@ -25,5 +25,5 @@ public interface IGameService
 
     Task<int> GetTotalCountAsync();
 
-    Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter, string languageCode = "en");
+    Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter, string languageCode = "en", bool includeMongo = true);
 }

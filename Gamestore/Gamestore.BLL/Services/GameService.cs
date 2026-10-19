@@ -28,7 +28,7 @@ public class GameService(
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
     };
 
-    public async Task<GameDto?> GetByKeyAsync(string key, string languageCode = "en")
+    public async Task<GameDto?> GetByKeyAsync(string key, string languageCode = "en", bool includeMongo = true)
     {
         logger.LogInformation("Fetching game by key: {Key}", key);
         var decodedKey = Uri.UnescapeDataString(key);
@@ -52,6 +52,11 @@ public class GameService(
                 Discount = localized.Discount,
                 UnitInStock = localized.UnitInStock,
             };
+        }
+
+        if (!includeMongo)
+        {
+            throw new KeyNotFoundException($"Game with key '{key}' was not found.");
         }
 
         MongoProduct? mongoProduct = null;
@@ -98,11 +103,15 @@ public class GameService(
         throw new KeyNotFoundException($"Game with id '{id}' was not found.");
     }
 
-    public async Task<IEnumerable<GameDto>> GetAllAsync(string languageCode = "en")
+    public async Task<IEnumerable<GameDto>> GetAllAsync(string languageCode = "en", bool includeMongo = true)
     {
         logger.LogInformation("Fetching all games from SQL and MongoDB.");
         var sqlGames = (await unitOfWork.Games.GetAllAsync()).ToList();
         var sqlDtos = sqlGames.Select(entity => MapSqlToDto(entity, languageCode)).ToList();
+        if (!includeMongo)
+        {
+            return sqlDtos;
+        }
 
         var sqlKeys = new HashSet<string>(sqlGames.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
         var sqlNames = new HashSet<string>(sqlGames.Select(g => g.Name), StringComparer.OrdinalIgnoreCase);
@@ -303,10 +312,15 @@ public class GameService(
         return await unitOfWork.Games.GetCountAsync();
     }
 
-    public async Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter, string languageCode = "en")
+    public async Task<GameFilterResultDto> GetFilteredAsync(GameFilterDto filter, string languageCode = "en", bool includeMongo = true)
     {
         logger.LogInformation("Fetching filtered games.");
         var (sqlDtos, sqlKeys, sqlNames) = await FetchSqlGamesAsync(filter, languageCode);
+        if (!includeMongo)
+        {
+            return PaginateGames(SortGames(sqlDtos, filter.SortBy ?? filter.Sort), filter.PageSize, filter.Page);
+        }
+
         var mongoProducts = FetchMongoProducts();
 
         var mongoDtos = mongoProducts
